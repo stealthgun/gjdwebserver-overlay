@@ -8,7 +8,7 @@ inherit cmake xdg
 MY_PN="ownCloud"
 DESCRIPTION="Synchronize files from ownCloud Server with your computer"
 HOMEPAGE="https://owncloud.org/"
-SRC_URI="https://download.owncloud.com/desktop/ownCloud/stable/2.7.6.3261/source/ownCloud-2.7.6.3261.tar.xz"
+SRC_URI="https://download.owncloud.com/desktop/${MY_PN}/stable/${PV}/source/${MY_PN}-${PV}.tar.xz"
 
 LICENSE="CC-BY-3.0 GPL-2"
 SLOT="0"
