@@ -4,7 +4,7 @@
 EAPI=7
 
 EGO_PN="github.com/snapcore/${PN}"
-inherit autotools bash-completion-r1 golang-vcs-snapshot linux-info readme.gentoo-r1 systemd xdg-utils
+inherit autotools bash-completion-r1 golang-vcs-snapshot linux-info systemd xdg-utils
 
 DESCRIPTION="Service and tools for management of snap packages"
 HOMEPAGE="http://snapcraft.io/"
@@ -53,8 +53,6 @@ BDEPEND="
 	sys-fs/xfsprogs"
 
 PDEPEND="sys-auth/polkit[gtk?,kde?]"
-
-README_GENTOO_SUFFIX=""
 
 pkg_setup() {
 	if use apparmor; then
@@ -162,11 +160,9 @@ src_install() {
 	dodoc "${MY_S}/packaging/ubuntu-16.04/changelog"
 	domo "${MY_S}/po/"*.mo
 
-	readme.gentoo_create_doc
 }
 
 pkg_postinst() {
-	readme.gentoo_print_elog
 	xdg_desktop_database_update
 
 	if use apparmor && [[ -z ${ROOT} && -e /sys/kernel/security/apparmor/profiles &&
