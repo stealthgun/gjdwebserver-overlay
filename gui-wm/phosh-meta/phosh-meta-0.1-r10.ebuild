@@ -26,7 +26,6 @@ DEPEND="
 		www-client/epiphany
 		app-mobilephone/mobile-config-firefox
 		app-mobilephone/flashlight
-		x11-misc/squeekboard
 		x11-terms/gnome-terminal
 		x11-themes/sound-theme-librem5
 		app-text/evince
