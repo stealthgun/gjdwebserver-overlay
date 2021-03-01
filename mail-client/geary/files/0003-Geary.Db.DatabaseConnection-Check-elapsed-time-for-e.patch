@@ -1,0 +1,102 @@
+From 485868d570ef95283c541a1a180fca88fec7a9ef Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Tue, 8 Sep 2020 08:34:23 +1000
+Subject: [PATCH 003/124] Geary.Db.DatabaseConnection: Check elapsed time for
+ exec statements
+
+Re-work elapsed timer to be usable in other context objects, use it
+for timing exec query execution.
+---
+ src/engine/db/db-context.vala             | 13 +++++++++++++
+ src/engine/db/db-database-connection.vala |  9 ++++++---
+ src/engine/db/db-result.vala              | 23 +++++------------------
+ 3 files changed, 24 insertions(+), 21 deletions(-)
+
+diff --git a/src/engine/db/db-context.vala b/src/engine/db/db-context.vala
+index a59f6c4c..6713f6c8 100644
+--- a/src/engine/db/db-context.vala
++++ b/src/engine/db/db-context.vala
+@@ -61,6 +61,19 @@ public abstract class Geary.Db.Context : BaseObject, Logging.Source {
+     /** {@inheritDoc} */
+     public abstract Logging.State to_logging_state();
+ 
++
++    protected inline void check_elapsed(string message,
++                                        GLib.Timer timer)
++        throws DatabaseError {
++        var elapsed = timer.elapsed();
++        var threshold = (get_connection().busy_timeout * 1000.0) / 2.0;
++        if (threshold > 0 && elapsed > threshold) {
++            warning("%s: elapsed time: %lfs (>50%)", message, elapsed);
++        } else if (elapsed > 1.0) {
++            debug("%s: elapsed time: %lfs (>1s)", message, elapsed);
++        }
++    }
++
+     protected inline int throw_on_error(string? method, int result, string? raw = null) throws DatabaseError {
+         return Db.throw_on_error(this, method, result, raw);
+     }
+diff --git a/src/engine/db/db-database-connection.vala b/src/engine/db/db-database-connection.vala
+index dd311bea..d58911e4 100644
+--- a/src/engine/db/db-database-connection.vala
++++ b/src/engine/db/db-database-connection.vala
+@@ -137,7 +137,9 @@ public class Geary.Db.DatabaseConnection : Context, Connection {
+         }
+ 
+         check_cancelled("Connection.exec", cancellable);
+-        throw_on_error("Connection.exec", db.exec(sql), sql);
++        var timer = new GLib.Timer();
++        throw_on_error("Connection.exec_file", this.db.exec(sql), sql);
++        check_elapsed("Query \"%s\"".printf(sql), timer);
+     }
+ 
+     /** {@inheritDoc} */
+@@ -147,8 +149,9 @@ public class Geary.Db.DatabaseConnection : Context, Connection {
+ 
+         string sql;
+         FileUtils.get_contents(file.get_path(), out sql);
+-
+-        exec(sql, cancellable);
++        var timer = new GLib.Timer();
++        throw_on_error("Connection.exec_file", this.db.exec(sql), sql);
++        check_elapsed(file.get_path(), timer);
+     }
+ 
+     /**
+diff --git a/src/engine/db/db-result.vala b/src/engine/db/db-result.vala
+index 300d3afa..b5382179 100644
+--- a/src/engine/db/db-result.vala
++++ b/src/engine/db/db-result.vala
+@@ -39,24 +39,11 @@ public class Geary.Db.Result : Geary.Db.Context {
+ 
+         if (!finished) {
+             var timer = new GLib.Timer();
+-            finished = throw_on_error("Result.next", statement.stmt.step(), statement.sql) != Sqlite.ROW;
+-            var elapsed = timer.elapsed();
+-            var threshold = (get_connection().busy_timeout * 1000.0) / 2.0;
+-            if (threshold > 0 && elapsed > threshold) {
+-                warning(
+-                    "Step for \"%s\" took elapsed time: %lfs (>50%)",
+-                    statement.sql,
+-                    elapsed
+-                );
+-            } else if (elapsed > 1.0) {
+-                debug(
+-                    "Step for \"%s\" took elapsed time: %lfs (>1s)",
+-                    statement.sql,
+-                    elapsed
+-                );
+-            }
+-
+-            log_result(finished ? "NO ROW" : "ROW");
++            this.finished = throw_on_error(
++                "Result.next", statement.stmt.step(), statement.sql
++            ) != Sqlite.ROW;
++            check_elapsed("Result.next", timer);
++            log_result(this.finished ? "NO ROW" : "ROW");
+         }
+ 
+         return !finished;
+-- 
+2.29.2
+

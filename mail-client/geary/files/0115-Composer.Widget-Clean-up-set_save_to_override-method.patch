@@ -1,0 +1,57 @@
+From 36daf80120a76b981a0d83e0765ad1720c5dba84 Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Sun, 25 Oct 2020 18:59:45 +1100
+Subject: [PATCH 115/124] Composer.Widget: Clean up set_save_to_override method
+ signature
+
+The method now no longer requires async or throws an error, so remove
+both.
+---
+ .../application/application-plugin-manager.vala    | 14 +-------------
+ src/client/composer/composer-widget.vala           |  5 ++---
+ 2 files changed, 3 insertions(+), 16 deletions(-)
+
+diff --git a/src/client/application/application-plugin-manager.vala b/src/client/application/application-plugin-manager.vala
+index de1e01b0..1d736222 100644
+--- a/src/client/application/application-plugin-manager.vala
++++ b/src/client/application/application-plugin-manager.vala
+@@ -402,19 +402,7 @@ public class Application.PluginManager : GLib.Object {
+         public void save_to_folder(Plugin.Folder? location) {
+             var engine = this.application.globals.folders.to_engine_folder(location);
+             if (engine != null && engine.account == this.backing.sender_context.account) {
+-                this.backing.set_save_to_override.begin(
+-                    engine,
+-                    (obj, res) => {
+-                        try {
+-                            this.backing.set_save_to_override.end(res);
+-                        } catch (GLib.Error err) {
+-                            debug(
+-                                "Error setting folder for saving: %s",
+-                                err.message
+-                            );
+-                        }
+-                    }
+-                );
++                this.backing.set_save_to_override(engine);
+             }
+         }
+ 
+diff --git a/src/client/composer/composer-widget.vala b/src/client/composer/composer-widget.vala
+index 61e3a84c..46986b8b 100644
+--- a/src/client/composer/composer-widget.vala
++++ b/src/client/composer/composer-widget.vala
+@@ -994,9 +994,8 @@ public class Composer.Widget : Gtk.EventBox, Geary.BaseInterface {
+         }
+     }
+ 
+-    /** Overrides the draft folder as a destination for saving. */
+-    public async void set_save_to_override(Geary.Folder? save_to)
+-        throws GLib.Error {
++    /** Overrides the folder used for saving drafts. */
++    public void set_save_to_override(Geary.Folder? save_to) {
+         this.save_to = save_to;
+         this.reopen_draft_manager.begin();
+     }
+-- 
+2.29.2
+

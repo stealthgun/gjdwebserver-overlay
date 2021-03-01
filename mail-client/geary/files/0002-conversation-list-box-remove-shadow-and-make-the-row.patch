@@ -1,0 +1,235 @@
+From 51da28b7c0ec32883b923f82b3d85ba4285dc623 Mon Sep 17 00:00:00 2001
+From: Julian Sparber <julian@sparber.net>
+Date: Fri, 23 Oct 2020 13:05:19 +0200
+Subject: [PATCH 2/2] conversation-list-box: remove shadow and make the rows
+ rounded
+
+This also makes the expander row look like in HdyExpander row.
+---
+ .../conversation-list-box.vala                | 56 +++++++++++++++++
+ .../conversation-web-view.vala                | 26 ++++++++
+ ui/geary.css                                  | 61 ++++++++++++-------
+ 3 files changed, 120 insertions(+), 23 deletions(-)
+
+diff --git a/src/client/conversation-viewer/conversation-list-box.vala b/src/client/conversation-viewer/conversation-list-box.vala
+index f860a2df..f94ddea9 100644
+--- a/src/client/conversation-viewer/conversation-list-box.vala
++++ b/src/client/conversation-viewer/conversation-list-box.vala
+@@ -332,6 +332,33 @@ public class ConversationListBox : Gtk.ListBox, Geary.BaseInterface {
+                 get_style_context().add_class(EXPANDED_CLASS);
+             else
+                 get_style_context().remove_class(EXPANDED_CLASS);
++
++            update_previous_sibling_css_class();
++        }
++
++        // This is mostly taken form libhandy HdyExpanderRow
++        private Gtk.Widget? get_previous_sibling() {
++            if (this.parent is Gtk.Container) {
++                var siblings = this.parent.get_children();
++                unowned List<weak Gtk.Widget> l;
++                for (l = siblings; l != null && l.next != null && l.next.data != this; l = l.next);
++
++                if (l != null && l.next != null && l.next.data == this) {
++                    return l.data;
++                }
++            }
++
++            return null;
++        }
++
++        private void update_previous_sibling_css_class() {
++            var previous_sibling = get_previous_sibling();
++            if (previous_sibling != null) {
++                if (this.is_expanded)
++                    previous_sibling.get_style_context().add_class("geary-expanded-previous-sibling");
++                else
++                    previous_sibling.get_style_context().remove_class("geary-expanded-previous-sibling");
++            }
+         }
+ 
+         protected inline void set_style_context_class(string class_name, bool value) {
+@@ -675,9 +702,14 @@ public class ConversationListBox : Gtk.ListBox, Geary.BaseInterface {
+ 
+         this.selection_mode = NONE;
+ 
++        get_style_context().add_class("content");
+         get_style_context().add_class("background");
+         get_style_context().add_class("conversation-listbox");
+ 
++        /* we need to update the previous sibling style class when rows are added or removed */
++        add.connect(update_previous_sibling_css_class);
++        remove.connect(update_previous_sibling_css_class);
++
+         set_adjustment(adjustment);
+         set_sort_func(ConversationListBox.on_sort);
+ 
+@@ -703,6 +735,30 @@ public class ConversationListBox : Gtk.ListBox, Geary.BaseInterface {
+         base.destroy();
+     }
+ 
++    // For some reason insert doesn't emit the add event
++    public new void insert(Gtk.Widget child, int position) {
++      base.insert(child, position);
++      update_previous_sibling_css_class();
++    }
++
++    // This is mostly taken form libhandy HdyExpanderRow
++    private void update_previous_sibling_css_class() {
++        var siblings = this.get_children();
++        unowned List<weak Gtk.Widget> l;
++        for (l = siblings; l != null && l.next != null && l.next.data != this; l = l.next) {
++            if (l != null && l.next != null) {
++                var row = l.next.data as ConversationRow;
++                if (row != null) {
++                    if (row.is_expanded) {
++                        l.data.get_style_context().add_class("geary-expanded-previous-sibling");
++                    } else {
++                        l.data.get_style_context().remove_class("geary-expanded-previous-sibling");
++                    }
++                }
++            }
++        }
++    }
++
+     public async void load_conversation(Gee.Collection<Geary.EmailIdentifier> scroll_to,
+                                         Geary.SearchQuery? query)
+         throws GLib.Error {
+diff --git a/src/client/conversation-viewer/conversation-web-view.vala b/src/client/conversation-viewer/conversation-web-view.vala
+index a1ba21a6..ad11415e 100644
+--- a/src/client/conversation-viewer/conversation-web-view.vala
++++ b/src/client/conversation-viewer/conversation-web-view.vala
+@@ -197,6 +197,32 @@ public class ConversationWebView : Components.WebView {
+     }
+ 
+ 
++    // Clip round bottom corner
++    // This is based on 
++    // https://gitlab.gnome.org/GNOME/gnome-weather/-/commit/9b6336454cc90669d1ee8387bdfc6627e3659e83 
++    public override bool draw(Cairo.Context cr) {
++        var frameWidth = this.get_allocated_width();
++        var frameHeight = this.get_allocated_height();
++        var borderRadius = 8;
++
++        var arc0 = 0.0;
++        var arc1 = Math.PI * 0.5;
++        var arc2 = Math.PI;
++
++        cr.new_sub_path();
++        cr.line_to(frameWidth, 0);
++        cr.arc(frameWidth - borderRadius, frameHeight - borderRadius, borderRadius, arc0, arc1);
++        cr.arc(borderRadius, frameHeight - borderRadius, borderRadius, arc1, arc2);
++        cr.line_to(0, 0);
++        cr.close_path();
++
++        cr.clip();
++        cr.fill();
++        base.draw(cr);
++
++        return Gdk.EVENT_PROPAGATE;
++    }
++
+     public override void get_preferred_height(out int minimum_height,
+                                               out int natural_height) {
+         // XXX clamp height to something not too outrageous so we
+diff --git a/ui/geary.css b/ui/geary.css
+index 2d1d48c3..78ade7c0 100644
+--- a/ui/geary.css
++++ b/ui/geary.css
+@@ -77,39 +77,44 @@ row.geary-folder-popover-list-row > label {
+ /* ConversationListBox */
+ 
+ .conversation-listbox {
+-  padding: 0 12px;
++  padding: 12px;
+ }
++
+ .conversation-listbox > row {
+-  margin: 0;
+-  border: 1px solid @borders;
+-  border-bottom-width: 0;
+   padding: 0;
+-  box-shadow: 0 4px 8px 1px rgba(0,0,0,0.4);
+-}
+-.conversation-listbox > row > box {
+-  background: @theme_base_color;
+-  transition: background 0.25s;
+-}
+-.conversation-listbox > row:hover > box {
+-  background: shade(@theme_base_color, 0.96);
+-}
+-.conversation-listbox > row.geary-expanded {
+-  margin-bottom: 6px;
+-  border-bottom-width: 1px;
+ }
++
+ .conversation-listbox *.geary-matched *.geary-match {
+   color: @theme_selected_fg_color;
+   background: @theme_selected_bg_color;
+-;}
++}
++
+ .conversation-listbox > row.geary-loading {
+   border-top-width: 0px;
+   padding: 6px;
+ }
+-.conversation-listbox > row:first-child:not(.geary-loading) {
+-  margin-top: 12px;
++
++.conversation-listbox.content > row:last-child,
++.conversation-listbox.content > row.geary-expanded-previous-sibling,
++.conversation-listbox.content > row.geary-expanded {
++  border-width: 1px;
+ }
+-.conversation-listbox > row:last-child {
+-  margin-bottom: 12px;
++
++.geary-expanded, .geary-expanded + row {
++  border-top-left-radius: 8px;
++  -gtk-outline-top-left-radius: 7px;
++  border-top-right-radius: 8px;
++  -gtk-outline-top-right-radius: 7px;
++  margin-top: 6px;
++}
++
++.geary-expanded,
++.geary-expanded-previous-sibling {
++  border-bottom-left-radius: 8px;
++  -gtk-outline-bottom-left-radius: 7px;
++  border-bottom-right-radius: 8px;
++  -gtk-outline-bottom-right-radius: 7px;
++  margin-bottom: 6px
+ }
+ 
+ /* ConversationEmail */
+@@ -119,6 +124,14 @@ row.geary-folder-popover-list-row > label {
+   transition: border 0.25s;
+ }
+ 
++.geary-expanded > .geary_email grid.geary-message-summary,
++.geary-expanded + row > .geary_email grid.geary-message-summary {
++  border-top-left-radius: 8px;
++  -gtk-outline-top-left-radius: 7px;
++  border-top-right-radius: 8px;
++  -gtk-outline-top-right-radius: 7px;
++}
++
+ /* ConversationMessage */
+ 
+ .geary-message infobar box {
+@@ -198,8 +211,10 @@ grid.geary-message-summary {
+ /* Composer */
+ 
+ .geary-composer-embed headerbar {
+-  border-top: 1px solid @borders;
+-  border-radius: 0px;
++  border-top-left-radius: 8px;
++  -gtk-outline-top-left-radius: 7px;
++  border-top-right-radius: 8px;
++  -gtk-outline-top-right-radius: 7px;
+ }
+ 
+ .geary-attachments-box > box > box {
+-- 
+2.29.2
+

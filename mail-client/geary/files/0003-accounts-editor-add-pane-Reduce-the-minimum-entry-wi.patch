@@ -1,0 +1,26 @@
+From bab1759af038ecf08658b3664bf74428f47559e9 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 27 Apr 2020 10:43:07 +0200
+Subject: [PATCH 3/8] accounts-editor-add-pane: Reduce the minimum entry width
+
+This will help the pane fit in narrower widths.
+---
+ src/client/accounts/accounts-editor-add-pane.vala | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/client/accounts/accounts-editor-add-pane.vala b/src/client/accounts/accounts-editor-add-pane.vala
+index a4a333cd..468e348f 100644
+--- a/src/client/accounts/accounts-editor-add-pane.vala
++++ b/src/client/accounts/accounts-editor-add-pane.vala
+@@ -526,7 +526,7 @@ private abstract class Accounts.EntryRow : AddPaneRow<Gtk.Entry> {
+ 
+         this.value.text = initial_value ?? "";
+         this.value.placeholder_text = placeholder ?? "";
+-        this.value.width_chars = 32;
++        this.value.width_chars = 16;
+ 
+         this.undo = new Components.EntryUndo(this.value);
+     }
+-- 
+2.29.2
+

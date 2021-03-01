@@ -1,0 +1,354 @@
+From a30afb9e861450f042fd0d1e52ab6b965a247065 Mon Sep 17 00:00:00 2001
+From: Julian Sparber <julian@sparber.net>
+Date: Wed, 14 Oct 2020 14:44:26 +0200
+Subject: [PATCH 7/8] account-editor: replace remove confirm view with dialog
+
+---
+ po/POTFILES.in                                |   1 -
+ .../accounts/accounts-editor-edit-pane.vala   |  23 ++-
+ .../accounts/accounts-editor-remove-pane.vala |  74 --------
+ src/client/meson.build                        |   1 -
+ ui/accounts_editor_remove_pane.ui             | 159 ------------------
+ ui/geary.css                                  |   8 +
+ ui/org.gnome.Geary.gresource.xml              |   1 -
+ 7 files changed, 30 insertions(+), 237 deletions(-)
+ delete mode 100644 src/client/accounts/accounts-editor-remove-pane.vala
+ delete mode 100644 ui/accounts_editor_remove_pane.ui
+
+diff --git a/po/POTFILES.in b/po/POTFILES.in
+index cd8b339d..d9dcb0b7 100644
+--- a/po/POTFILES.in
++++ b/po/POTFILES.in
+@@ -9,7 +9,6 @@ src/client/accounts/accounts-editor.vala
+ src/client/accounts/accounts-editor-add-pane.vala
+ src/client/accounts/accounts-editor-edit-pane.vala
+ src/client/accounts/accounts-editor-list-pane.vala
+-src/client/accounts/accounts-editor-remove-pane.vala
+ src/client/accounts/accounts-editor-row.vala
+ src/client/accounts/accounts-editor-servers-pane.vala
+ src/client/accounts/accounts-manager.vala
+diff --git a/src/client/accounts/accounts-editor-edit-pane.vala b/src/client/accounts/accounts-editor-edit-pane.vala
+index 5b944333..405dc7ba 100644
+--- a/src/client/accounts/accounts-editor-edit-pane.vala
++++ b/src/client/accounts/accounts-editor-edit-pane.vala
+@@ -217,7 +217,28 @@ internal class Accounts.EditorEditPane :
+     [GtkCallback]
+     private void on_remove_account_clicked() {
+         if (!this.editor.accounts.is_goa_account(account)) {
+-            this.editor.push(new EditorRemovePane(this.editor, this.account));
++            var button = new Gtk.Button.with_mnemonic(_("Remove Account"));
++            button.get_style_context().add_class(Gtk.STYLE_CLASS_DESTRUCTIVE_ACTION);
++            button.show();
++
++            var dialog = new Gtk.MessageDialog(this.editor,
++            Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
++            Gtk.MessageType.WARNING,
++            Gtk.ButtonsType.NONE,
++            _("Remove Account: %s"),
++            account.primary_mailbox.address);
++            dialog.secondary_text = _("This will remove it from Geary and delete locally cached email data from your computer. Nothing will be deleted from your service provider.");
++
++            dialog.add_button (_("_Cancel"), Gtk.ResponseType.CANCEL);
++            dialog.add_action_widget(button, Gtk.ResponseType.ACCEPT);
++
++            dialog.response.connect((response_id) => {
++                if (response_id == Gtk.ResponseType.ACCEPT)
++                    this.editor.remove_account(this.account);
++
++                dialog.destroy();
++            });
++            dialog.show();
+         }
+     }
+ 
+diff --git a/src/client/accounts/accounts-editor-remove-pane.vala b/src/client/accounts/accounts-editor-remove-pane.vala
+deleted file mode 100644
+index 2a6844cd..00000000
+--- a/src/client/accounts/accounts-editor-remove-pane.vala
++++ /dev/null
+@@ -1,74 +0,0 @@
+-/*
+- * Copyright 2018-2019 Michael Gratton <mike@vee.net>
+- *
+- * This software is licensed under the GNU Lesser General Public License
+- * (version 2.1 or later).  See the COPYING file in this distribution.
+- */
+-
+-/**
+- * An account editor pane for removing an account from the client.
+- */
+-[GtkTemplate (ui = "/org/gnome/Geary/accounts_editor_remove_pane.ui")]
+-internal class Accounts.EditorRemovePane : Gtk.Grid, EditorPane, AccountPane {
+-
+-
+-    /** {@inheritDoc} */
+-    internal weak Accounts.Editor editor { get; set; }
+-
+-    /** {@inheritDoc} */
+-    internal Geary.AccountInformation account { get ; protected set; }
+-
+-    /** {@inheritDoc} */
+-    internal Gtk.Widget initial_widget {
+-        get { return this.remove_button; }
+-    }
+-
+-    /** {@inheritDoc} */
+-    internal bool is_operation_running { get; protected set; default = false; }
+-
+-    /** {@inheritDoc} */
+-    internal GLib.Cancellable? op_cancellable {
+-        get; protected set; default = null;
+-    }
+-
+-    [GtkChild]
+-    private Gtk.HeaderBar header;
+-
+-    [GtkChild]
+-    private Gtk.Label warning_label;
+-
+-    [GtkChild]
+-    private Gtk.Button remove_button;
+-
+-
+-    public EditorRemovePane(Editor editor, Geary.AccountInformation account) {
+-        this.editor = editor;
+-        this.account = account;
+-
+-        this.warning_label.set_text(
+-            this.warning_label.get_text().printf(account.display_name)
+-        );
+-
+-        connect_account_signals();
+-    }
+-
+-    ~EditorRemovePane() {
+-        disconnect_account_signals();
+-    }
+-
+-    /** {@inheritDoc} */
+-    internal Gtk.HeaderBar get_header() {
+-        return this.header;
+-    }
+-
+-    [GtkCallback]
+-    private void on_remove_button_clicked() {
+-        this.editor.remove_account(this.account);
+-    }
+-
+-    [GtkCallback]
+-    private void on_back_button_clicked() {
+-        this.editor.pop();
+-    }
+-
+-}
+diff --git a/src/client/meson.build b/src/client/meson.build
+index 4efadc6d..6514adca 100644
+--- a/src/client/meson.build
++++ b/src/client/meson.build
+@@ -38,7 +38,6 @@ client_vala_sources = files(
+   'accounts/accounts-editor-add-pane.vala',
+   'accounts/accounts-editor-edit-pane.vala',
+   'accounts/accounts-editor-list-pane.vala',
+-  'accounts/accounts-editor-remove-pane.vala',
+   'accounts/accounts-editor-row.vala',
+   'accounts/accounts-editor-servers-pane.vala',
+   'accounts/accounts-signature-web-view.vala',
+diff --git a/ui/accounts_editor_remove_pane.ui b/ui/accounts_editor_remove_pane.ui
+deleted file mode 100644
+index 7edf4c13..00000000
+--- a/ui/accounts_editor_remove_pane.ui
++++ /dev/null
+@@ -1,159 +0,0 @@
+-<?xml version="1.0" encoding="UTF-8"?>
+-<!-- Generated with glade 3.22.1 -->
+-<interface>
+-  <requires lib="gtk+" version="3.20"/>
+-  <template class="AccountsEditorRemovePane" parent="GtkGrid">
+-    <property name="visible">True</property>
+-    <property name="can_focus">False</property>
+-    <property name="valign">center</property>
+-    <child>
+-      <object class="HdyClamp">
+-        <property name="visible">True</property>
+-        <property name="can_focus">False</property>
+-        <property name="margin">24</property>
+-        <child>
+-          <object class="GtkGrid">
+-            <property name="visible">True</property>
+-            <property name="can_focus">False</property>
+-            <property name="valign">start</property>
+-            <property name="vexpand">True</property>
+-            <property name="row_spacing">32</property>
+-            <child>
+-              <object class="GtkButtonBox">
+-                <property name="visible">True</property>
+-                <property name="can_focus">False</property>
+-                <property name="layout_style">end</property>
+-                <child>
+-                  <object class="GtkButton" id="remove_button">
+-                    <property name="label" translatable="yes" comments="This is the remove account button in the account settings.">Remove Account</property>
+-                    <property name="visible">True</property>
+-                    <property name="can_focus">True</property>
+-                    <property name="receives_default">True</property>
+-                    <property name="tooltip_text" translatable="yes">Remove this account from Geary</property>
+-                    <signal name="clicked" handler="on_remove_button_clicked" swapped="no"/>
+-                    <style>
+-                      <class name="destructive-action"/>
+-                    </style>
+-                  </object>
+-                  <packing>
+-                    <property name="expand">True</property>
+-                    <property name="fill">True</property>
+-                    <property name="position">1</property>
+-                  </packing>
+-                </child>
+-                <style>
+-                  <class name="geary-settings"/>
+-                </style>
+-              </object>
+-              <packing>
+-                <property name="left_attach">0</property>
+-                <property name="top_attach">1</property>
+-              </packing>
+-            </child>
+-            <child>
+-              <object class="GtkGrid">
+-                <property name="visible">True</property>
+-                <property name="can_focus">False</property>
+-                <property name="row_spacing">6</property>
+-                <property name="column_spacing">18</property>
+-                <child>
+-                  <object class="GtkImage">
+-                    <property name="visible">True</property>
+-                    <property name="can_focus">False</property>
+-                    <property name="icon_name">dialog-warning-symbolic</property>
+-                    <property name="icon_size">6</property>
+-                  </object>
+-                  <packing>
+-                    <property name="left_attach">0</property>
+-                    <property name="top_attach">0</property>
+-                    <property name="height">2</property>
+-                  </packing>
+-                </child>
+-                <child>
+-                  <object class="GtkLabel" id="warning_label">
+-                    <property name="visible">True</property>
+-                    <property name="can_focus">False</property>
+-                    <property name="halign">start</property>
+-                    <property name="vexpand">True</property>
+-                    <property name="label" translatable="yes" comments="This title is shown to users when confirming if they want to remove an account. The string substitution is replaced with the account's name.">Confirm removing: %s</property>
+-                    <attributes>
+-                      <attribute name="weight" value="bold"/>
+-                    </attributes>
+-                    <style>
+-                      <class name="title"/>
+-                    </style>
+-                  </object>
+-                  <packing>
+-                    <property name="left_attach">1</property>
+-                    <property name="top_attach">0</property>
+-                  </packing>
+-                </child>
+-                <child>
+-                  <object class="GtkLabel">
+-                    <property name="visible">True</property>
+-                    <property name="can_focus">False</property>
+-                    <property name="halign">start</property>
+-                    <property name="label" translatable="yes">Removing an account will remove it from Geary and delete locally cached email data from your computer, but not from your service provider.</property>
+-                    <property name="wrap">True</property>
+-                    <property name="xalign">0</property>
+-                  </object>
+-                  <packing>
+-                    <property name="left_attach">1</property>
+-                    <property name="top_attach">1</property>
+-                  </packing>
+-                </child>
+-              </object>
+-              <packing>
+-                <property name="left_attach">0</property>
+-                <property name="top_attach">0</property>
+-              </packing>
+-            </child>
+-            <style>
+-              <class name="geary-accounts-editor-pane-content"/>
+-            </style>
+-          </object>
+-        </child>
+-      </object>
+-      <packing>
+-        <property name="left_attach">0</property>
+-        <property name="top_attach">0</property>
+-      </packing>
+-    </child>
+-    <style>
+-      <class name="geary-accounts-editor-pane"/>
+-    </style>
+-  </template>
+-  <object class="GtkHeaderBar" id="header">
+-    <property name="visible">True</property>
+-    <property name="can_focus">False</property>
+-    <property name="title" translatable="yes">Remove account</property>
+-    <property name="subtitle" translatable="yes">Account name</property>
+-    <property name="show_close_button">True</property>
+-    <child>
+-      <object class="GtkGrid">
+-        <property name="visible">True</property>
+-        <property name="can_focus">False</property>
+-        <child>
+-          <object class="GtkButton" id="back_button">
+-            <property name="visible">True</property>
+-            <property name="can_focus">True</property>
+-            <property name="receives_default">True</property>
+-            <signal name="clicked" handler="on_back_button_clicked" swapped="no"/>
+-            <child>
+-              <object class="GtkImage">
+-                <property name="visible">True</property>
+-                <property name="can_focus">False</property>
+-                <property name="no_show_all">True</property>
+-                <property name="icon_name">go-previous-symbolic</property>
+-              </object>
+-            </child>
+-          </object>
+-          <packing>
+-            <property name="left_attach">0</property>
+-            <property name="top_attach">0</property>
+-          </packing>
+-        </child>
+-      </object>
+-    </child>
+-  </object>
+-</interface>
+diff --git a/ui/geary.css b/ui/geary.css
+index ca3cf640..3877038f 100644
+--- a/ui/geary.css
++++ b/ui/geary.css
+@@ -334,6 +334,14 @@ popover.geary-editor > grid > button.geary-setting-remove {
+   margin-top: 12px;
+ }
+ 
++dialog.geary-remove-confirm .dialog-vbox {
++	margin: 12px;
++}
++
++dialog.geary-remove-confirm .dialog-action-box {
++	margin: 6px;
++}
++
+ /* FolderList.Tree */
+ 
+ treeview.sidebar:drop(active).after,
+diff --git a/ui/org.gnome.Geary.gresource.xml b/ui/org.gnome.Geary.gresource.xml
+index 0b9e900f..efdc87d6 100644
+--- a/ui/org.gnome.Geary.gresource.xml
++++ b/ui/org.gnome.Geary.gresource.xml
+@@ -5,7 +5,6 @@
+     <file compressed="true" preprocess="xml-stripblanks">accounts_editor_add_pane.ui</file>
+     <file compressed="true" preprocess="xml-stripblanks">accounts_editor_edit_pane.ui</file>
+     <file compressed="true" preprocess="xml-stripblanks">accounts_editor_list_pane.ui</file>
+-    <file compressed="true" preprocess="xml-stripblanks">accounts_editor_remove_pane.ui</file>
+     <file compressed="true" preprocess="xml-stripblanks">accounts_editor_servers_pane.ui</file>
+     <file compressed="true" preprocess="xml-stripblanks">application-main-window.ui</file>
+     <file compressed="true" preprocess="xml-stripblanks">certificate_warning_dialog.glade</file>
+-- 
+2.29.2
+

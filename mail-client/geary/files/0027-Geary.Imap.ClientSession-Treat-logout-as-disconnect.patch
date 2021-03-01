@@ -1,0 +1,561 @@
+From 41be8693d4481d6a50f49e3bf6698e9103d0bfa7 Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Sun, 27 Sep 2020 16:00:35 +1000
+Subject: [PATCH 027/124] Geary.Imap.ClientSession: Treat logout as disconnect
+
+Convert `get_protocol_state` to an automatic property, so that rather
+than requiring explcit signals for lifecycle events, a GObject notify
+signal can be used instead.
+
+Convert disconnect signal to a property so it can be accessed if needed.
+
+Convert code listening to the disconnect signal to listen to notify
+signals for `protocol_state` instead, and hence also treat the session
+as disconnected when a logout is in progress.
+
+Fixes #986
+---
+ src/engine/imap/api/imap-client-service.vala  |  38 +++---
+ src/engine/imap/api/imap-folder-session.vala  |   2 +-
+ src/engine/imap/api/imap-session-object.vala  |  26 ++--
+ .../imap/transport/imap-client-session.vala   | 118 ++++++++++--------
+ .../transport/imap-client-session-test.vala   |  40 +++---
+ test/integration/imap/client-session.vala     |   2 +-
+ 6 files changed, 130 insertions(+), 96 deletions(-)
+
+diff --git a/src/engine/imap/api/imap-client-service.vala b/src/engine/imap/api/imap-client-service.vala
+index e0aad41b..da3598f3 100644
+--- a/src/engine/imap/api/imap-client-service.vala
++++ b/src/engine/imap/api/imap-client-service.vala
+@@ -252,7 +252,7 @@ public class Geary.Imap.ClientService : Geary.ClientService {
+         if (!disconnect) {
+             // If the session has a mailbox selected, close it before
+             // adding it back to the pool
+-            ClientSession.ProtocolState proto = session.get_protocol_state();
++            ClientSession.ProtocolState proto = session.protocol_state;
+             if (proto == ClientSession.ProtocolState.SELECTED ||
+                 proto == ClientSession.ProtocolState.SELECTING) {
+                 // always close mailbox to return to authorized state
+@@ -263,7 +263,7 @@ public class Geary.Imap.ClientService : Geary.ClientService {
+                           session.to_string(), imap_error.message);
+                     disconnect = true;
+                 }
+-                if (session.get_protocol_state() != AUTHORIZED) {
++                if (session.protocol_state != AUTHORIZED) {
+                     // Closing it didn't leave it in the desired
+                     // state, so drop it
+                     disconnect = true;
+@@ -393,7 +393,7 @@ public class Geary.Imap.ClientService : Geary.ClientService {
+     /** Determines if a session is valid, disposing of it if not. */
+     private async bool check_session(ClientSession target, bool claiming) {
+         bool valid = false;
+-        switch (target.get_protocol_state()) {
++        switch (target.protocol_state) {
+         case ClientSession.ProtocolState.AUTHORIZED:
+         case ClientSession.ProtocolState.CLOSING_MAILBOX:
+             valid = true;
+@@ -472,7 +472,7 @@ public class Geary.Imap.ClientService : Geary.ClientService {
+ 
+         // Only bother tracking disconnects and enabling keeping alive
+         // now the session is properly established.
+-        new_session.disconnected.connect(on_disconnected);
++        new_session.notify["disconnected"].connect(on_session_disconnected);
+         new_session.enable_keepalives(selected_keepalive_sec,
+                                       unselected_keepalive_sec,
+                                       selected_with_idle_keepalive_sec);
+@@ -509,7 +509,7 @@ public class Geary.Imap.ClientService : Geary.ClientService {
+     }
+ 
+     private async void disconnect_session(ClientSession session) {
+-        if (session.get_protocol_state() != NOT_CONNECTED) {
++        if (session.protocol_state != NOT_CONNECTED) {
+             debug("Logging out session: %s", session.to_string());
+             // No need to remove it after logging out, the
+             // disconnected handler will do that for us.
+@@ -548,21 +548,27 @@ public class Geary.Imap.ClientService : Geary.ClientService {
+         }
+ 
+         if (removed) {
+-            session.disconnected.disconnect(on_disconnected);
++            session.notify["disconnected"].connect(on_session_disconnected);
+         }
+         return removed;
+     }
+ 
+-    private void on_disconnected(ClientSession session,
+-                                 ClientSession.DisconnectReason reason) {
+-        debug(
+-            "Session disconnected: %s: %s",
+-            session.to_string(), reason.to_string()
+-        );
+-        this.remove_session_async.begin(
+-            session,
+-            (obj, res) => { this.remove_session_async.end(res); }
+-        );
++    private void on_session_disconnected(GLib.Object source,
++                                         GLib.ParamSpec param) {
++        var session = source as ClientSession;
++        if (session != null &&
++            session.protocol_state == NOT_CONNECTED &&
++            session.disconnected != null) {
++            debug(
++                "Session disconnected: %s: %s",
++                session.to_string(),
++                session.disconnected.to_string()
++            );
++            this.remove_session_async.begin(
++                session,
++                (obj, res) => { this.remove_session_async.end(res); }
++            );
++        }
+     }
+ 
+ }
+diff --git a/src/engine/imap/api/imap-folder-session.vala b/src/engine/imap/api/imap-folder-session.vala
+index 8b4212e6..8a2290cb 100644
+--- a/src/engine/imap/api/imap-folder-session.vala
++++ b/src/engine/imap/api/imap-folder-session.vala
+@@ -1170,7 +1170,7 @@ private class Geary.Imap.FolderSession : Geary.Imap.SessionObject {
+     protected override ClientSession get_session()
+         throws ImapError {
+         var session = base.get_session();
+-        if (session.get_protocol_state() != SELECTED &&
++        if (session.protocol_state != SELECTED &&
+             !this.mailbox.equal_to(session.selected_mailbox)) {
+             throw new ImapError.NOT_CONNECTED(
+                 "IMAP object no longer SELECTED for %s",
+diff --git a/src/engine/imap/api/imap-session-object.vala b/src/engine/imap/api/imap-session-object.vala
+index 4a46ae1e..80695fca 100644
+--- a/src/engine/imap/api/imap-session-object.vala
++++ b/src/engine/imap/api/imap-session-object.vala
+@@ -39,7 +39,7 @@ public abstract class Geary.Imap.SessionObject : BaseObject, Logging.Source {
+      */
+     protected SessionObject(ClientSession session) {
+         this.session = session;
+-        this.session.disconnected.connect(on_disconnected);
++        this.session.notify["protocol-state"].connect(on_session_state_change);
+     }
+ 
+     ~SessionObject() {
+@@ -63,7 +63,9 @@ public abstract class Geary.Imap.SessionObject : BaseObject, Logging.Source {
+         this.session = null;
+ 
+         if (old_session != null) {
+-            old_session.disconnected.disconnect(on_disconnected);
++            old_session.notify["protocol-state"].disconnect(
++                on_session_state_change
++            );
+         }
+ 
+         return old_session;
+@@ -93,7 +95,7 @@ public abstract class Geary.Imap.SessionObject : BaseObject, Logging.Source {
+     protected virtual ClientSession get_session()
+         throws ImapError {
+         if (this.session == null ||
+-            this.session.get_protocol_state() == NOT_CONNECTED) {
++            this.session.protocol_state == NOT_CONNECTED) {
+             throw new ImapError.NOT_CONNECTED(
+                 "IMAP object has no session or is not connected"
+             );
+@@ -101,11 +103,19 @@ public abstract class Geary.Imap.SessionObject : BaseObject, Logging.Source {
+         return this.session;
+     }
+ 
+-    private void on_disconnected(ClientSession.DisconnectReason reason) {
+-        debug("Disconnected %s", reason.to_string());
+-
+-        close();
+-        disconnected(reason);
++    private void on_session_state_change() {
++        if (this.session != null &&
++            this.session.protocol_state == NOT_CONNECTED) {
++            // Disconnect reason will null when the session is being
++            // logged out but the logout command has not yet been
++            // completed.
++            var reason = (
++                this.session.disconnected ??
++                ClientSession.DisconnectReason.LOCAL_CLOSE
++            );
++            close();
++            disconnected(reason);
++        }
+     }
+ 
+ }
+diff --git a/src/engine/imap/transport/imap-client-session.vala b/src/engine/imap/transport/imap-client-session.vala
+index 91137f1e..ba125616 100644
+--- a/src/engine/imap/transport/imap-client-session.vala
++++ b/src/engine/imap/transport/imap-client-session.vala
+@@ -90,7 +90,7 @@ public class Geary.Imap.ClientSession : BaseObject, Logging.Source {
+      *
+      * See [[http://tools.ietf.org/html/rfc3501#section-3]]
+      *
+-     * @see get_protocol_state
++     * @see protocol_state
+      */
+     public enum ProtocolState {
+         NOT_CONNECTED,
+@@ -230,6 +230,55 @@ public class Geary.Imap.ClientSession : BaseObject, Logging.Source {
+         "Geary.Imap.ClientSession", State.NOT_CONNECTED, State.COUNT, Event.COUNT,
+         state_to_string, event_to_string);
+ 
++
++    /**
++     * Returns the current IMAP protocol state for the session.
++     */
++    public ProtocolState protocol_state {
++        get {
++            var state = ProtocolState.NOT_CONNECTED;
++            switch (fsm.state) {
++            case State.NOT_CONNECTED:
++            case State.LOGOUT:
++            case State.CLOSED:
++                state = NOT_CONNECTED;
++                break;
++
++            case State.NOAUTH:
++                state = UNAUTHORIZED;
++                break;
++
++            case State.AUTHORIZED:
++                state = AUTHORIZED;
++                break;
++
++            case State.SELECTED:
++                state = SELECTED;
++                break;
++
++            case State.CONNECTING:
++                state = CONNECTING;
++                break;
++
++            case State.AUTHORIZING:
++                state = AUTHORIZING;
++                break;
++
++            case State.SELECTING:
++                state = SELECTING;
++                break;
++
++            case State.CLOSING_MAILBOX:
++                state = CLOSING_MAILBOX;
++                break;
++            }
++            return state;
++        }
++    }
++
++    /** Specifies the reason the session was disconnected, if any. */
++    public DisconnectReason? disconnected { get; private set; default = null; }
++
+     /**
+      * Set of IMAP extensions reported as being supported by the server.
+      *
+@@ -330,9 +379,6 @@ public class Geary.Imap.ClientSession : BaseObject, Logging.Source {
+     // Connection state changes
+     //
+ 
+-    /** Emitted when the session is disconnected for any reason. */
+-    public signal void disconnected(DisconnectReason reason);
+-
+     /** Emitted when an IMAP command status response is received. */
+     public signal void status_response_received(StatusResponse status_response);
+ 
+@@ -482,7 +528,14 @@ public class Geary.Imap.ClientSession : BaseObject, Logging.Source {
+             new Geary.State.Mapping(State.CLOSED, Event.RECV_ERROR, Geary.State.nop),
+         };
+ 
+-        fsm = new Geary.State.Machine(machine_desc, mappings, on_ignored_transition);
++        this.fsm = new Geary.State.Machine(
++            machine_desc,
++            mappings,
++            on_ignored_transition
++        );
++        this.fsm.notify["state"].connect(
++            () => this.notify_property("protocol_state")
++        );
+     }
+ 
+     ~ClientSession() {
+@@ -493,7 +546,7 @@ public class Geary.Imap.ClientSession : BaseObject, Logging.Source {
+             break;
+ 
+             default:
+-                warning("ClientSession ref dropped while still active");
++                GLib.warning("ClientSession ref dropped while still active");
+         }
+     }
+ 
+@@ -636,43 +689,6 @@ public class Geary.Imap.ClientSession : BaseObject, Logging.Source {
+         return delim;
+     }
+ 
+-    /**
+-     * Returns the current {@link ProtocolState} of the {@link ClientSession} and, if selected,
+-     * the current mailbox.
+-     */
+-    public ProtocolState get_protocol_state() {
+-        switch (fsm.get_state()) {
+-            case State.NOT_CONNECTED:
+-            case State.LOGOUT:
+-            case State.CLOSED:
+-                return ProtocolState.NOT_CONNECTED;
+-
+-            case State.NOAUTH:
+-                return ProtocolState.UNAUTHORIZED;
+-
+-            case State.AUTHORIZED:
+-                return ProtocolState.AUTHORIZED;
+-
+-            case State.SELECTED:
+-                return ProtocolState.SELECTED;
+-
+-            case State.CONNECTING:
+-                return ProtocolState.CONNECTING;
+-
+-            case State.AUTHORIZING:
+-                return ProtocolState.AUTHORIZING;
+-
+-            case State.SELECTING:
+-                return ProtocolState.SELECTING;
+-
+-            case State.CLOSING_MAILBOX:
+-                return ProtocolState.CLOSING_MAILBOX;
+-
+-            default:
+-                assert_not_reached();
+-        }
+-    }
+-
+     // Some commands require waiting for a completion response in order to shift the state machine's
+     // State; this allocates such a wait, returning false if another command is outstanding also
+     // waiting for one to finish
+@@ -1197,7 +1213,7 @@ public class Geary.Imap.ClientSession : BaseObject, Logging.Source {
+     public void enable_idle()
+         throws GLib.Error {
+         if (this.is_idle_supported) {
+-            switch (get_protocol_state()) {
++            switch (this.protocol_state) {
+             case ProtocolState.AUTHORIZING:
+             case ProtocolState.AUTHORIZED:
+             case ProtocolState.SELECTED:
+@@ -1218,7 +1234,7 @@ public class Geary.Imap.ClientSession : BaseObject, Logging.Source {
+         unschedule_keepalive();
+ 
+         uint seconds;
+-        switch (get_protocol_state()) {
++        switch (this.protocol_state) {
+             case ProtocolState.NOT_CONNECTED:
+             case ProtocolState.CONNECTING:
+                 return;
+@@ -1555,10 +1571,11 @@ public class Geary.Imap.ClientSession : BaseObject, Logging.Source {
+         MachineParams params = (MachineParams) object;
+ 
+         assert(params.cmd is LogoutCommand);
+-        if (!reserve_state_change_cmd(params, state, event))
+-            return state;
++        if (reserve_state_change_cmd(params, state, event)) {
++            state = State.LOGOUT;
++        }
+ 
+-        return State.LOGOUT;
++        return state;
+     }
+ 
+     private uint on_logging_out_recv_status(uint state,
+@@ -1625,7 +1642,7 @@ public class Geary.Imap.ClientSession : BaseObject, Logging.Source {
+         }
+ 
+         drop_connection();
+-        disconnected(DisconnectReason.LOCAL_CLOSE);
++        this.disconnected = DisconnectReason.LOCAL_CLOSE;
+ 
+         if (disconnect_err != null)
+             throw disconnect_err;
+@@ -1661,6 +1678,8 @@ public class Geary.Imap.ClientSession : BaseObject, Logging.Source {
+     }
+ 
+     private async void do_disconnect(DisconnectReason reason) {
++        this.disconnected = reason;
++
+         try {
+             yield this.cx.disconnect_async();
+         } catch (GLib.Error err) {
+@@ -1668,7 +1687,6 @@ public class Geary.Imap.ClientSession : BaseObject, Logging.Source {
+         }
+ 
+         drop_connection();
+-        disconnected(reason);
+     }
+ 
+     //
+diff --git a/test/engine/imap/transport/imap-client-session-test.vala b/test/engine/imap/transport/imap-client-session-test.vala
+index 2aed9211..c9a4165c 100644
+--- a/test/engine/imap/transport/imap-client-session-test.vala
++++ b/test/engine/imap/transport/imap-client-session-test.vala
+@@ -44,17 +44,17 @@ class Geary.Imap.ClientSessionTest : TestCase {
+         this.server.add_script_line(WAIT_FOR_DISCONNECT, "");
+ 
+         var test_article = new ClientSession(new_endpoint(), new Quirks());
+-        assert_true(test_article.get_protocol_state() == NOT_CONNECTED);
++        assert_true(test_article.protocol_state == NOT_CONNECTED);
+ 
+         test_article.connect_async.begin(
+             CONNECT_TIMEOUT, null, this.async_completion
+         );
+         test_article.connect_async.end(async_result());
+-        assert_true(test_article.get_protocol_state() == UNAUTHORIZED);
++        assert_true(test_article.protocol_state == UNAUTHORIZED);
+ 
+         test_article.disconnect_async.begin(null, this.async_completion);
+         test_article.disconnect_async.end(async_result());
+-        assert_true(test_article.get_protocol_state() == NOT_CONNECTED);
++        assert_true(test_article.protocol_state == NOT_CONNECTED);
+ 
+         TestServer.Result result = this.server.wait_for_script(this.main_loop);
+         assert_true(
+@@ -148,13 +148,13 @@ class Geary.Imap.ClientSessionTest : TestCase {
+         this.server.add_script_line(WAIT_FOR_DISCONNECT, "");
+ 
+         var test_article = new ClientSession(new_endpoint(), new Quirks());
+-        assert_true(test_article.get_protocol_state() == NOT_CONNECTED);
++        assert_true(test_article.protocol_state == NOT_CONNECTED);
+ 
+         test_article.connect_async.begin(
+             CONNECT_TIMEOUT, null, this.async_completion
+         );
+         test_article.connect_async.end(async_result());
+-        assert_true(test_article.get_protocol_state() == UNAUTHORIZED);
++        assert_true(test_article.protocol_state == UNAUTHORIZED);
+ 
+         test_article.login_async.begin(
+             new Credentials(PASSWORD, "test", "password"),
+@@ -162,11 +162,11 @@ class Geary.Imap.ClientSessionTest : TestCase {
+             this.async_completion
+         );
+         test_article.login_async.end(async_result());
+-        assert_true(test_article.get_protocol_state() == AUTHORIZED);
++        assert_true(test_article.protocol_state == AUTHORIZED);
+ 
+         test_article.disconnect_async.begin(null, this.async_completion);
+         test_article.disconnect_async.end(async_result());
+-        assert_true(test_article.get_protocol_state() == NOT_CONNECTED);
++        assert_true(test_article.protocol_state == NOT_CONNECTED);
+ 
+         TestServer.Result result = this.server.wait_for_script(this.main_loop);
+         assert_true(
+@@ -185,17 +185,17 @@ class Geary.Imap.ClientSessionTest : TestCase {
+         this.server.add_script_line(DISCONNECT, "");
+ 
+         var test_article = new ClientSession(new_endpoint(), new Quirks());
+-        assert_true(test_article.get_protocol_state() == NOT_CONNECTED);
++        assert_true(test_article.protocol_state == NOT_CONNECTED);
+ 
+         test_article.connect_async.begin(
+             CONNECT_TIMEOUT, null, this.async_completion
+         );
+         test_article.connect_async.end(async_result());
+-        assert_true(test_article.get_protocol_state() == UNAUTHORIZED);
++        assert_true(test_article.protocol_state == UNAUTHORIZED);
+ 
+         test_article.logout_async.begin(null, this.async_completion);
+         test_article.logout_async.end(async_result());
+-        assert_true(test_article.get_protocol_state() == NOT_CONNECTED);
++        assert_true(test_article.protocol_state == NOT_CONNECTED);
+ 
+         TestServer.Result result = this.server.wait_for_script(this.main_loop);
+         assert_true(
+@@ -216,13 +216,13 @@ class Geary.Imap.ClientSessionTest : TestCase {
+         this.server.add_script_line(DISCONNECT, "");
+ 
+         var test_article = new ClientSession(new_endpoint(), new Quirks());
+-        assert_true(test_article.get_protocol_state() == NOT_CONNECTED);
++        assert_true(test_article.protocol_state == NOT_CONNECTED);
+ 
+         test_article.connect_async.begin(
+             CONNECT_TIMEOUT, null, this.async_completion
+         );
+         test_article.connect_async.end(async_result());
+-        assert_true(test_article.get_protocol_state() == UNAUTHORIZED);
++        assert_true(test_article.protocol_state == UNAUTHORIZED);
+ 
+         test_article.login_async.begin(
+             new Credentials(PASSWORD, "test", "password"),
+@@ -230,11 +230,11 @@ class Geary.Imap.ClientSessionTest : TestCase {
+             this.async_completion
+         );
+         test_article.login_async.end(async_result());
+-        assert_true(test_article.get_protocol_state() == AUTHORIZED);
++        assert_true(test_article.protocol_state == AUTHORIZED);
+ 
+         test_article.logout_async.begin(null, this.async_completion);
+         test_article.logout_async.end(async_result());
+-        assert_true(test_article.get_protocol_state() == NOT_CONNECTED);
++        assert_true(test_article.protocol_state == NOT_CONNECTED);
+ 
+         TestServer.Result result = this.server.wait_for_script(this.main_loop);
+         assert_true(
+@@ -261,13 +261,13 @@ class Geary.Imap.ClientSessionTest : TestCase {
+         this.server.add_script_line(WAIT_FOR_DISCONNECT, "");
+ 
+         var test_article = new ClientSession(new_endpoint(), new Quirks());
+-        assert_true(test_article.get_protocol_state() == NOT_CONNECTED);
++        assert_true(test_article.protocol_state == NOT_CONNECTED);
+ 
+         test_article.connect_async.begin(
+             CONNECT_TIMEOUT, null, this.async_completion
+         );
+         test_article.connect_async.end(async_result());
+-        assert_true(test_article.get_protocol_state() == UNAUTHORIZED);
++        assert_true(test_article.protocol_state == UNAUTHORIZED);
+ 
+         test_article.initiate_session_async.begin(
+             new Credentials(PASSWORD, "test", "password"),
+@@ -305,13 +305,13 @@ class Geary.Imap.ClientSessionTest : TestCase {
+         this.server.add_script_line(WAIT_FOR_DISCONNECT, "");
+ 
+         var test_article = new ClientSession(new_endpoint(), new Quirks());
+-        assert_true(test_article.get_protocol_state() == NOT_CONNECTED);
++        assert_true(test_article.protocol_state == NOT_CONNECTED);
+ 
+         test_article.connect_async.begin(
+             CONNECT_TIMEOUT, null, this.async_completion
+         );
+         test_article.connect_async.end(async_result());
+-        assert_true(test_article.get_protocol_state() == UNAUTHORIZED);
++        assert_true(test_article.protocol_state == UNAUTHORIZED);
+ 
+         test_article.initiate_session_async.begin(
+             new Credentials(PASSWORD, "test", "password"),
+@@ -368,13 +368,13 @@ class Geary.Imap.ClientSessionTest : TestCase {
+         this.server.add_script_line(WAIT_FOR_DISCONNECT, "");
+ 
+         var test_article = new ClientSession(new_endpoint(), new Quirks());
+-        assert_true(test_article.get_protocol_state() == NOT_CONNECTED);
++        assert_true(test_article.protocol_state == NOT_CONNECTED);
+ 
+         test_article.connect_async.begin(
+             CONNECT_TIMEOUT, null, this.async_completion
+         );
+         test_article.connect_async.end(async_result());
+-        assert_true(test_article.get_protocol_state() == UNAUTHORIZED);
++        assert_true(test_article.protocol_state == UNAUTHORIZED);
+ 
+         test_article.initiate_session_async.begin(
+             new Credentials(PASSWORD, "test", "password"),
+diff --git a/test/integration/imap/client-session.vala b/test/integration/imap/client-session.vala
+index ca813b79..257d7319 100644
+--- a/test/integration/imap/client-session.vala
++++ b/test/integration/imap/client-session.vala
+@@ -34,7 +34,7 @@ class Integration.Imap.ClientSession : TestCase {
+     }
+ 
+     public override void tear_down() throws GLib.Error {
+-        if (this.session.get_protocol_state() != NOT_CONNECTED) {
++        if (this.session.protocol_state != NOT_CONNECTED) {
+             this.session.disconnect_async.begin(null, this.async_completion);
+             this.session.disconnect_async.end(async_result());
+         }
+-- 
+2.29.2
+

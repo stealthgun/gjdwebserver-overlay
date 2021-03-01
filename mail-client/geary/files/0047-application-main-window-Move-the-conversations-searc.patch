@@ -1,0 +1,186 @@
+From 850efb72380b3e2adc9f29af45a16bc1bd6e884b Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Fri, 17 Jan 2020 18:51:39 +0100
+Subject: [PATCH 047/124] application-main-window: Move the conversations
+ searchbar
+
+Move it at above the conversations but not above the folders. This is
+needed to properly split the 3 panes.
+---
+ .../application/application-main-window.vala  |   4 +-
+ ui/application-main-window.ui                 | 105 +++++++-----------
+ 2 files changed, 44 insertions(+), 65 deletions(-)
+
+diff --git a/src/client/application/application-main-window.vala b/src/client/application/application-main-window.vala
+index 0bec6614..43289e33 100644
+--- a/src/client/application/application-main-window.vala
++++ b/src/client/application/application-main-window.vala
+@@ -317,8 +317,6 @@ public class Application.MainWindow :
+     [GtkChild]
+     private Gtk.Box main_layout;
+     [GtkChild]
+-    private Gtk.Box search_bar_box;
+-    [GtkChild]
+     private Gtk.Paned folder_paned;
+     [GtkChild]
+     private Gtk.Paned conversations_paned;
+@@ -1210,7 +1208,7 @@ public class Application.MainWindow :
+         // Search bar
+         this.search_bar = new SearchBar(this.application.engine);
+         this.search_bar.search_text_changed.connect(on_search);
+-        this.search_bar_box.pack_start(this.search_bar, false, false, 0);
++        this.conversation_list_box.pack_start(this.search_bar, false, false, 0);
+ 
+         // Folder list
+         this.folder_list.folder_selected.connect(on_folder_selected);
+diff --git a/ui/application-main-window.ui b/ui/application-main-window.ui
+index f429a5ee..4a948294 100644
+--- a/ui/application-main-window.ui
++++ b/ui/application-main-window.ui
+@@ -28,100 +28,81 @@
+                 <property name="visible">True</property>
+                 <property name="can_focus">True</property>
+                 <child>
+-                  <object class="GtkBox" id="search_bar_box">
++                  <object class="GtkPaned" id="folder_paned">
+                     <property name="visible">True</property>
+-                    <property name="can_focus">False</property>
+-                    <property name="orientation">vertical</property>
++                    <property name="can_focus">True</property>
+                     <child>
+-                      <object class="GtkPaned" id="folder_paned">
++                      <object class="GtkBox" id="folder_box">
+                         <property name="visible">True</property>
+-                        <property name="can_focus">True</property>
++                        <property name="can_focus">False</property>
++                        <property name="orientation">vertical</property>
+                         <child>
+-                          <object class="GtkBox" id="folder_box">
++                          <object class="GtkFrame" id="folder_frame">
+                             <property name="visible">True</property>
+                             <property name="can_focus">False</property>
+-                            <property name="orientation">vertical</property>
++                            <property name="label_xalign">0</property>
++                            <property name="shadow_type">in</property>
+                             <child>
+-                              <object class="GtkFrame" id="folder_frame">
++                              <object class="GtkScrolledWindow" id="folder_list_scrolled">
++                                <property name="width_request">100</property>
+                                 <property name="visible">True</property>
+-                                <property name="can_focus">False</property>
+-                                <property name="label_xalign">0</property>
+-                                <property name="shadow_type">in</property>
+-                                <child>
+-                                  <object class="GtkScrolledWindow" id="folder_list_scrolled">
+-                                    <property name="width_request">100</property>
+-                                    <property name="visible">True</property>
+-                                    <property name="can_focus">True</property>
+-                                    <property name="hscrollbar_policy">never</property>
+-                                  </object>
+-                                </child>
+-                                <style>
+-                                  <class name="geary-folder-frame"/>
+-                                </style>
++                                <property name="can_focus">True</property>
++                                <property name="hscrollbar_policy">never</property>
+                               </object>
+-                              <packing>
+-                                <property name="expand">True</property>
+-                                <property name="fill">True</property>
+-                                <property name="position">0</property>
+-                              </packing>
+                             </child>
++                            <style>
++                              <class name="geary-folder-frame"/>
++                            </style>
+                           </object>
+                           <packing>
+-                            <property name="resize">False</property>
+-                            <property name="shrink">False</property>
++                            <property name="expand">True</property>
++                            <property name="fill">True</property>
++                            <property name="position">0</property>
+                           </packing>
+                         </child>
++                      </object>
++                      <packing>
++                        <property name="resize">False</property>
++                        <property name="shrink">False</property>
++                      </packing>
++                    </child>
++                    <child>
++                      <object class="GtkBox" id="conversation_list_box">
++                        <property name="visible">True</property>
++                        <property name="can_focus">False</property>
++                        <property name="orientation">vertical</property>
+                         <child>
+-                          <object class="GtkBox" id="conversation_list_box">
++                          <object class="GtkFrame" id="conversation_frame">
+                             <property name="visible">True</property>
+                             <property name="can_focus">False</property>
+-                            <property name="orientation">vertical</property>
++                            <property name="label_xalign">0</property>
++                            <property name="shadow_type">in</property>
+                             <child>
+-                              <object class="GtkFrame">
++                              <object class="GtkScrolledWindow" id="conversation_list_scrolled">
++                                <property name="width_request">250</property>
+                                 <property name="visible">True</property>
+-                                <property name="can_focus">False</property>
+-                                <property name="label_xalign">0</property>
+-                                <property name="shadow_type">in</property>
+-                                <child>
+-                                  <object class="GtkScrolledWindow" id="conversation_list_scrolled">
+-                                    <property name="width_request">250</property>
+-                                    <property name="visible">True</property>
+-                                    <property name="can_focus">True</property>
+-                                  </object>
+-                                </child>
+-                                <style>
+-                                  <class name="geary-conversation-frame"/>
+-                                </style>
++                                <property name="can_focus">True</property>
+                               </object>
+-                              <packing>
+-                                <property name="expand">True</property>
+-                                <property name="fill">True</property>
+-                                <property name="pack_type">end</property>
+-                                <property name="position">0</property>
+-                              </packing>
+                             </child>
+                             <style>
+-                              <class name="geary-conversation-list-box"/>
++                              <class name="geary-conversation-frame"/>
+                             </style>
+                           </object>
+                           <packing>
+-                            <property name="resize">True</property>
+-                            <property name="shrink">False</property>
++                            <property name="expand">True</property>
++                            <property name="fill">True</property>
++                            <property name="pack_type">end</property>
++                            <property name="position">0</property>
+                           </packing>
+                         </child>
+-                        <style>
+-                          <class name="geary-sidebar-pane-separator"/>
+-                        </style>
+                       </object>
+                       <packing>
+-                        <property name="expand">True</property>
+-                        <property name="fill">True</property>
+-                        <property name="pack_type">end</property>
+-                        <property name="position">0</property>
++                        <property name="resize">True</property>
++                        <property name="shrink">False</property>
+                       </packing>
+                     </child>
+                     <style>
+-                      <class name="sidebar"/>
++                      <class name="geary-sidebar-pane-separator"/>
+                     </style>
+                   </object>
+                   <packing>
+-- 
+2.29.2
+

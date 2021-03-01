@@ -1,0 +1,34 @@
+From 3d8b86dd4e46939dc1a839873a2d049d650d0491 Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Sat, 12 Sep 2020 12:02:49 +1000
+Subject: [PATCH 009/124] Geary.ImapDB.Folder: Drop create/merge batch size
+ down
+
+We've had reports on Matrix that existing batch transactions in
+`create_or_merge_email_async` are taking up to 30s to run, which is
+getting uncomfortably close to the 60s timeout.
+
+Drop the batch size down from 25 to 10 to reduce the chance that this
+will eventually fail with a "database is locked" error.
+
+See #921 for context.
+---
+ src/engine/imap-db/imap-db-folder.vala | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/engine/imap-db/imap-db-folder.vala b/src/engine/imap-db/imap-db-folder.vala
+index 4b015cd1..2c2d4015 100644
+--- a/src/engine/imap-db/imap-db-folder.vala
++++ b/src/engine/imap-db/imap-db-folder.vala
+@@ -40,7 +40,7 @@ private class Geary.ImapDB.Folder : BaseObject, Geary.ReferenceSemantics {
+     private const int LIST_EMAIL_METADATA_COUNT = 100;
+     private const int LIST_EMAIL_FIELDS_CHUNK_COUNT = 500;
+     private const int REMOVE_COMPLETE_LOCATIONS_CHUNK_COUNT = 500;
+-    private const int CREATE_MERGE_EMAIL_CHUNK_COUNT = 25;
++    private const int CREATE_MERGE_EMAIL_CHUNK_COUNT = 10;
+     private const int OLD_MSG_DETACH_BATCH_SIZE = 1000;
+ 
+     // When old messages beyond the period set in the account preferences are removed this number 
+-- 
+2.29.2
+

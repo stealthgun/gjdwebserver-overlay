@@ -1,0 +1,28 @@
+From e39853db6215ac720dd047f48d940236cdbaa7f1 Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Wed, 9 Sep 2020 18:38:08 +1000
+Subject: [PATCH 006/124] Geary.ImapEngine.GenericAccount: Set database logging
+ parent per account
+
+Set the database's logging parent so its log statements are associated
+with its account in the inspector.
+---
+ src/engine/imap-engine/imap-engine-generic-account.vala | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/engine/imap-engine/imap-engine-generic-account.vala b/src/engine/imap-engine/imap-engine-generic-account.vala
+index 2bd087b1..ef1ba7b4 100644
+--- a/src/engine/imap-engine/imap-engine-generic-account.vala
++++ b/src/engine/imap-engine/imap-engine-generic-account.vala
+@@ -79,6 +79,8 @@ private abstract class Geary.ImapEngine.GenericAccount : Geary.Account {
+         base(config, imap, smtp);
+ 
+         this.local = local;
++        this.local.db.set_logging_parent(this);
++
+         this.contact_store = new ContactStoreImpl(local.db);
+ 
+         imap.min_pool_size = IMAP_MIN_POOL_SIZE;
+-- 
+2.29.2
+

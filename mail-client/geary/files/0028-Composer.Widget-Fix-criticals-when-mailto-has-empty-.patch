@@ -1,0 +1,79 @@
+From bd85c4f1a82c14fad0f909e5b1058c73d5b56c92 Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Sun, 27 Sep 2020 19:57:52 +1000
+Subject: [PATCH 028/124] Composer.Widget: Fix criticals when "mailto:" has
+ empty body
+
+---
+ src/client/composer/composer-widget.vala       | 13 +++++++++----
+ test/client/composer/composer-widget-test.vala | 10 ++++++++++
+ 2 files changed, 19 insertions(+), 4 deletions(-)
+
+diff --git a/src/client/composer/composer-widget.vala b/src/client/composer/composer-widget.vala
+index ecc3fbfd..dab8cfd8 100644
+--- a/src/client/composer/composer-widget.vala
++++ b/src/client/composer/composer-widget.vala
+@@ -575,8 +575,11 @@ public class Composer.Widget : Gtk.EventBox, Geary.BaseInterface {
+         Gee.HashMultiMap<string, string> headers = new Gee.HashMultiMap<string, string>();
+         if (mailto.has_prefix(MAILTO_URI_PREFIX)) {
+             // Parse the mailto link.
++            string? email = null;
+             string[] parts = mailto.substring(MAILTO_URI_PREFIX.length).split("?", 2);
+-            string email = Uri.unescape_string(parts[0]);
++            if (parts.length > 0) {
++                email = Uri.unescape_string(parts[0]);
++            }
+             string[] params = parts.length == 2 ? parts[1].split("&") : new string[0];
+             foreach (string param in params) {
+                 string[] param_parts = param.split("=", 2);
+@@ -587,14 +590,16 @@ public class Composer.Widget : Gtk.EventBox, Geary.BaseInterface {
+             }
+ 
+             // Assemble the headers.
+-            if (email.length > 0 && headers.contains("to"))
++            if (!Geary.String.is_empty_or_whitespace(email) &&
++                headers.contains("to")) {
+                 this.to = "%s,%s".printf(
+                     email, Geary.Collection.first(headers.get("to"))
+                 );
+-            else if (email.length > 0)
++            } else if (!Geary.String.is_empty_or_whitespace(email)) {
+                 this.to = email;
+-            else if (headers.contains("to"))
++            } else if (headers.contains("to")) {
+                 this.to = Geary.Collection.first(headers.get("to"));
++            }
+ 
+             if (headers.contains("cc"))
+                 this.cc = Geary.Collection.first(headers.get("cc"));
+diff --git a/test/client/composer/composer-widget-test.vala b/test/client/composer/composer-widget-test.vala
+index c35b52e4..6b31c943 100644
+--- a/test/client/composer/composer-widget-test.vala
++++ b/test/client/composer/composer-widget-test.vala
+@@ -92,6 +92,7 @@ public class Composer.WidgetTest : TestCase {
+         add_test("load_empty_body", load_empty_body);
+         add_test("load_empty_body_to", load_empty_body_to);
+         add_test("load_mailto", load_mailto);
++        add_test("load_mailto_empty", load_mailto_empty);
+         add_test("load_context_edit", load_context_edit);
+         add_test("load_context_reply_sender", load_context_reply_sender);
+         add_test("load_context_reply_sender_with_reply_to", load_context_reply_sender_with_reply_to);
+@@ -164,6 +165,15 @@ public class Composer.WidgetTest : TestCase {
+         assert_equal(widget.to, "mailto@example.com");
+     }
+ 
++    public void load_mailto_empty() throws GLib.Error {
++        var widget = new Widget(this.application, this.config, this.account);
++
++        widget.load_mailto.begin("mailto:", this.async_completion);
++        widget.load_mailto.end(async_result());
++
++        assert_equal(widget.to, "");
++    }
++
+     public void load_context_edit() throws GLib.Error {
+         var widget = new Widget(this.application, this.config, this.account);
+         var email = load_email(MESSAGE_WITH_REPLY_TO);
+-- 
+2.29.2
+

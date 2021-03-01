@@ -1,0 +1,47 @@
+From 1c951f890840b91885d5f3752bb8bc3fdfc26324 Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Wed, 23 Sep 2020 08:48:45 +1000
+Subject: [PATCH 023/124] Geary.Imap.SessionObject: Ensure the session is
+ connected when accessed
+
+Ensure the client session is connected as well as non-null when being
+accessed, so that if being logged out it is also treated as being
+disconnected.
+---
+ src/engine/imap/api/imap-session-object.vala | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
+
+diff --git a/src/engine/imap/api/imap-session-object.vala b/src/engine/imap/api/imap-session-object.vala
+index 4937d462..ee1ac09f 100644
+--- a/src/engine/imap/api/imap-session-object.vala
++++ b/src/engine/imap/api/imap-session-object.vala
+@@ -83,16 +83,20 @@ public abstract class Geary.Imap.SessionObject : BaseObject, Logging.Source {
+     }
+ 
+     /**
+-     * Obtains IMAP session the server for use by this object.
++     * Returns a valid IMAP client session for use by this object.
+      *
+-     * @throws ImapError.NOT_CONNECTED if the session with the server
+-     * server has been dropped via {@link close}, or because
+-     * the connection was lost.
++     * @throws ImapError.NOT_CONNECTED if the client session has been
++     * dropped via {@link close}, if the client session is logging out
++     * or has been closed, or because the connection to the server was
++     * lost.
+      */
+     protected ClientSession claim_session()
+         throws ImapError {
+-        if (this.session == null) {
+-            throw new ImapError.NOT_CONNECTED("IMAP object has no session");
++        if (this.session == null ||
++            this.session.get_protocol_state() == NOT_CONNECTED) {
++            throw new ImapError.NOT_CONNECTED(
++                "IMAP object has no session or is not connected"
++            );
+         }
+         return this.session;
+     }
+-- 
+2.29.2
+

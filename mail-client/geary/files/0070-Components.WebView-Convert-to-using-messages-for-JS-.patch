@@ -1,0 +1,644 @@
+From ff565bc6efc83badbecfb48d2fbb457f4d2f681c Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Thu, 27 Aug 2020 12:12:22 +1000
+Subject: [PATCH 070/124] Components.WebView: Convert to using messages for JS
+ method invocation
+
+Use WebKitGTK UserMessage objects for invoking JS methods rather than
+serialising to JS strings and running those. This is possibly slightly
+less efficient, but removes the onus on serialising to and parsing from
+JS and once switched over from message handlers to UserMessage objects
+will be using a single uniform IPC interface for both.
+---
+ .../components/components-web-view.vala       | 97 +++++++++++++++++--
+ src/client/composer/composer-web-view.vala    | 67 ++++++-------
+ src/client/composer/composer-widget.vala      | 19 ++--
+ .../conversation-web-view.vala                | 15 ++-
+ src/client/util/util-js.vala                  | 36 ++++---
+ .../web-process/web-process-extension.vala    | 53 ++++++++++
+ test/js/components-page-state-test.vala       | 45 +++++++++
+ ui/components-web-view.js                     | 10 ++
+ 8 files changed, 268 insertions(+), 74 deletions(-)
+
+diff --git a/src/client/components/components-web-view.vala b/src/client/components/components-web-view.vala
+index 4bda1c11..368b6a8d 100644
+--- a/src/client/components/components-web-view.vala
++++ b/src/client/components/components-web-view.vala
+@@ -370,9 +370,7 @@ public abstract class Components.WebView : WebKit.WebView, Geary.BaseInterface {
+      * Returns the view's content as an HTML string.
+      */
+     public async string? get_html() throws Error {
+-        return Util.JS.to_string(
+-            yield call(Util.JS.callable("geary.getHtml"), null)
+-        );
++        return yield call_returning<string?>(Util.JS.callable("getHtml"), null);
+     }
+ 
+     /**
+@@ -410,7 +408,7 @@ public abstract class Components.WebView : WebKit.WebView, Geary.BaseInterface {
+      * Load any remote images previously that were blocked.
+      */
+     public void load_remote_images() {
+-        this.call.begin(Util.JS.callable("geary.loadRemoteImages"), null);
++        this.call_void.begin(Util.JS.callable("loadRemoteImages"), null);
+     }
+ 
+     /**
+@@ -455,21 +453,100 @@ public abstract class Components.WebView : WebKit.WebView, Geary.BaseInterface {
+     public new async void set_editable(bool enabled,
+                                        Cancellable? cancellable)
+         throws Error {
+-        yield call(
+-            Util.JS.callable("geary.setEditable").bool(enabled), cancellable
++        yield call_void(
++            Util.JS.callable("setEditable").bool(enabled), cancellable
+         );
+     }
+ 
+     /**
+      * Invokes a {@link Util.JS.Callable} on this web view.
++     *
++     * This calls the given callable on the `geary` object for the
++     * current view, any returned value are ignored.
+      */
+-    protected async JSC.Value call(Util.JS.Callable target,
++    protected async void call_void(Util.JS.Callable target,
+                                    GLib.Cancellable? cancellable)
+         throws GLib.Error {
+-        WebKit.JavascriptResult result = yield run_javascript(
+-            target.to_string(), cancellable
++        yield send_message_to_page(
++            target.to_message(), cancellable
+         );
+-        return result.get_js_value();
++    }
++
++    /**
++     * Invokes a {@link Util.JS.Callable} on this web view.
++     *
++     * This calls the given callable on the `geary` object for the
++     * current view. The value returned by the call is returned by
++     * this method.
++     *
++     * The type parameter `T` must match the type returned by the
++     * call, else an error is thrown. Only simple nullable value types
++     * are supported for T, for more complex return types (arrays,
++     * dictionaries, etc) specify {@link GLib.Variant} for `T` and
++     * manually parse that.
++     */
++    protected async T call_returning<T>(Util.JS.Callable target,
++                                        GLib.Cancellable? cancellable)
++        throws GLib.Error {
++        WebKit.UserMessage? response = yield send_message_to_page(
++            target.to_message(), cancellable
++        );
++        if (response == null) {
++            throw new Util.JS.Error.TYPE(
++                "Method call did not return a value: %s", target.to_string()
++            );
++        }
++        GLib.Variant? param = response.parameters;
++        T ret_value = null;
++        var ret_type = typeof(T);
++        if (ret_type == typeof(GLib.Variant)) {
++            ret_value = param;
++        } else {
++            if (param != null && param.get_type().is_maybe()) {
++                param = param.get_maybe();
++            }
++            if (param != null) {
++                // Since these replies are coming from JS via
++                // Util.JS.value_to_variant, they will only be one of
++                // string, double, bool, array or dict
++                var param_type = param.classify();
++                if (ret_type == typeof(string) && param_type == STRING) {
++                    ret_value = param.get_string();
++                } else if (ret_type == typeof(bool) && param_type == BOOLEAN) {
++                    ret_value = (bool?) param.get_boolean();
++                } else if (ret_type == typeof(int) && param_type == DOUBLE) {
++                    ret_value = (int?) ((int) param.get_double());
++                } else if (ret_type == typeof(short) && param_type == DOUBLE) {
++                    ret_value = (short?) ((short) param.get_double());
++                } else if (ret_type == typeof(char) && param_type == DOUBLE) {
++                    ret_value = (char?) ((char) param.get_double());
++                } else if (ret_type == typeof(long) && param_type == DOUBLE) {
++                    ret_value = (long?) ((long) param.get_double());
++                } else if (ret_type == typeof(int64) && param_type == DOUBLE) {
++                    ret_value = (int64?) ((int64) param.get_double());
++                } else if (ret_type == typeof(uint) && param_type == DOUBLE) {
++                    ret_value = (uint?) ((uint) param.get_double());
++                } else if (ret_type == typeof(uchar) && param_type == DOUBLE) {
++                    ret_value = (uchar?) ((uchar) param.get_double());
++                } else if (ret_type == typeof(ushort) && param_type == DOUBLE) {
++                    ret_value = (ushort?) ((ushort) param.get_double());
++                } else if (ret_type == typeof(ulong) && param_type == DOUBLE) {
++                    ret_value = (ulong?) ((ulong) param.get_double());
++                } else if (ret_type == typeof(uint64) && param_type == DOUBLE) {
++                    ret_value = (uint64?) ((uint64) param.get_double());
++                } else if (ret_type == typeof(double) && param_type == DOUBLE) {
++                    ret_value = (double?) param.get_double();
++                } else if (ret_type == typeof(float) && param_type == DOUBLE) {
++                    ret_value = (float?) ((float) param.get_double());
++                } else {
++                    throw new Util.JS.Error.TYPE(
++                        "%s is not a supported type for %s",
++                        ret_type.name(), param_type.to_string()
++                    );
++                }
++            }
++        }
++        return ret_value;
+     }
+ 
+     /**
+diff --git a/src/client/composer/composer-web-view.vala b/src/client/composer/composer-web-view.vala
+index f8ecccf6..24a2740c 100644
+--- a/src/client/composer/composer-web-view.vala
++++ b/src/client/composer/composer-web-view.vala
+@@ -202,8 +202,8 @@ public class Composer.WebView : Components.WebView {
+      * Returns the view's content as HTML without being cleaned.
+      */
+     public async string? get_html_for_draft() throws Error {
+-        return Util.JS.to_string(
+-            yield call(Util.JS.callable("geary.getHtml").bool(false), null)
++        return yield call_returning<string?>(
++            Util.JS.callable("getHtml").bool(false), null
+         );
+     }
+ 
+@@ -213,8 +213,8 @@ public class Composer.WebView : Components.WebView {
+     public void set_rich_text(bool enabled) {
+         this.is_rich_text = enabled;
+         if (this.is_content_loaded) {
+-            this.call.begin(
+-                Util.JS.callable("geary.setRichText").bool(enabled), null
++            this.call_void.begin(
++                Util.JS.callable("setRichText").bool(enabled), null
+             );
+         }
+     }
+@@ -223,14 +223,14 @@ public class Composer.WebView : Components.WebView {
+      * Undoes the last edit operation.
+      */
+     public void undo() {
+-        this.call.begin(Util.JS.callable("geary.undo"), null);
++        this.call_void.begin(Util.JS.callable("undo"), null);
+     }
+ 
+     /**
+      * Redoes the last undone edit operation.
+      */
+     public void redo() {
+-        this.call.begin(Util.JS.callable("geary.redo"), null);
++        this.call_void.begin(Util.JS.callable("redo"), null);
+     }
+ 
+     /**
+@@ -239,9 +239,9 @@ public class Composer.WebView : Components.WebView {
+      * Returns an id to be used to refer to the selection in
+      * subsequent calls.
+      */
+-    public async string save_selection() throws Error {
+-        return Util.JS.to_string(
+-            yield call(Util.JS.callable("geary.saveSelection"), null)
++    public async string? save_selection() throws Error {
++        return yield call_returning<string?>(
++            Util.JS.callable("saveSelection"), null
+         );
+     }
+ 
+@@ -249,9 +249,7 @@ public class Composer.WebView : Components.WebView {
+      * Removes a saved selection.
+      */
+     public void free_selection(string id) {
+-        this.call.begin(
+-            Util.JS.callable("geary.freeSelection").string(id), null
+-        );
++        this.call_void.begin(Util.JS.callable("freeSelection").string(id), null);
+     }
+ 
+     /**
+@@ -357,9 +355,9 @@ public class Composer.WebView : Components.WebView {
+      * will be inserted wrapping the selection.
+      */
+     public void insert_link(string href, string selection_id) {
+-        this.call.begin(
++        this.call_void.begin(
+             Util.JS.callable(
+-                "geary.insertLink"
++                "insertLink"
+             ).string(href).string(selection_id),
+             null
+         );
+@@ -373,8 +371,8 @@ public class Composer.WebView : Components.WebView {
+      * unlinked section.
+      */
+     public void delete_link(string selection_id) {
+-        this.call.begin(
+-            Util.JS.callable("geary.deleteLink").string(selection_id),
++        this.call_void.begin(
++            Util.JS.callable("deleteLink").string(selection_id),
+             null
+         );
+     }
+@@ -396,23 +394,23 @@ public class Composer.WebView : Components.WebView {
+      * Indents the line at the current text cursor location.
+      */
+     public void indent_line() {
+-        this.call.begin(Util.JS.callable("geary.indentLine"), null);
++        this.call_void.begin(Util.JS.callable("indentLine"), null);
+     }
+ 
+     public void insert_olist() {
+-        this.call.begin(Util.JS.callable("geary.insertOrderedList"), null);
++        this.call_void.begin(Util.JS.callable("insertOrderedList"), null);
+     }
+ 
+     public void insert_ulist() {
+-        this.call.begin(Util.JS.callable("geary.insertUnorderedList"), null);
++        this.call_void.begin(Util.JS.callable("insertUnorderedList"), null);
+     }
+ 
+     /**
+      * Updates the signature block if it has not been deleted.
+      */
+     public new void update_signature(string signature) {
+-        this.call.begin(
+-            Util.JS.callable("geary.updateSignature").string(signature), null
++        this.call_void.begin(
++            Util.JS.callable("updateSignature").string(signature), null
+         );
+     }
+ 
+@@ -420,22 +418,21 @@ public class Composer.WebView : Components.WebView {
+      * Removes the quoted message (if any) from the composer.
+      */
+     public void delete_quoted_message() {
+-        this.call.begin(Util.JS.callable("geary.deleteQuotedMessage"), null);
++        this.call_void.begin(Util.JS.callable("deleteQuotedMessage"), null);
+     }
+ 
+     /**
+      * Determines if the editor content contains an attachment keyword.
+      */
+-    public async bool contains_attachment_keywords(string keyword_spec,
+-                                                   string subject) {
++    public async bool? contains_attachment_keywords(string keyword_spec,
++                                                    string subject) {
+         try {
+-            return Util.JS.to_bool(
+-                yield call(
+-                    Util.JS.callable("geary.containsAttachmentKeyword")
+-                    .string(keyword_spec)
+-                    .string(subject),
+-                    null)
+-                );
++            return yield call_returning<bool?>(
++                Util.JS.callable("containsAttachmentKeyword")
++                .string(keyword_spec)
++                .string(subject),
++                null
++            );
+         } catch (Error err) {
+             debug("Error checking or attachment keywords: %s", err.message);
+             return false;
+@@ -449,7 +446,7 @@ public class Composer.WebView : Components.WebView {
+      * this.
+      */
+     public async void clean_content() throws Error {
+-        this.call.begin(Util.JS.callable("geary.cleanContent"), null);
++        this.call_void.begin(Util.JS.callable("cleanContent"), null);
+     }
+ 
+     /**
+@@ -459,10 +456,10 @@ public class Composer.WebView : Components.WebView {
+         const int MAX_BREAKABLE_LEN = 72; // F=F recommended line limit
+         const int MAX_UNBREAKABLE_LEN = 998; // SMTP line limit
+ 
+-        string body_text = Util.JS.to_string(
+-            yield call(Util.JS.callable("geary.getText"), null)
++        string? body_text = yield call_returning<string?>(
++            Util.JS.callable("getText"), null
+         );
+-        string[] lines = body_text.split("\n");
++        string[] lines = (body_text ?? "").split("\n");
+         GLib.StringBuilder flowed = new GLib.StringBuilder.sized(body_text.length);
+         foreach (string line in lines) {
+             // Strip trailing whitespace, so it doesn't look like a
+diff --git a/src/client/composer/composer-widget.vala b/src/client/composer/composer-widget.vala
+index 4c4d0caf..9148a88e 100644
+--- a/src/client/composer/composer-widget.vala
++++ b/src/client/composer/composer-widget.vala
+@@ -1450,15 +1450,16 @@ public class Composer.Widget : Gtk.EventBox, Geary.BaseInterface {
+             confirmation = _("Send message with an empty subject?");
+         } else if (!has_body && !has_attachment) {
+             confirmation = _("Send message with an empty body?");
+-        } else if (!has_attachment &&
+-                   yield this.editor.body.contains_attachment_keywords(
+-                       string.join(
+-                           "|",
+-                           ATTACHMENT_KEYWORDS,
+-                           ATTACHMENT_KEYWORDS_LOCALISED
+-                       ),
+-                       this.subject)) {
+-            confirmation = _("Send message without an attachment?");
++        } else if (!has_attachment) {
++            var keywords = string.join(
++                "|", ATTACHMENT_KEYWORDS, ATTACHMENT_KEYWORDS_LOCALISED
++            );
++            var contains = yield this.editor.body.contains_attachment_keywords(
++                keywords, this.subject
++            );
++            if (contains != null && contains) {
++                confirmation = _("Send message without an attachment?");
++            }
+         }
+         if (confirmation != null) {
+             ConfirmationDialog dialog = new ConfirmationDialog(container.top_window,
+diff --git a/src/client/conversation-viewer/conversation-web-view.vala b/src/client/conversation-viewer/conversation-web-view.vala
+index ffa36394..d77af642 100644
+--- a/src/client/conversation-viewer/conversation-web-view.vala
++++ b/src/client/conversation-viewer/conversation-web-view.vala
+@@ -89,20 +89,18 @@ public class ConversationWebView : Components.WebView {
+      * Returns the current selection, for prefill as find text.
+      */
+     public async string? get_selection_for_find() throws Error{
+-        JSC.Value result = yield call(
+-            Util.JS.callable("geary.getSelectionForFind"), null
++        return yield call_returning<string?>(
++            Util.JS.callable("getSelectionForFind"), null
+         );
+-        return Util.JS.to_string(result);
+     }
+ 
+     /**
+      * Returns the current selection, for quoting in a message.
+      */
+     public async string? get_selection_for_quoting() throws Error {
+-        JSC.Value result = yield call(
+-            Util.JS.callable("geary.getSelectionForQuoting"), null
++        return yield call_returning<string?>(
++            Util.JS.callable("getSelectionForQuoting"), null
+         );
+-        return Util.JS.to_string(result);
+     }
+ 
+     /**
+@@ -110,10 +108,9 @@ public class ConversationWebView : Components.WebView {
+      */
+     public async int? get_anchor_target_y(string anchor_body)
+         throws GLib.Error {
+-        JSC.Value result = yield call(
+-            Util.JS.callable("geary.getAnchorTargetY").string(anchor_body), null
++        return yield call_returning<int?>(
++            Util.JS.callable("getAnchorTargetY").string(anchor_body), null
+         );
+-        return (int) Util.JS.to_int32(result);
+     }
+ 
+     /**
+diff --git a/src/client/util/util-js.vala b/src/client/util/util-js.vala
+index 2f05a3e2..d2ce9f2e 100644
+--- a/src/client/util/util-js.vala
++++ b/src/client/util/util-js.vala
+@@ -348,40 +348,54 @@ namespace Util.JS {
+      */
+     public class Callable {
+ 
+-        private string base_name;
+-        private string[] safe_args = new string[0];
++        private string name;
++        private GLib.Variant[] args = {};
+ 
+ 
+-        public Callable(string base_name) {
+-            this.base_name = base_name;
++        public Callable(string name) {
++            this.name = name;
++        }
++
++        public WebKit.UserMessage to_message() {
++            GLib.Variant? args = null;
++            if (this.args.length == 1) {
++                args = this.args[0];
++            } else if (this.args.length > 1) {
++                args = new GLib.Variant.tuple(this.args);
++            }
++            return new WebKit.UserMessage(this.name, args);
+         }
+ 
+         public string to_string() {
+-            return base_name + "(" + global::string.joinv(",", safe_args) + ");";
++            string[] args = new string[this.args.length];
++            for (int i = 0; i < args.length; i++) {
++                args[i] = this.args[i].print(true);
++            }
++            return this.name + "(" + global::string.joinv(",", args) + ")";
+         }
+ 
+         public Callable string(string value) {
+-            add_param("\"" + escape_string(value) + "\"");
++            add_param(new GLib.Variant.string(value));
+             return this;
+         }
+ 
+         public Callable double(double value) {
+-            add_param(value.to_string());
++            add_param(new GLib.Variant.double(value));
+             return this;
+         }
+ 
+         public Callable int(int value) {
+-            add_param(value.to_string());
++            add_param(new GLib.Variant.int32(value));
+             return this;
+         }
+ 
+         public Callable bool(bool value) {
+-            add_param(value ? "true" : "false");
++            add_param(new GLib.Variant.boolean(value));
+             return this;
+         }
+ 
+-        private inline void add_param(string value) {
+-            this.safe_args += value;
++        private inline void add_param(GLib.Variant value) {
++            this.args += value;
+         }
+ 
+     }
+diff --git a/src/client/web-process/web-process-extension.vala b/src/client/web-process/web-process-extension.vala
+index 4bba5154..86f7f44c 100644
+--- a/src/client/web-process/web-process-extension.vala
++++ b/src/client/web-process/web-process-extension.vala
+@@ -30,6 +30,10 @@ public void webkit_web_extension_initialize_with_user_data(WebKit.WebExtension e
+  */
+ public class GearyWebExtension : Object {
+ 
++    private const string PAGE_STATE_OBJECT_NAME = "geary";
++    private const string MESSAGE_RETURN_VALUE_NAME = "__return__";
++    private const string MESSAGE_EXCEPTION_NAME = "__exception__";
++
+     private const string[] ALLOWED_SCHEMES = { "cid", "geary", "data", "blob" };
+ 
+     private const string REMOTE_LOAD_VAR = "_gearyAllowRemoteResourceLoads";
+@@ -157,6 +161,55 @@ public class GearyWebExtension : Object {
+         page.get_editor().selection_changed.connect(() => {
+                 selection_changed(page);
+             });
++        page.user_message_received.connect(on_page_message_received);
++    }
++
++    private bool on_page_message_received(WebKit.WebPage page,
++                                          WebKit.UserMessage message) {
++        WebKit.Frame frame = page.get_main_frame();
++        JSC.Context context = frame.get_js_context();
++        JSC.Value page_state = context.get_value(PAGE_STATE_OBJECT_NAME);
++
++        try {
++            JSC.Value[]? call_param = null;
++            GLib.Variant? message_param = message.parameters;
++            if (message_param != null) {
++                if (message_param.is_container()) {
++                    size_t len = message_param.n_children();
++                    call_param = new JSC.Value[len];
++                    for (size_t i = 0; i < len; i++) {
++                        call_param[i] = Util.JS.variant_to_value(
++                            context,
++                            message_param.get_child_value(i)
++                        );
++                    }
++                } else {
++                    call_param = {
++                        Util.JS.variant_to_value(context, message_param)
++                    };
++                }
++            }
++
++            JSC.Value ret = page_state.object_invoke_methodv(
++                message.name, call_param
++            );
++
++            // Must send a reply, even for void calls, otherwise
++            // WebKitGTK will complain. So return a message return
++            // rain hail or shine.
++            // https://bugs.webkit.org/show_bug.cgi?id=215880
++
++            message.send_reply(
++                new WebKit.UserMessage(
++                    MESSAGE_RETURN_VALUE_NAME,
++                    Util.JS.value_to_variant(ret)
++                )
++            );
++        } catch (GLib.Error err) {
++            debug("Failed to handle message: %s", err.message);
++        }
++
++        return true;
+     }
+ 
+ }
+diff --git a/test/js/components-page-state-test.vala b/test/js/components-page-state-test.vala
+index 5ec75746..562c6cda 100644
+--- a/test/js/components-page-state-test.vala
++++ b/test/js/components-page-state-test.vala
+@@ -14,12 +14,24 @@ class Components.PageStateTest : WebViewTestCase<WebView> {
+             base(config);
+         }
+ 
++        public new async void call_void(Util.JS.Callable callable)
++            throws GLib.Error {
++            yield base.call_void(callable, null);
++        }
++
++        public new async string call_returning(Util.JS.Callable callable)
++            throws GLib.Error {
++            return yield base.call_returning<string>(callable, null);
++        }
++
+     }
+ 
+ 
+     public PageStateTest() {
+         base("Components.PageStateTest");
+         add_test("content_loaded", content_loaded);
++        add_test("call_void", call_void);
++        add_test("call_returning", call_returning);
+ 
+         try {
+             WebView.load_resources(GLib.File.new_for_path("/tmp"));
+@@ -45,6 +57,30 @@ class Components.PageStateTest : WebViewTestCase<WebView> {
+         assert(content_loaded_triggered);
+     }
+ 
++    public void call_void() throws GLib.Error {
++        load_body_fixture("OHHAI");
++        var test_article = this.test_view as TestWebView;
++
++        test_article.call_void.begin(
++            new Util.JS.Callable("testVoid"), this.async_completion
++        );
++        test_article.call_void.end(this.async_result());
++        assert_test_result("void");
++    }
++
++    public void call_returning() throws GLib.Error {
++        load_body_fixture("OHHAI");
++        var test_article = this.test_view as TestWebView;
++
++        test_article.call_returning.begin(
++            new Util.JS.Callable("testReturn").string("check 1-2"),
++            this.async_completion
++        );
++        string ret = test_article.call_returning.end(this.async_result());
++        assert_equal(ret, "check 1-2");
++        assert_test_result("check 1-2");
++    }
++
+     protected override WebView set_up_test_view() {
+         WebKit.UserScript test_script;
+         test_script = new WebKit.UserScript(
+@@ -60,4 +96,13 @@ class Components.PageStateTest : WebViewTestCase<WebView> {
+         return view;
+     }
+ 
++    private void assert_test_result(string expected)
++        throws GLib.Error {
++        string? result = Util.JS.to_string(
++            run_javascript("geary.testResult")
++            .get_js_value()
++        );
++        assert_equal(result, expected);
++    }
++
+ }
+diff --git a/ui/components-web-view.js b/ui/components-web-view.js
+index 80e86d7c..289abca0 100644
+--- a/ui/components-web-view.js
++++ b/ui/components-web-view.js
+@@ -87,6 +87,8 @@ PageState.prototype = {
+         window.addEventListener("transitionend", function(e) {
+             queuePreferredHeightUpdate();
+         }, false); // load does not bubble
++
++        this.testResult = null;
+     },
+     getPreferredHeight: function() {
+         // Return the scroll height of the HTML element since the BODY
+@@ -184,5 +186,13 @@ PageState.prototype = {
+             this.hasSelection = hasSelection;
+             window.webkit.messageHandlers.selectionChanged.postMessage(hasSelection);
+         }
++    },
++    // Methods below are for unit tests.
++    testVoid: function() {
++        this.testResult = "void";
++    },
++    testReturn: function(value) {
++        this.testResult = value;
++        return value;
+     }
+ };
+-- 
+2.29.2
+

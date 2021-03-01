@@ -1,0 +1,43 @@
+From 99fc14a4e590596de263ecaa7a834b80e7793fa3 Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Wed, 14 Oct 2020 00:53:35 +1100
+Subject: [PATCH 095/124] Application.Client: Introduce and use consts for
+ build profiles
+
+---
+ src/client/application/application-client.vala      | 5 +++++
+ src/client/application/application-main-window.vala | 2 +-
+ 2 files changed, 6 insertions(+), 1 deletion(-)
+
+diff --git a/src/client/application/application-client.vala b/src/client/application/application-client.vala
+index 7e8d9fbd..6b3e7113 100644
+--- a/src/client/application/application-client.vala
++++ b/src/client/application/application-client.vala
+@@ -43,6 +43,11 @@ public class Application.Client : Gtk.Application {
+     public const string SOURCE_ROOT_DIR = _SOURCE_ROOT_DIR;
+     public const string BUILD_ROOT_DIR = _BUILD_ROOT_DIR;
+ 
++    // keep these in sync with meson_options.txt
++    public const string PROFILE_RELEASE = "release";
++    public const string PROFILE_BETA = "beta";
++    public const string PROFILE_DEVEL = "development";
++
+     public const string[] AUTHORS = {
+         "Jim Nelson <jim@yorba.org>",
+         "Eric Gregory <eric@yorba.org>",
+diff --git a/src/client/application/application-main-window.vala b/src/client/application/application-main-window.vala
+index 2b77a6d7..90d5b249 100644
+--- a/src/client/application/application-main-window.vala
++++ b/src/client/application/application-main-window.vala
+@@ -507,7 +507,7 @@ public class Application.MainWindow :
+         load_config(application.config);
+         restore_saved_window_state();
+ 
+-        if (_PROFILE != "release") {
++        if (_PROFILE != Client.PROFILE_RELEASE) {
+             this.get_style_context().add_class("devel");
+         }
+ 
+-- 
+2.29.2
+

@@ -1,0 +1,38 @@
+From 7c9d1258c6a952c7b7f79f34feb3225dea3fcc15 Mon Sep 17 00:00:00 2001
+From: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+Date: Wed, 25 Mar 2020 14:40:11 +0100
+Subject: [PATCH 5/8] accounts-editor: make window usable on phones
+
+---
+ ui/accounts_editor.ui           | 2 +-
+ ui/accounts_editor_list_pane.ui | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/ui/accounts_editor.ui b/ui/accounts_editor.ui
+index 4e23cdd5..04581e8d 100644
+--- a/ui/accounts_editor.ui
++++ b/ui/accounts_editor.ui
+@@ -5,7 +5,7 @@
+   <template class="AccountsEditor" parent="GtkDialog">
+     <property name="can_focus">False</property>
+     <property name="modal">True</property>
+-    <property name="default_width">700</property>
++    <property name="default_width">360</property>
+     <property name="default_height">450</property>
+     <property name="type_hint">dialog</property>
+     <child type="titlebar">
+diff --git a/ui/accounts_editor_list_pane.ui b/ui/accounts_editor_list_pane.ui
+index a40604e3..b3946196 100644
+--- a/ui/accounts_editor_list_pane.ui
++++ b/ui/accounts_editor_list_pane.ui
+@@ -59,6 +59,7 @@
+                         <property name="can_focus">False</property>
+                         <property name="halign">start</property>
+                         <property name="valign">start</property>
++                        <property name="wrap">True</property>
+                         <property name="label" translatable="yes">To get started, select an email provider below.</property>
+                         <property name="xalign">0</property>
+                         <property name="wrap">True</property>
+-- 
+2.29.2
+

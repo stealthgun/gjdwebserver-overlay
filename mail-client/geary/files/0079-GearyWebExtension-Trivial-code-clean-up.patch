@@ -1,0 +1,43 @@
+From eba82a1fbda18c2e567bd143862e7d687982b973 Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Fri, 28 Aug 2020 12:01:22 +1000
+Subject: [PATCH 079/124] GearyWebExtension: Trivial code clean up
+
+---
+ src/client/web-process/web-process-extension.vala | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
+
+diff --git a/src/client/web-process/web-process-extension.vala b/src/client/web-process/web-process-extension.vala
+index 6eed7746..6785903e 100644
+--- a/src/client/web-process/web-process-extension.vala
++++ b/src/client/web-process/web-process-extension.vala
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright 2016 Michael Gratton <mike@vee.net>
++ * Copyright © 2016-2020 Michael Gratton <mike@vee.net>
+  *
+  * This software is licensed under the GNU Lesser General Public License
+  * (version 2.1 or later). See the COPYING file in this distribution.
+@@ -13,9 +13,9 @@ public void webkit_web_extension_initialize_with_user_data(WebKit.WebExtension e
+     bool logging_enabled = data.get_boolean();
+ 
+     Geary.Logging.init();
+-    GLib.Log.set_writer_func(Geary.Logging.default_log_writer);
+     if (logging_enabled) {
+-        Geary.Logging.log_to(stdout);
++        GLib.Log.set_writer_func(Geary.Logging.default_log_writer);
++        Geary.Logging.log_to(GLib.stdout);
+     }
+ 
+     debug("Initialising...");
+@@ -50,7 +50,6 @@ public class GearyWebExtension : Object {
+         extension.page_created.connect(on_page_created);
+     }
+ 
+-    // XXX Conditionally enable while we still depend on WK2 <2.12
+     private void on_console_message(WebKit.WebPage page,
+                                     WebKit.ConsoleMessage message) {
+         string source = message.get_source_id();
+-- 
+2.29.2
+

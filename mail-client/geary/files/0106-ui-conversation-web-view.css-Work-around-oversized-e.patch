@@ -1,0 +1,45 @@
+From 0e783de5bfd9b2e740979f2eed58e60fa85bdfc0 Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Sat, 17 Oct 2020 13:38:16 +1100
+Subject: [PATCH 106/124] ui/conversation-web-view.css: Work around oversized
+ email body height
+
+Sometimes when loading an email body, the viewport for the web view
+will be set to 0 (when the web view is hidden or not yet laid out in
+the widget hierarchy?). When this happens, since the width of the body
+is specified as 100vw, the content width is reduced to the absolute
+minimum and hence the content height is stretched right out. Then, when
+the web view is displayed, the viewport width increases but the extra
+whitespace is never reclaimed (scrollHeight never goes down), so the
+height of the web view remains way too large, causing large amounts of
+whitespace at the end of the email message (i.e. #283).
+
+To work around this, set a min width for the HTML element so the initial
+height of the email body isn't too badly wrong.
+---
+ ui/conversation-web-view.css | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/ui/conversation-web-view.css b/ui/conversation-web-view.css
+index 3c1929f2..8b0ef421 100644
+--- a/ui/conversation-web-view.css
++++ b/ui/conversation-web-view.css
+@@ -23,6 +23,15 @@ html {
+   width: 100vw !important;
+   height: max-content !important;
+ 
++  /* Despite the fact that the width must always be defined by the
++  viewport, the viewport width will be 0 if the email is loaded before
++  its WebView is laid out in the widget hierarchy. As a workaround, to
++  prevent this causing the email being squished down to is minimum
++  width and hence being stretched right out in height, set a
++  reasonable minimum width. See
++  https://gitlab.gnome.org/GNOME/geary/-/issues/283 */
++  min-width: 400px !important;
++
+   /* Lock down the box sizing just enough so that the width and height
+   constraints above work as expected, and so the element's
+   scrollHeight is accurate. */
+-- 
+2.29.2
+

@@ -1,0 +1,26 @@
+From 92e842bf083d3185e6ee94b09eab710fb2374fac Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Fri, 28 Aug 2020 12:06:07 +1000
+Subject: [PATCH 081/124] ConversationViewer.ConversationMessage: Fix valadoc
+ warning
+
+---
+ src/client/conversation-viewer/conversation-message.vala | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/client/conversation-viewer/conversation-message.vala b/src/client/conversation-viewer/conversation-message.vala
+index a11ece01..109c4a1c 100644
+--- a/src/client/conversation-viewer/conversation-message.vala
++++ b/src/client/conversation-viewer/conversation-message.vala
+@@ -666,7 +666,7 @@ public class ConversationMessage : Gtk.Grid, Geary.BaseInterface {
+     /**
+      * Adds a set of internal resources to web_view.
+      *
+-     * @see add_internal_resource
++     * @see Components.WebView.add_internal_resources
+      */
+     public void add_internal_resources(Gee.Map<string,Geary.Memory.Buffer> res) {
+         if (this.web_view == null)
+-- 
+2.29.2
+

@@ -1,0 +1,73 @@
+From 368a0ced9785a2270ff9ddbda37e150b3970558b Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Wed, 14 Oct 2020 00:58:51 +1100
+Subject: [PATCH 096/124] Application.Client: Ensure non-release builds don't
+ clobber release data
+
+Append the build profile to Geary's data directories when not running
+a release build (or under Flatpak) so that e.g. development builds use
+different config, cache and data directories.
+
+This allows us to perform things like database schema updates with
+relative abandon, since if we ask people to test development builds
+with schema updates, they can always safely go back to their release
+builds again.
+---
+ .../application/application-client.vala       | 22 ++++++++++++++++---
+ 1 file changed, 19 insertions(+), 3 deletions(-)
+
+diff --git a/src/client/application/application-client.vala b/src/client/application/application-client.vala
+index 6b3e7113..db8cdfdc 100644
+--- a/src/client/application/application-client.vala
++++ b/src/client/application/application-client.vala
+@@ -777,21 +777,21 @@ public class Application.Client : Gtk.Application {
+     public GLib.File get_home_config_directory() {
+         return GLib.File.new_for_path(
+             Environment.get_user_config_dir()
+-        ).get_child("geary");
++        ).get_child(get_geary_home_dir_name());
+     }
+ 
+     /** Returns the application's base home cache directory. */
+     public GLib.File get_home_cache_directory() {
+         return GLib.File.new_for_path(
+             GLib.Environment.get_user_cache_dir()
+-        ).get_child("geary");
++        ).get_child(get_geary_home_dir_name());
+     }
+ 
+     /** Returns the application's base home data directory. */
+     public GLib.File get_home_data_directory() {
+         return GLib.File.new_for_path(
+             GLib.Environment.get_user_data_dir()
+-        ).get_child("geary");
++        ).get_child(get_geary_home_dir_name());
+     }
+ 
+     /** Returns the application's base static resources directory. */
+@@ -1188,6 +1188,22 @@ public class Application.Client : Gtk.Application {
+         }
+     }
+ 
++    private string get_geary_home_dir_name() {
++        // Return the standard name if running a release build or
++        // running under Flatpak, otherwise append the build profile
++        // as a suffix so (e.g.) devel builds don't mess with release
++        // build's config and databases.
++        //
++        // Note that non-release Flatpak builds already have their own
++        // separate directories since they have different app ids, and
++        // hence don't need the suffix.
++        return (
++            _PROFILE == PROFILE_RELEASE || this.is_flatpak_sandboxed
++            ? "geary"
++            : "geary-" + _PROFILE
++        );
++    }
++
+     private void on_activate_about() {
+         this.show_about.begin();
+     }
+-- 
+2.29.2
+

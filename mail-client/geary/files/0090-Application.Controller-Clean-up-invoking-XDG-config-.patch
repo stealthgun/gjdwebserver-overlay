@@ -1,0 +1,69 @@
+From 693484148432c7e23ca255e9759b1ff5b24fdfca Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Tue, 13 Oct 2020 23:33:55 +1100
+Subject: [PATCH 090/124] Application.Controller: Clean up invoking XDG config
+ migration
+
+Order args to better, create the config dir in the controller since
+that is always needed, regardless of any migrations.
+---
+ src/client/application/application-controller.vala | 12 ++++++++----
+ src/client/util/util-migrate.vala                  | 13 +++----------
+ 2 files changed, 11 insertions(+), 14 deletions(-)
+
+diff --git a/src/client/application/application-controller.vala b/src/client/application/application-controller.vala
+index ef634489..24c244c8 100644
+--- a/src/client/application/application-controller.vala
++++ b/src/client/application/application-controller.vala
+@@ -171,11 +171,15 @@ internal class Application.Controller :
+             this.application.get_app_plugins_dir()
+         );
+ 
++        // Create standard config directory
++        try {
++            config_dir.make_directory_with_parents();
++        } catch (GLib.IOError.EXISTS err) {
++            // fine
++        }
++
+         // Migrate configuration if necessary.
+-        Util.Migrate.xdg_config_dir(
+-            this.application.get_user_data_directory(),
+-            this.application.get_user_config_directory()
+-        );
++        Util.Migrate.xdg_config_dir(config_dir, data_dir);
+ 
+         // Hook up cert, accounts and credentials machinery
+ 
+diff --git a/src/client/util/util-migrate.vala b/src/client/util/util-migrate.vala
+index 9cebcfc6..edb07b45 100644
+--- a/src/client/util/util-migrate.vala
++++ b/src/client/util/util-migrate.vala
+@@ -19,21 +19,14 @@ namespace Util.Migrate {
+      * It also appends a "primary_email" key to the new configuration file to reliaby keep
+      * track of the user's email address.
+      */
+-    public static void xdg_config_dir(File user_data_dir, File user_config_dir) throws Error {
++    public static void xdg_config_dir(GLib.File user_config_dir,
++                                      GLib.File user_data_dir)
++        throws GLib.Error {
+         File new_config_dir;
+         File old_data_dir;
+         File new_config_file;
+         File old_config_file;
+ 
+-        // Create ~/.config/geary
+-        try {
+-            user_config_dir.make_directory_with_parents();
+-        } catch (Error err) {
+-            // The user may have already created the directory, so don't throw EXISTS.
+-            if (!(err is IOError.EXISTS))
+-                throw err;
+-        }
+-
+         // Return if Geary has never been run (~/.local/share/geary does not exist).
+         if (!user_data_dir.query_exists())
+             return;
+-- 
+2.29.2
+

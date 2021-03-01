@@ -1,0 +1,187 @@
+From 70a40893a3f41483fbc607512d311f4c0c44c79a Mon Sep 17 00:00:00 2001
+From: Julian Sparber <julian@sparber.net>
+Date: Thu, 8 Oct 2020 14:50:58 +0200
+Subject: [PATCH 066/124] action-bar: Add an action bar to the conversations
+ list (2-panel)
+
+This moves the actions from the headerbar to the action bar at the
+bottom of the conversations list when multiple conversations are
+selected. This changes is needed so that the user can still interact
+with the conversations when folded.
+This also hides the actions from the Headerbar and action bar when
+no conversation is selected.
+---
+ po/POTFILES.in                                |  2 +
+ .../application/application-main-window.vala  | 19 +++++++++
+ .../components-conversation-action-bar.vala   | 39 +++++++++++++++++++
+ src/client/meson.build                        |  1 +
+ ui/components-conversation-action-bar.ui      | 22 +++++++++++
+ ui/org.gnome.Geary.gresource.xml              |  1 +
+ 6 files changed, 84 insertions(+)
+ create mode 100644 src/client/components/components-conversation-action-bar.vala
+ create mode 100644 ui/components-conversation-action-bar.ui
+
+diff --git a/po/POTFILES.in b/po/POTFILES.in
+index 7ef4e050..68e3ca34 100644
+--- a/po/POTFILES.in
++++ b/po/POTFILES.in
+@@ -40,6 +40,7 @@ src/client/client-action.vala
+ src/client/components/client-web-view.vala
+ src/client/components/components-attachment-pane.vala
+ src/client/components/components-conversation-actions.vala
++src/client/components/components-conversation-action-bar.vala
+ src/client/components/components-entry-undo.vala
+ src/client/components/components-in-app-notification.vala
+ src/client/components/components-info-bar-stack.vala
+@@ -457,6 +458,7 @@ ui/components-attachment-pane.ui
+ ui/components-attachment-pane-menus.ui
+ ui/components-attachment-view.ui
+ ui/components-conversation-actions.ui
++ui/components-conversation-action-bar.ui
+ ui/components-in-app-notification.ui
+ ui/components-inspector-error-view.ui
+ ui/components-inspector-log-view.ui
+diff --git a/src/client/application/application-main-window.vala b/src/client/application/application-main-window.vala
+index 20fc3758..0e6a89e1 100644
+--- a/src/client/application/application-main-window.vala
++++ b/src/client/application/application-main-window.vala
+@@ -351,6 +351,8 @@ public class Application.MainWindow :
+     [GtkChild]
+     private Gtk.Overlay overlay;
+ 
++    private Components.ConversationActionBar action_bar;
++
+     private Components.InfoBarStack info_bars =
+         new Components.InfoBarStack(SINGLE);
+ 
+@@ -1308,6 +1310,12 @@ public class Application.MainWindow :
+         this.spinner.set_progress_monitor(progress_monitor);
+         this.status_bar.add(this.spinner);
+         this.status_bar.show_all();
++
++        // Action bar
++        this.action_bar = new Components.ConversationActionBar();
++        this.conversation_list_box.add_with_properties(action_bar,
++                                                       "pack-type", Gtk.PackType.END,
++                                                       "position", 0);
+     }
+ 
+     /** {@inheritDoc} */
+@@ -1740,6 +1748,17 @@ public class Application.MainWindow :
+         );
+ 
+         this.update_context_dependent_actions.begin(sensitive);
++        switch (count) {
++            case NONE:
++                    conversation_actions.take_ownership(null);
++                break;
++            case SINGLE:
++                this.main_toolbar.add_conversation_actions(this.conversation_actions);
++                break;
++            case MULTIPLE:
++                this.action_bar.add_conversation_actions(this.conversation_actions);
++                break;
++        }
+     }
+ 
+     private async void update_context_dependent_actions(bool sensitive) {
+diff --git a/src/client/components/components-conversation-action-bar.vala b/src/client/components/components-conversation-action-bar.vala
+new file mode 100644
+index 00000000..cb574521
+--- /dev/null
++++ b/src/client/components/components-conversation-action-bar.vala
+@@ -0,0 +1,39 @@
++/*
++ * Copyright © 2016 Software Freedom Conservancy Inc.
++ * Copyright © 2020 Purism SPC
++ *
++ * This software is licensed under the GNU Lesser General Public License
++ * (version 2.1 or later).  See the COPYING file in this distribution.
++ */
++
++// Draws the conversation action bar.
++[GtkTemplate (ui = "/org/gnome/Geary/components-conversation-action-bar.ui")]
++public class Components.ConversationActionBar : Gtk.Revealer {
++    private ulong owner_notify;
++
++    [GtkChild]
++    private Gtk.Box action_box;
++
++    public ConversationActionBar() {
++    }
++
++    /**
++     * This takes ownership of the ConversationActions and places some of
++     * the buttons into the ActionBar.
++     */
++    public void add_conversation_actions(Components.ConversationActions actions) {
++        if (actions.owner == this)
++          return;
++
++        actions.take_ownership(this);
++        action_box.pack_start(actions.mark_copy_move_buttons, false, false);
++        action_box.pack_end(actions.archive_trash_delete_buttons, false, false);
++        reveal_child = true;
++        this.owner_notify = actions.notify["owner"].connect(() => {
++           if (actions.owner != this) {
++             reveal_child = false;
++             actions.disconnect (this.owner_notify);
++           }
++        });
++    }
++}
+diff --git a/src/client/meson.build b/src/client/meson.build
+index ed0d6b33..c0eb0c16 100644
+--- a/src/client/meson.build
++++ b/src/client/meson.build
+@@ -49,6 +49,7 @@ client_vala_sources = files(
+   'components/client-web-view.vala',
+   'components/components-attachment-pane.vala',
+   'components/components-conversation-actions.vala',
++  'components/components-conversation-action-bar.vala',
+   'components/components-entry-undo.vala',
+   'components/components-info-bar-stack.vala',
+   'components/components-info-bar.vala',
+diff --git a/ui/components-conversation-action-bar.ui b/ui/components-conversation-action-bar.ui
+new file mode 100644
+index 00000000..ae49683f
+--- /dev/null
++++ b/ui/components-conversation-action-bar.ui
+@@ -0,0 +1,22 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<interface>
++  <requires lib="gtk+" version="3.20"/>
++  <object class="GtkImage" id="archive_image">
++    <property name="visible">True</property>
++    <property name="can_focus">False</property>
++    <property name="icon_name">mail-archive-symbolic</property>
++  </object>
++  <template class="ComponentsConversationActionBar" parent="GtkRevealer">
++    <property name="visible">True</property>
++    <property name="can_focus">False</property>
++    <property name="transition_type">slide-up</property>
++    <child>
++      <object class="GtkBox" id="action_box">
++        <property name="visible">True</property>
++        <property name="can_focus">False</property>
++        <property name="hexpand">True</property>
++        <property name="margin">6</property>
++      </object>
++    </child>
++  </template>
++</interface>
+diff --git a/ui/org.gnome.Geary.gresource.xml b/ui/org.gnome.Geary.gresource.xml
+index 481bbff4..e064d331 100644
+--- a/ui/org.gnome.Geary.gresource.xml
++++ b/ui/org.gnome.Geary.gresource.xml
+@@ -14,6 +14,7 @@
+     <file compressed="true" preprocess="xml-stripblanks">components-attachment-pane.ui</file>
+     <file compressed="true" preprocess="xml-stripblanks">components-attachment-pane-menus.ui</file>
+     <file compressed="true" preprocess="xml-stripblanks">components-attachment-view.ui</file>
++    <file compressed="true" preprocess="xml-stripblanks">components-conversation-action-bar.ui</file>
+     <file compressed="true" preprocess="xml-stripblanks">components-conversation-actions.ui</file>
+     <file compressed="true" preprocess="xml-stripblanks">components-in-app-notification.ui</file>
+     <file compressed="true" preprocess="xml-stripblanks">components-inspector.ui</file>
+-- 
+2.29.2
+
