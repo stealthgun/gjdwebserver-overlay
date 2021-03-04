@@ -37,7 +37,6 @@ DEPEND="${RDEPEND}
 
 src_prepare() {
 	# Disable that specific test because it would perform a download
-	sed -i -e "/inlinemediadownloader/d" tests/Makefile.am || die
 	eautoreconf
 	gnome2_src_prepare
 	vala_src_prepare
