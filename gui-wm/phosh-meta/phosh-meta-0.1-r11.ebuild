@@ -18,6 +18,8 @@ DEPEND="
 		net-im/chatty
 		net-dns/dnsmasq
 		app-editors/gedit
+		dev-libs/libwacom
+		media-libs/grilo
 		gnome-base/gnome-control-center
 		gnome-extra/gnome-contacts
 		media-video/megapixels
