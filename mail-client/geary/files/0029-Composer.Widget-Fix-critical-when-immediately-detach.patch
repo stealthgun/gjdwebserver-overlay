@@ -1,0 +1,58 @@
+From 70186163e8bcf1a0644669fe7c9b2b56dceef9b5 Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Sun, 27 Sep 2020 22:46:40 +1000
+Subject: [PATCH 029/124] Composer.Widget: Fix critical when immediately
+ detaching a new composer
+
+New composers have no associated GLib Application instance, so when the
+main window is already showing a composer and another is opened, the
+new composer has no application to pass its window.
+
+Fix by requiring `Composer.detach` be passed an application instance
+and find an appropriate instance at each call site.
+---
+ src/client/application/application-main-window.vala | 2 +-
+ src/client/composer/composer-widget.vala            | 6 ++----
+ 2 files changed, 3 insertions(+), 5 deletions(-)
+
+diff --git a/src/client/application/application-main-window.vala b/src/client/application/application-main-window.vala
+index e8428459..73b50e33 100644
+--- a/src/client/application/application-main-window.vala
++++ b/src/client/application/application-main-window.vala
+@@ -875,7 +875,7 @@ public class Application.MainWindow :
+      */
+     internal void show_composer(Composer.Widget composer) {
+         if (this.has_composer) {
+-            composer.detach();
++            composer.detach(this.application);
+         } else {
+             // See if the currently displayed conversation contains
+             // any of the composer's referred emails (preferring the
+diff --git a/src/client/composer/composer-widget.vala b/src/client/composer/composer-widget.vala
+index dab8cfd8..37e93fb4 100644
+--- a/src/client/composer/composer-widget.vala
++++ b/src/client/composer/composer-widget.vala
+@@ -785,10 +785,8 @@ public class Composer.Widget : Gtk.EventBox, Geary.BaseInterface {
+     }
+ 
+     /** Detaches the composer and opens it in a new window. */
+-    public void detach() {
++    public void detach(Application.Client application) {
+         Gtk.Widget? focused_widget = null;
+-        var application = this.container.top_window.application as Application.Client;
+-
+         if (this.container != null) {
+             focused_widget = this.container.top_window.get_focus();
+             this.container.close();
+@@ -2374,7 +2372,7 @@ public class Composer.Widget : Gtk.EventBox, Geary.BaseInterface {
+     }
+ 
+     private void on_detach() {
+-        detach();
++        detach(this.container.top_window.application as Application.Client);
+     }
+ 
+     private void on_add_attachment() {
+-- 
+2.29.2
+

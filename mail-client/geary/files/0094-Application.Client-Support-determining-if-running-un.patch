@@ -1,0 +1,40 @@
+From 072156096d61889cc61445738e5122ad451bad61 Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Wed, 14 Oct 2020 00:53:04 +1100
+Subject: [PATCH 094/124] Application.Client: Support determining if running
+ under flatpak
+
+---
+ src/client/application/application-client.vala | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/src/client/application/application-client.vala b/src/client/application/application-client.vala
+index a61a6855..7e8d9fbd 100644
+--- a/src/client/application/application-client.vala
++++ b/src/client/application/application-client.vala
+@@ -212,6 +212,14 @@ public class Application.Client : Gtk.Application {
+         }
+     }
+ 
++    /**
++     * Determines if Geary appears to be running under Flatpak.
++     *
++     * If this returns `true`, then the application instance
++     * appears to be running inside a Flatpak sandbox.
++     */
++    public bool is_flatpak_sandboxed { get; private set; }
++
+     /**
+      * The global controller for this application instance.
+      *
+@@ -317,6 +325,7 @@ public class Application.Client : Gtk.Application {
+         );
+         this.add_main_option_entries(OPTION_ENTRIES);
+         this.window_removed.connect_after(on_window_removed);
++        this.is_flatpak_sandboxed = GLib.FileUtils.test("/.flatpak-info", EXISTS);
+     }
+ 
+     public override bool local_command_line(ref unowned string[] args,
+-- 
+2.29.2
+

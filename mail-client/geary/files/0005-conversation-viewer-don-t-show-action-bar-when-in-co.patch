@@ -1,0 +1,37 @@
+From d1800de4dac6911b414b223318c6b12549e3a887 Mon Sep 17 00:00:00 2001
+From: Julian Sparber <julian@sparber.net>
+Date: Wed, 21 Oct 2020 11:18:19 +0200
+Subject: [PATCH 5/6] conversation-viewer: don't show action-bar when in
+ composer
+
+---
+ src/client/components/main-toolbar.vala | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/client/components/main-toolbar.vala b/src/client/components/main-toolbar.vala
+index f216238a..8255c93b 100644
+--- a/src/client/components/main-toolbar.vala
++++ b/src/client/components/main-toolbar.vala
+@@ -60,6 +60,7 @@ public class MainToolbar : Hdy.Leaflet {
+         }
+         this.conversation_viewer_action_bar = action_bar;
+         conversation_header.size_allocate.connect(on_size_allocate);
++        conversation_header.notify["parent"].connect(on_size_allocate);
+ 
+         // Assemble the main/mark menus
+         Gtk.Builder builder = new Gtk.Builder.from_resource("/org/gnome/Geary/main-toolbar-menus.ui");
+@@ -110,7 +111,10 @@ public class MainToolbar : Hdy.Leaflet {
+     }
+ 
+     private void on_size_allocate() {
+-        if (reply_forward_buttons != null && archive_trash_delete_buttons != null)
++        /* Only show the action_bar when the conversation_header is shown */
++        if (conversation_header.parent == null)
++            conversation_viewer_action_bar.reveal_child = false;
++        else if (reply_forward_buttons != null && archive_trash_delete_buttons != null)
+             if (conversation_viewer_action_bar.reveal_child && get_allocated_width() > 600) {
+                 conversation_viewer_action_bar.reveal_child = false;
+                 remove_action_parent();
+-- 
+2.29.2
+

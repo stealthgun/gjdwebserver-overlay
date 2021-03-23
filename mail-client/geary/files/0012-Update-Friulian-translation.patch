@@ -1,0 +1,34 @@
+From acabdc9e73e7a6e23f14540ac2485783161eecc4 Mon Sep 17 00:00:00 2001
+From: Fabio Tomat <f.t.public@gmail.com>
+Date: Tue, 15 Sep 2020 05:52:24 +0000
+Subject: [PATCH 012/124] Update Friulian translation
+
+---
+ po/fur.po | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/po/fur.po b/po/fur.po
+index 1db111d0..d13465ba 100644
+--- a/po/fur.po
++++ b/po/fur.po
+@@ -8,7 +8,7 @@ msgstr ""
+ "Project-Id-Version: geary master\n"
+ "Report-Msgid-Bugs-To: https://gitlab.gnome.org/GNOME/geary/issues\n"
+ "POT-Creation-Date: 2020-09-14 19:33+0000\n"
+-"PO-Revision-Date: 2020-09-15 07:19+0200\n"
++"PO-Revision-Date: 2020-09-15 07:51+0200\n"
+ "Last-Translator: Fabio Tomat <f.t.public@gmail.com>\n"
+ "Language-Team: Friulian <fur@li.org>\n"
+ "Language: fur\n"
+@@ -2491,7 +2491,7 @@ msgstr "Inviade"
+ 
+ #: src/client/util/util-i18n.vala:280
+ msgid "Starred"
+-msgstr "Preferidis"
++msgstr "Preferide"
+ 
+ #: src/client/util/util-i18n.vala:283
+ msgid "Important"
+-- 
+2.29.2
+

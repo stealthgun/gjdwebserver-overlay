@@ -1,0 +1,66 @@
+From 115b055e7b3dd267c44efacaf3fc7272a81d9d96 Mon Sep 17 00:00:00 2001
+From: Julian Sparber <julian@sparber.net>
+Date: Mon, 5 Oct 2020 17:20:14 +0200
+Subject: [PATCH 054/124] main-window: Add leaflet navigation with Alt+Arrow
+ keys
+
+---
+ .../application/application-main-window.vala  | 35 +++++++++++++++++--
+ 1 file changed, 33 insertions(+), 2 deletions(-)
+
+diff --git a/src/client/application/application-main-window.vala b/src/client/application/application-main-window.vala
+index 3af1b6aa..bb5a9404 100644
+--- a/src/client/application/application-main-window.vala
++++ b/src/client/application/application-main-window.vala
+@@ -1797,7 +1797,20 @@ public class Application.MainWindow :
+ 
+     private void focus_next_pane() {
+         var focus = get_focus();
+-        if (focus != null) {
++
++        if (main_leaflet.folded) {
++            if (main_leaflet.visible_child_name == "conversations") {
++                if (conversations_leaflet.folded &&
++                    conversations_leaflet.visible_child_name == "folder" ||
++                    focus == this.folder_list) {
++                    conversations_leaflet.navigate(Hdy.NavigationDirection.FORWARD);
++                    focus = this.conversation_list_view;
++                } else {
++                    main_leaflet.navigate(Hdy.NavigationDirection.FORWARD);
++                    focus = this.conversation_viewer.visible_child;
++                }
++            }
++        } else if (focus != null) {
+             if (focus == this.folder_list ||
+                 focus.is_ancestor(this.folder_list)) {
+                 focus = this.conversation_list_view;
+@@ -1819,7 +1832,25 @@ public class Application.MainWindow :
+ 
+     private void focus_previous_pane() {
+         var focus = get_focus();
+-        if (focus != null) {
++
++        if (main_leaflet.folded) {
++            if (main_leaflet.visible_child_name == "conversations") {
++                if (conversations_leaflet.folded) {
++                    if (conversations_leaflet.visible_child_name == "conversations") {
++                        conversations_leaflet.navigate(Hdy.NavigationDirection.BACK);
++                        focus = this.folder_list;
++                    }
++                } else {
++                    if (focus == this.conversation_list_view)
++                        focus = this.folder_list;
++                    else
++                        focus = this.conversation_list_view;
++                }
++            } else {
++                main_leaflet.navigate(Hdy.NavigationDirection.BACK);
++                focus = this.conversation_list_view;
++            }
++        } else if (focus != null) {
+             if (focus == this.folder_list ||
+                 focus.is_ancestor(this.folder_list)) {
+                 focus = this.conversation_viewer.visible_child;
+-- 
+2.29.2
+

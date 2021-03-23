@@ -1,0 +1,42 @@
+From 899834189cb8a077fe2b67b0088761cfae5d7452 Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Tue, 13 Oct 2020 23:45:44 +1100
+Subject: [PATCH 093/124] org.gnome.Geary.yaml: Enable copying release config
+ for nightlies
+
+---
+ org.gnome.Geary.json | 2 ++
+ org.gnome.Geary.yaml | 4 ++++
+ 2 files changed, 6 insertions(+)
+
+diff --git a/org.gnome.Geary.json b/org.gnome.Geary.json
+index 99e41612..7f55fb1f 100644
+--- a/org.gnome.Geary.json
++++ b/org.gnome.Geary.json
+@@ -25,6 +25,8 @@
+         "--talk-name=org.gnome.evolution.dataserver.Sources5",
+         "--filesystem=xdg-cache/evolution/addressbook:ro",
+         "--metadata=X-DConf=migrate-path=/org/gnome/Geary/",
++        "--filesystem=~/.config/geary:ro",
++        "--filesystem=~/.var/app/org.gnome.Geary/config/geary:ro",
+         "--filesystem=/tmp"
+     ],
+     "cleanup": [
+diff --git a/org.gnome.Geary.yaml b/org.gnome.Geary.yaml
+index 0dd89a18..f5d200f6 100644
+--- a/org.gnome.Geary.yaml
++++ b/org.gnome.Geary.yaml
+@@ -57,6 +57,10 @@ finish-args:
+   # Migrate GSettings into the sandbox
+   - "--metadata=X-DConf=migrate-path=/org/gnome/Geary/"
+ 
++  # Migrate Geary settings from other release versions
++  - "--filesystem=~/.config/geary:ro"
++  - "--filesystem=~/.var/app/org.gnome.Geary/config/geary:ro"
++
+   # Let view source keep on working as-sis for now. Bug 779311. */
+   - "--filesystem=/tmp"
+ 
+-- 
+2.29.2
+

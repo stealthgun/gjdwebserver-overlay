@@ -1,0 +1,58 @@
+From e8061379ec022f8ce1ecb163a574192af5b8ac80 Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Tue, 13 Oct 2020 23:32:46 +1100
+Subject: [PATCH 089/124] Application.Controller: Clean up config/data vars in
+ ctor
+
+---
+ src/client/application/application-controller.vala | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
+
+diff --git a/src/client/application/application-controller.vala b/src/client/application/application-controller.vala
+index 9fd5966f..ef634489 100644
+--- a/src/client/application/application-controller.vala
++++ b/src/client/application/application-controller.vala
+@@ -125,6 +125,9 @@ internal class Application.Controller :
+         this.application = application;
+         this.controller_open = cancellable;
+ 
++        GLib.File config_dir = application.get_user_config_directory();
++        GLib.File data_dir = application.get_user_data_directory();
++
+         // This initializes the IconFactory, important to do before
+         // the actions are created (as they refer to some of Geary's
+         // custom icons)
+@@ -139,9 +142,7 @@ internal class Application.Controller :
+             this.application.get_web_extensions_dir(),
+             this.application.get_user_cache_directory().get_child("web-resources")
+         );
+-        Components.WebView.load_resources(
+-            this.application.get_user_config_directory()
+-        );
++        Components.WebView.load_resources(config_dir);
+         Composer.WebView.load_resources();
+         ConversationWebView.load_resources();
+         Accounts.SignatureWebView.load_resources();
+@@ -179,7 +180,7 @@ internal class Application.Controller :
+         // Hook up cert, accounts and credentials machinery
+ 
+         this.certificate_manager = yield new Application.CertificateManager(
+-            this.application.get_user_data_directory().get_child("pinned-certs"),
++            config_dir.get_child("pinned-certs"),
+             cancellable
+         );
+ 
+@@ -189,8 +190,8 @@ internal class Application.Controller :
+ 
+         this.account_manager = new Accounts.Manager(
+             libsecret,
+-            this.application.get_user_config_directory(),
+-            this.application.get_user_data_directory()
++            config_dir,
++            data_dir
+         );
+         this.account_manager.account_added.connect(
+             on_account_added
+-- 
+2.29.2
+

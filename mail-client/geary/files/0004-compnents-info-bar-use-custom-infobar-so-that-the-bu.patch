@@ -1,0 +1,558 @@
+From 7d164ce964aa4118d019a741f9abf821f1897985 Mon Sep 17 00:00:00 2001
+From: Julian Sparber <julian@sparber.net>
+Date: Tue, 13 Oct 2020 15:46:39 +0200
+Subject: [PATCH 4/6] compnents-info-bar: use custom infobar so that the
+ buttons reflow
+
+---
+ po/POTFILES.in                                |   1 +
+ .../application/application-main-window.vala  |   2 +-
+ .../components/components-info-bar-stack.vala |  34 ++--
+ .../components/components-info-bar.vala       | 153 ++++++++++++++++--
+ .../conversation-list-box.vala                |   4 +-
+ .../conversation-message.vala                 |   4 +-
+ ui/components-info-bar.ui                     |  83 ++++++++++
+ ui/geary.css                                  |   4 +
+ ui/org.gnome.Geary.gresource.xml              |   1 +
+ 9 files changed, 248 insertions(+), 38 deletions(-)
+ create mode 100644 ui/components-info-bar.ui
+
+diff --git a/po/POTFILES.in b/po/POTFILES.in
+index cd8b339d..6ab344dc 100644
+--- a/po/POTFILES.in
++++ b/po/POTFILES.in
+@@ -460,6 +460,7 @@ ui/components-attachment-view.ui
+ ui/components-conversation-actions.ui
+ ui/components-conversation-action-bar.ui
+ ui/components-in-app-notification.ui
++ui/components-info-bar.ui
+ ui/components-inspector-error-view.ui
+ ui/components-inspector-log-view.ui
+ ui/components-inspector.ui
+diff --git a/src/client/application/application-main-window.vala b/src/client/application/application-main-window.vala
+index 19f04492..27526e0e 100644
+--- a/src/client/application/application-main-window.vala
++++ b/src/client/application/application-main-window.vala
+@@ -889,7 +889,7 @@ public class Application.MainWindow :
+     }
+ 
+     /** Displays an infobar in the window. */
+-    public void show_info_bar(Gtk.InfoBar info_bar) {
++    public void show_info_bar(Components.InfoBar info_bar) {
+         if (!this.info_bars.has_current) {
+             this.info_bars.add(info_bar);
+         }
+diff --git a/src/client/components/components-info-bar-stack.vala b/src/client/components/components-info-bar-stack.vala
+index cbe63e05..83339210 100644
+--- a/src/client/components/components-info-bar-stack.vala
++++ b/src/client/components/components-info-bar-stack.vala
+@@ -6,7 +6,7 @@
+  */
+ 
+ /**
+- * A stack-like widget for displaying Gtk InfoBar widgets.
++ * A stack-like widget for displaying Components.InfoBar widgets.
+  *
+  * The stack ensures only one info bar is shown at once, shows a frame
+  * around the info bar, and manages revealing and hiding itself and
+@@ -40,7 +40,7 @@ public class Components.InfoBarStack : Gtk.Frame, Geary.BaseInterface {
+     }
+ 
+ 
+-    private class SingletonQueue : Gee.AbstractQueue<Gtk.InfoBar> {
++    private class SingletonQueue : Gee.AbstractQueue<Components.InfoBar> {
+ 
+         public override bool read_only {
+             get { return false; }
+@@ -62,10 +62,10 @@ public class Components.InfoBarStack : Gtk.Frame, Geary.BaseInterface {
+             get { return (this.element != null) ? 0 : 1; }
+         }
+ 
+-        private Gtk.InfoBar? element = null;
++        private Components.InfoBar? element = null;
+ 
+ 
+-        public override bool add(Gtk.InfoBar to_add) {
++        public override bool add(Components.InfoBar to_add) {
+             var added = false;
+             if (this.element != to_add) {
+                 this.element = to_add;
+@@ -78,20 +78,20 @@ public class Components.InfoBarStack : Gtk.Frame, Geary.BaseInterface {
+             this.element = null;
+         }
+ 
+-        public override bool contains(Gtk.InfoBar other) {
++        public override bool contains(Components.InfoBar other) {
+             return (this.element == other);
+         }
+ 
+-        public override Gee.Iterator<Gtk.InfoBar> iterator() {
++        public override Gee.Iterator<Components.InfoBar> iterator() {
+             // This sucks but it won't ever be used so oh well
+             return (
+                 this.element == null
+-                ? Gee.Collection.empty<Gtk.InfoBar>().iterator()
++                ? Gee.Collection.empty<Components.InfoBar>().iterator()
+                 : Geary.Collection.single(this.element).iterator()
+             );
+         }
+ 
+-        public override bool remove(Gtk.InfoBar to_remove) {
++        public override bool remove(Components.InfoBar to_remove) {
+             var removed = false;
+             if (this.element == to_remove) {
+                 this.element = null;
+@@ -100,11 +100,11 @@ public class Components.InfoBarStack : Gtk.Frame, Geary.BaseInterface {
+             return removed;
+         }
+ 
+-        public override Gtk.InfoBar peek() {
++        public override Components.InfoBar peek() {
+             return this.element;
+         }
+ 
+-        public override Gtk.InfoBar poll() {
++        public override Components.InfoBar poll() {
+             var element = this.element;
+             this.element = null;
+             return element;
+@@ -126,7 +126,7 @@ public class Components.InfoBarStack : Gtk.Frame, Geary.BaseInterface {
+      * @see algorithm
+      * @see StackType.PRIORITY_QUEUE
+      */
+-    public static int priority_queue_comparator(Gtk.InfoBar a, Gtk.InfoBar b) {
++    public static int priority_queue_comparator(Components.InfoBar a, Components.InfoBar b) {
+         return (
+             b.get_data<int>(PRIORITY_QUEUE_KEY) -
+             a.get_data<int>(PRIORITY_QUEUE_KEY)
+@@ -150,11 +150,11 @@ public class Components.InfoBarStack : Gtk.Frame, Geary.BaseInterface {
+     }
+ 
+     /** Returns the currently displayed info bar, if any. */
+-    public Gtk.InfoBar? current_info_bar {
+-        get { return get_child() as Gtk.InfoBar; }
++    public Components.InfoBar? current_info_bar {
++        get { return get_child() as Components.InfoBar; }
+     }
+ 
+-    private Gee.Queue<Gtk.InfoBar> available;
++    private Gee.Queue<Components.InfoBar> available;
+     private int last_allocated_height = 0;
+ 
+ 
+@@ -175,7 +175,7 @@ public class Components.InfoBarStack : Gtk.Frame, Geary.BaseInterface {
+      * stack constructed, the info bar may or may not be revealed
+      * immediately.
+      */
+-    public new void add(Gtk.InfoBar to_add) {
++    public new void add(Components.InfoBar to_add) {
+         if (this.available.offer(to_add)) {
+             update();
+         }
+@@ -188,7 +188,7 @@ public class Components.InfoBarStack : Gtk.Frame, Geary.BaseInterface {
+      * replaced with the next info bar added. If the only info bar
+      * present is removed, the stack also hides itself.
+      */
+-    public new void remove(Gtk.InfoBar to_remove) {
++    public new void remove(Components.InfoBar to_remove) {
+         if (this.available.remove(to_remove)) {
+             update();
+         }
+@@ -234,7 +234,7 @@ public class Components.InfoBarStack : Gtk.Frame, Geary.BaseInterface {
+             this.available = new SingletonQueue();
+             break;
+         case PRIORITY_QUEUE:
+-            this.available = new Gee.PriorityQueue<Gtk.InfoBar>(
++            this.available = new Gee.PriorityQueue<Components.InfoBar>(
+                 InfoBarStack.priority_queue_comparator
+             );
+             break;
+diff --git a/src/client/components/components-info-bar.vala b/src/client/components/components-info-bar.vala
+index 05124c00..4ab6b56d 100644
+--- a/src/client/components/components-info-bar.vala
++++ b/src/client/components/components-info-bar.vala
+@@ -8,9 +8,11 @@
+ /**
+  * A standard info bar widget with status message and description.
+  */
+-public class Components.InfoBar : Gtk.InfoBar {
++[GtkTemplate (ui = "/org/gnome/Geary/components-info-bar.ui")]
++public class Components.InfoBar : Gtk.Box {
+ 
+ 
++    public signal void response(int response_id);
+     /**
+      * A short, human-readable status message.
+      *
+@@ -26,11 +28,38 @@ public class Components.InfoBar : Gtk.InfoBar {
+      */
+     public Gtk.Label? description { get; private set; default = null; }
+ 
++    public bool show_close_button { get; set; default = false;}
++    public bool revealed { get; set; }
++    private Gtk.MessageType _message_type;
++    public Gtk.MessageType message_type {
++        get {
++            return _message_type;
++        }
++        set {
++            _set_message_type(value);
++        }
++    }
++
+ 
+     private Plugin.InfoBar? plugin = null;
+     private string? plugin_action_group_name = null;
+     private Gtk.Button? plugin_primary_button = null;
+ 
++    [GtkChild]
++    private Gtk.Revealer revealer;
++
++    [GtkChild]
++    private Gtk.Box action_area;
++
++    [GtkChild]
++    private Gtk.Box content_area;
++
++    [GtkChild]
++    private Gtk.Button close_button;
++
++    static construct {
++        set_css_name("infobar");
++    }
+ 
+     /**
+      * Constructs a new info bar.
+@@ -43,6 +72,20 @@ public class Components.InfoBar : Gtk.InfoBar {
+     public InfoBar(string status, string? description = null) {
+         this.status = new Gtk.Label(status);
+         this.status.halign = START;
++        this.status.xalign = 0;
++
++        _message_type = Gtk.MessageType.OTHER;
++        _set_message_type(Gtk.MessageType.INFO);
++
++        this.bind_property("revealed",
++                           this.revealer,
++                           "reveal-child",
++                           BindingFlags.SYNC_CREATE | BindingFlags.BIDIRECTIONAL);
++
++        this.bind_property("show-close-button",
++                           this.close_button,
++                           "visible",
++                           BindingFlags.SYNC_CREATE | BindingFlags.BIDIRECTIONAL);
+ 
+         var attrs = new Pango.AttrList();
+         attrs.change(Pango.attr_weight_new(BOLD));
+@@ -57,11 +100,8 @@ public class Components.InfoBar : Gtk.InfoBar {
+             this.description = new Gtk.Label(description);
+             this.description.halign = START;
+             this.description.valign = START;
+-
+-            // Set the description to be ellipsised and set and the
+-            // tool-tip to be the same, in case it is too long for the
+-            // info bar's width
+-            this.description.ellipsize = END;
++            this.description.xalign = 0;
++            this.description.wrap = true;
+             this.description.tooltip_text = description;
+         }
+ 
+@@ -85,15 +125,28 @@ public class Components.InfoBar : Gtk.InfoBar {
+         this.plugin_action_group_name = action_group_name;
+         this.show_close_button = plugin.show_close_button;
+ 
++        _message_type = Gtk.MessageType.OTHER;
++        _set_message_type(Gtk.MessageType.INFO);
++
++        this.bind_property("revealed",
++                           this.revealer,
++                           "reveal-child",
++                           BindingFlags.SYNC_CREATE | BindingFlags.BIDIRECTIONAL);
++
++        this.bind_property("show-close-button",
++                           this.close_button,
++                           "visible",
++                           BindingFlags.SYNC_CREATE | BindingFlags.BIDIRECTIONAL);
++
+         plugin.notify["status"].connect(
+             () => { this.status.label = plugin.status; }
+-        );
++            );
+         plugin.notify["description"].connect(
+             () => { this.description.label = plugin.description; }
+-        );
++            );
+         plugin.notify["primary-button"].connect(
+             () => { this.update_plugin_primary_button(); }
+-        );
++            );
+ 
+         var secondaries = plugin.secondary_buttons.bidir_list_iterator();
+         bool has_prev = secondaries.last();
+@@ -108,11 +161,12 @@ public class Components.InfoBar : Gtk.InfoBar {
+         show_all();
+     }
+ 
+-    /* {@inheritDoc} */
+-    public override void response(int response) {
+-        if (response == Gtk.ResponseType.CLOSE && this.plugin != null) {
++    [GtkCallback]
++    public void on_close_button_clicked() {
++        if (this.plugin != null) {
+             this.plugin.close_activated();
+         }
++        response(Gtk.ResponseType.CLOSE);
+     }
+ 
+     /* {@inheritDoc} */
+@@ -120,10 +174,22 @@ public class Components.InfoBar : Gtk.InfoBar {
+         this.plugin = null;
+     }
+ 
+-    // GTK 3.24.16 fixed the binding for this, but that and the VAPI
+-    // change has yet to trickle down to common distros like F31
+-    public new Gtk.Box get_action_area() {
+-        return (Gtk.Box) base.get_action_area();
++    public Gtk.Box get_action_area() {
++        return this.action_area;
++    }
++
++    public Gtk.Box get_content_area() {
++        return this.content_area;
++    }
++
++    public Gtk.Button add_button(string button_text, int response_id) {
++        var button = new Gtk.Button.with_mnemonic(button_text);
++        button.clicked.connect(() => {
++            response(response_id);
++        });
++        get_action_area().add(button);
++        button.visible = true;
++        return button;
+     }
+ 
+     private void update_plugin_primary_button() {
+@@ -162,4 +228,59 @@ public class Components.InfoBar : Gtk.InfoBar {
+         return button;
+     }
+ 
++    private void _set_message_type(Gtk.MessageType message_type) {
++        if (this._message_type != message_type) {
++            Gtk.StyleContext context = this.get_style_context();
++            const string[] type_class = {
++                Gtk.STYLE_CLASS_INFO,
++                Gtk.STYLE_CLASS_WARNING,
++                Gtk.STYLE_CLASS_QUESTION,
++                Gtk.STYLE_CLASS_ERROR,
++                null
++            };
++
++            if (type_class[this._message_type] != null)
++                context.remove_class(type_class[this._message_type]);
++
++            this._message_type = message_type;
++
++            var atk_obj = this.get_accessible();
++            if (atk_obj is Atk.Object) {
++                string name = null;
++
++                atk_obj.set_role(Atk.Role.INFO_BAR);
++
++                switch (message_type) {
++                    case Gtk.MessageType.INFO:
++                        name = _("Information");
++                        break;
++
++                    case Gtk.MessageType.QUESTION:
++                        name = _("Question");
++                        break;
++
++                    case Gtk.MessageType.WARNING:
++                        name = _("Warning");
++                        break;
++
++                    case Gtk.MessageType.ERROR:
++                        name = _("Error");
++                        break;
++
++                    case Gtk.MessageType.OTHER:
++                        break;
++
++                    default:
++                        warning("Unknown GtkMessageType %u", message_type);
++                        break;
++                }
++
++                if (name != null)
++                    atk_obj.set_name(name);
++            }
++
++            if (type_class[this._message_type] != null)
++                context.add_class(type_class[this._message_type]);
++        }
++    }
+ }
+diff --git a/src/client/conversation-viewer/conversation-list-box.vala b/src/client/conversation-viewer/conversation-list-box.vala
+index 3eb8240b..7d0c94af 100644
+--- a/src/client/conversation-viewer/conversation-list-box.vala
++++ b/src/client/conversation-viewer/conversation-list-box.vala
+@@ -936,7 +936,7 @@ public class ConversationListBox : Gtk.ListBox, Geary.BaseInterface {
+ 
+     /** Adds an info bar to the given email, if any. */
+     public void add_email_info_bar(Geary.EmailIdentifier id,
+-                                   Gtk.InfoBar info_bar) {
++                                   Components.InfoBar info_bar) {
+         var row = this.email_rows.get(id);
+         if (row != null) {
+             row.view.primary_message.info_bars.add(info_bar);
+@@ -945,7 +945,7 @@ public class ConversationListBox : Gtk.ListBox, Geary.BaseInterface {
+ 
+     /** Adds an info bar to the given email, if any. */
+     public void remove_email_info_bar(Geary.EmailIdentifier id,
+-                                      Gtk.InfoBar info_bar) {
++                                      Components.InfoBar info_bar) {
+         var row = this.email_rows.get(id);
+         if (row != null) {
+             row.view.primary_message.info_bars.remove(info_bar);
+diff --git a/src/client/conversation-viewer/conversation-message.vala b/src/client/conversation-viewer/conversation-message.vala
+index 109c4a1c..868fea7e 100644
+--- a/src/client/conversation-viewer/conversation-message.vala
++++ b/src/client/conversation-viewer/conversation-message.vala
+@@ -380,7 +380,7 @@ public class ConversationMessage : Gtk.Grid, Geary.BaseInterface {
+     [GtkChild]
+     private Gtk.ProgressBar body_progress;
+ 
+-    private Gtk.InfoBar? remote_images_info_bar = null;
++    private Components.InfoBar? remote_images_info_bar = null;
+ 
+     private Gtk.Widget? body_placeholder = null;
+ 
+@@ -1460,7 +1460,7 @@ public class ConversationMessage : Gtk.Grid, Geary.BaseInterface {
+         }
+     }
+ 
+-    private void on_remote_images_response(Gtk.InfoBar info_bar, int response_id) {
++    private void on_remote_images_response(Components.InfoBar info_bar, int response_id) {
+         switch (response_id) {
+         case 1:
+             // Show images for the message
+diff --git a/ui/components-info-bar.ui b/ui/components-info-bar.ui
+new file mode 100644
+index 00000000..11dcfe37
+--- /dev/null
++++ b/ui/components-info-bar.ui
+@@ -0,0 +1,83 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<interface>
++  <requires lib="gtk+" version="3.20"/>
++  <template class="ComponentsInfoBar" parent="GtkBox">
++    <property name="visible">True</property>
++    <property name="can_focus">False</property>
++    <child>
++      <object class="GtkRevealer" id="revealer">
++        <property name="visible">True</property>
++        <property name="can_focus">False</property>
++        <property name="transition_type">slide-down</property>
++        <child>
++          <object class="GtkBox">
++            <property name="visible">True</property>
++            <property name="can_focus">False</property>
++            <child>
++              <object class="GtkFlowBox">
++                <property name="visible">True</property>
++                <property name="can_focus">False</property>
++                <property name="hexpand">True</property>
++                <property name="selection-mode">none</property>
++                <property name="max_children_per_line">2</property>
++                <property name="border-width">12</property>
++                <child>
++                  <object class="GtkFlowBoxChild">
++                    <property name="visible">True</property>
++                    <property name="can_focus">True</property>
++                    <child>
++                      <object class="GtkBox" id="content_area">
++                        <property name="visible">True</property>
++                        <property name="can_focus">False</property>
++                        <property name="spacing">16</property>
++                      </object>
++                    </child>
++                  </object>
++                </child>
++                <child>
++                  <object class="GtkFlowBoxChild">
++                    <property name="visible">True</property>
++                    <property name="can_focus">True</property>
++                    <child>
++                      <object class="GtkButtonBox" id="action_area">
++                        <property name="visible">True</property>
++                        <property name="can_focus">False</property>
++                        <property name="layout_style">end</property>
++                        <property name="spacing">6</property>
++                      </object>
++                    </child>
++                  </object>
++                </child>
++              </object>
++            </child>
++            <child>
++              <object class="GtkButton" id="close_button">
++                <property name="can_focus">True</property>
++                <property name="receives_default">True</property>
++                <property name="halign">end</property>
++                <property name="valign">center</property>
++                <property name="margin">6</property>
++                <property name="no_show_all">True</property>
++                <signal name="clicked" handler="on_close_button_clicked" swapped="no"/>
++                <style>
++                  <class name="titlebutton"/>
++                  <class name="close"/>
++                </style>
++                <child>
++                  <object class="GtkImage">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="icon_name">window-close-symbolic</property>
++                  </object>
++                </child>
++              </object>
++              <packing>
++                <property name="pack_type">end</property>
++              </packing>
++            </child>
++          </object>
++        </child>
++      </object>
++    </child>
++  </template>
++</interface>
+diff --git a/ui/geary.css b/ui/geary.css
+index 2d1d48c3..e38d135a 100644
+--- a/ui/geary.css
++++ b/ui/geary.css
+@@ -62,6 +62,10 @@ geary-conversation-viewer {
+   border-right-width: 0;
+ }
+ 
++infobar flowboxchild {
++	padding: 0px;
++}
++
+ /* FolderPopover */
+ 
+ row.geary-folder-popover-list-row {
+diff --git a/ui/org.gnome.Geary.gresource.xml b/ui/org.gnome.Geary.gresource.xml
+index 0b9e900f..fbd7899d 100644
+--- a/ui/org.gnome.Geary.gresource.xml
++++ b/ui/org.gnome.Geary.gresource.xml
+@@ -16,6 +16,7 @@
+     <file compressed="true" preprocess="xml-stripblanks">components-conversation-action-bar.ui</file>
+     <file compressed="true" preprocess="xml-stripblanks">components-conversation-actions.ui</file>
+     <file compressed="true" preprocess="xml-stripblanks">components-in-app-notification.ui</file>
++    <file compressed="true" preprocess="xml-stripblanks">components-info-bar.ui</file>
+     <file compressed="true" preprocess="xml-stripblanks">components-inspector.ui</file>
+     <file compressed="true" preprocess="xml-stripblanks">components-inspector-error-view.ui</file>
+     <file compressed="true" preprocess="xml-stripblanks">components-inspector-log-view.ui</file>
+-- 
+2.29.2
+

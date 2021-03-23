@@ -1,0 +1,251 @@
+From aaa2934acfb53243d21a4a68ac6486951ae4b045 Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Sat, 3 Oct 2020 21:06:43 +1000
+Subject: [PATCH 035/124] meson_options.txt: Update to use meson best practices
+ and clean up
+
+Convert to use meson features for features. Reorganise and rename
+options for consistency. Make descriptions a bit less redundant.
+---
+ desktop/meson.build    |  2 +-
+ meson.build            | 27 +++++++---------
+ meson_options.txt      | 71 ++++++++++++++++++++++++------------------
+ src/engine/meson.build |  2 +-
+ src/meson.build        |  4 +--
+ test/meson.build       |  2 +-
+ 6 files changed, 57 insertions(+), 51 deletions(-)
+
+diff --git a/desktop/meson.build b/desktop/meson.build
+index f0c8a660..712db358 100644
+--- a/desktop/meson.build
++++ b/desktop/meson.build
+@@ -77,7 +77,7 @@ endif
+ # Contractor file (Elementary OS)
+ #
+ 
+-if install_contractor_file
++if get_option('contractor').enabled()
+   # Call msgfmt manually since gettext won't otherwise translate the
+   # Description field. See merge req !50.
+   msgfmt = find_program('msgfmt')
+diff --git a/meson.build b/meson.build
+index 240eacaa..82f0439d 100644
+--- a/meson.build
++++ b/meson.build
+@@ -4,13 +4,6 @@ project('geary', [ 'vala', 'c' ],
+   meson_version: '>= 0.50',
+ )
+ 
+-# Build-time configuration options
+-enable_valadoc = get_option('valadoc')
+-install_contractor_file = get_option('contractor')
+-iso_3166_xml = get_option('iso_3166_xml')
+-iso_639_xml = get_option('iso_639_xml')
+-reference_tracking = get_option('ref_tracking')
+-
+ # Build type
+ if get_option('profile') == 'development'
+   profile = '.Devel'
+@@ -92,13 +85,13 @@ libpeas_gtk = dependency('libpeas-gtk-1.0', version: '>= 1.24.0')
+ libsecret = dependency('libsecret-1', version: '>= 0.11')
+ libsoup = dependency('libsoup-2.4', version: '>= 2.48')
+ libunwind_dep = dependency(
+-  'libunwind', version: '>= 1.1', required: not get_option('libunwind_optional')
++  'libunwind', version: '>= 1.1', required: get_option('libunwind')
+ )
+ libunwind_generic_dep = dependency(
+-  'libunwind-generic', version: '>= 1.1', required: not get_option('libunwind_optional')
++  'libunwind-generic', version: '>= 1.1', required: get_option('libunwind')
+ )
+ libxml = dependency('libxml-2.0', version: '>= 2.7.8')
+-libytnef = dependency('libytnef', version: '>= 1.9.3', required: get_option('tnef-support'))
++libytnef = dependency('libytnef', version: '>= 1.9.3', required: get_option('tnef'))
+ posix = valac.find_library('posix')
+ webkit2gtk_web_extension = dependency('webkit2gtk-web-extension-4.0', version: '>=' + target_webkit)
+ 
+@@ -153,27 +146,31 @@ endif
+ # Build glue
+ #
+ 
++valadoc = find_program('valadoc', required: get_option('valadoc'))
++
+ vala_unit_proj = subproject(
+   'vala-unit',
+   default_options: [
+     'install=false',
+-    'valadoc=@0@'.format(enable_valadoc)
++    'valadoc=@0@'.format(valadoc.found())
+   ]
+ )
+ vala_unit_dep = vala_unit_proj.get_variable('vala_unit_dep')
+ 
+-if enable_valadoc
+-  valadoc = find_program('valadoc')
+-endif
+-
+ # Language detection
++
+ iso_codes_dir = iso_codes.get_pkgconfig_variable('prefix')/'share'/'xml'/'iso-codes'
++
++iso_639_xml = get_option('iso_639_xml')
+ if iso_639_xml == ''
+   iso_639_xml = iso_codes_dir / 'iso_639.xml'
+ endif
++
++iso_3166_xml = get_option('iso_3166_xml')
+ if iso_3166_xml == ''
+   iso_3166_xml = iso_codes_dir / 'iso_3166.xml'
+ endif
++
+ files(iso_639_xml, iso_3166_xml) # Check to make sure these exist
+ 
+ # Post-install scripts
+diff --git a/meson_options.txt b/meson_options.txt
+index a18438d4..968c2541 100644
+--- a/meson_options.txt
++++ b/meson_options.txt
+@@ -1,11 +1,18 @@
+ #
+ # General build options
+ #
++
+ option(
+-  'contractor',
+-  type: 'boolean',
+-  value: false,
+-  description: 'Whether to install the contractor file (Elementary OS-specific).'
++  'profile',
++  type: 'combo',
++  value: 'default',
++  choices: ['default','development','beta'],
++  description: 'Specifies the application type to be built'
++)
++option(
++  'revno',
++  type: 'string',
++  description: 'Custom revision string (default extracted from "git describe")'
+ )
+ option(
+   'iso_639_xml',
+@@ -19,41 +26,43 @@ option(
+   value: '',
+   description: 'Full path to the ISO 3166 XML file.'
+ )
+-option(
+-  'libunwind_optional',
+-  type: 'boolean',
+-  value: false,
+-  description: 'Determines if libunwind is required.'
+-)
+-option(
+-  'tnef-support',
+-  type: 'boolean',
+-  value: true,
+-  description: 'Whether to support TNEF attachments (requires libytnef).'
+-)
+ option(
+   'valadoc',
+-  type: 'boolean',
+-  value: false,
+-  description: 'Whether to build the documentation (requires valadoc).'
++  type: 'feature',
++  value: 'auto',
++  description: 'Build API documentation'
+ )
+ 
++#
+ # Development options
++#
++
+ option(
+-  'profile',
+-  type: 'combo',
+-  value: 'default',
+-  choices: ['default','development','beta'],
+-  description: 'Specifies the application type to be built'
++  'ref_tracking',
++  type: 'feature',
++  value: 'disabled',
++  description: 'Enable Geary.BaseObject reference tracking'
++)
++
++#
++# Optional features
++#
++
++option(
++  'contractor',
++  type: 'feature',
++  value: 'disabled',
++  description: 'Install an Elementary OS a contractor file'
+ )
+ option(
+-  'ref_tracking',
+-  type: 'boolean',
+-  value: false,
+-  description: 'Whether to use explicit reference tracking.'
++  'libunwind',
++  type: 'feature',
++  value: 'enabled',
++  description: 'Use libunwind for back traces in problem reports.'
+ )
+ option(
+-  'revno',
+-  type: 'string',
+-  description: 'Custom revision string (default extracted from "git describe")'
++  'tnef',
++  type: 'feature',
++  value: 'enabled',
++  description: 'Support Microsoft-proprietary TNEF attachments.'
+ )
+diff --git a/src/engine/meson.build b/src/engine/meson.build
+index 0efd773e..1133f7b8 100644
+--- a/src/engine/meson.build
++++ b/src/engine/meson.build
+@@ -349,7 +349,7 @@ if libunwind_dep.found()
+   ]
+ endif
+ 
+-if get_option('tnef-support')
++if libytnef.found()
+   engine_dependencies += libytnef
+   engine_vala_args += [
+     '-D', 'WITH_TNEF_SUPPORT'
+diff --git a/src/meson.build b/src/meson.build
+index 225777e8..14f08c18 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -33,7 +33,7 @@ endif
+ 
+ # Symbols for valac's preprocessor must be defined as compiler args,
+ # not in the code or in config.h
+-if reference_tracking
++if get_option('ref_tracking').enabled()
+   geary_vala_args += [ '--define=REF_TRACKING' ]
+ endif
+ 
+@@ -157,7 +157,7 @@ foreach dir : valadoc_vapi_dirs
+   valadoc_vapidir_args += '--vapidir=@0@'.format(dir)
+ endforeach
+ 
+-if enable_valadoc
++if valadoc.found()
+   docs = custom_target('valadoc',
+     build_by_default: true,
+     depends: [client_lib, engine_lib],
+diff --git a/test/meson.build b/test/meson.build
+index fe3040dd..a32b2a82 100644
+--- a/test/meson.build
++++ b/test/meson.build
+@@ -118,7 +118,7 @@ test_engine_dependencies += engine_dependencies
+ 
+ test_engine_vala_args = geary_vala_args
+ 
+-if get_option('tnef-support')
++if libytnef.found()
+   test_engine_dependencies += libytnef
+   test_engine_vala_args += [
+     '-D', 'WITH_TNEF_SUPPORT'
+-- 
+2.29.2
+

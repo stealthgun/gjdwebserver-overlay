@@ -1,0 +1,56 @@
+From 6f1f94e5546c8df1b7627ebcd70edae8eab96fc6 Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Sun, 25 Oct 2020 17:05:03 +1100
+Subject: [PATCH 112/124] Composer.Widget: Suppress unsupported draft folder
+ messages
+
+There's nothing people can do about the draft folder being unusable
+for saving drafts, so just log a debug message and continue.
+
+Fixes #858
+---
+ src/client/composer/composer-widget.vala | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/src/client/composer/composer-widget.vala b/src/client/composer/composer-widget.vala
+index 9148a88e..fe29011d 100644
+--- a/src/client/composer/composer-widget.vala
++++ b/src/client/composer/composer-widget.vala
+@@ -1533,6 +1533,7 @@ public class Composer.Widget : Gtk.EventBox, Geary.BaseInterface {
+             : new Geary.EmailFlags()
+         );
+ 
++        bool opened = false;
+         try {
+             var new_manager = yield new Geary.App.DraftManager(
+                 this.sender_context.account,
+@@ -1548,7 +1549,13 @@ public class Composer.Widget : Gtk.EventBox, Geary.BaseInterface {
+             new_manager.fatal
+                 .connect(on_draft_manager_fatal);
+             this.draft_manager = new_manager;
++            opened = true;
+             debug("Draft manager opened");
++        } catch (Geary.EngineError.UNSUPPORTED err) {
++            debug(
++                "Drafts folder unsupported, no drafts will be saved: %s",
++                err.message
++            );
+         } catch (GLib.Error err) {
+             this.header.show_save_and_close = false;
+             throw err;
+@@ -1556,8 +1563,10 @@ public class Composer.Widget : Gtk.EventBox, Geary.BaseInterface {
+             this.draft_manager_opening = null;
+         }
+ 
+-        update_draft_state();
+-        this.header.show_save_and_close = true;
++        this.header.show_save_and_close = opened;
++        if (opened) {
++            update_draft_state();
++        }
+     }
+ 
+     /**
+-- 
+2.29.2
+

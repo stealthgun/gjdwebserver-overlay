@@ -1,0 +1,60 @@
+From 0dce103f6b7d2195efe995f72bf1dc2f379e0824 Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Sat, 17 Oct 2020 13:54:39 +1100
+Subject: [PATCH 104/124] ui/components-web-view.js: Use arrow functions for
+ better this scoping
+
+---
+ ui/components-web-view.js | 22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
+
+diff --git a/ui/components-web-view.js b/ui/components-web-view.js
+index 34bf0430..9b026dcd 100644
+--- a/ui/components-web-view.js
++++ b/ui/components-web-view.js
+@@ -26,32 +26,30 @@ PageState.prototype = {
+         this._commandStackChanged = MessageSender("command_stack_changed");
+         this._documentModified = MessageSender("document_modified");
+ 
+-        let state = this;
+-
+         // Set up an observer to keep track of modifications made to
+         // the document when editing.
+         let modifiedId = null;
+-        this.bodyObserver = new MutationObserver(function(records) {
++        this.bodyObserver = new MutationObserver((records) => {
+             if (modifiedId == null) {
+-                modifiedId = window.setTimeout(function() {
+-                    state.documentModified();
+-                    state.checkCommandStack();
++                modifiedId = window.setTimeout(() => {
++                    this.documentModified();
++                    this.checkCommandStack();
+                     modifiedId = null;
+                 }, 1000);
+             }
+         });
+ 
+         this.heightObserver = new ResizeObserver((entries) => {
+-            state.updatePreferredHeight();
++            this.updatePreferredHeight();
+         });
+ 
+-        document.addEventListener("DOMContentLoaded", function(e) {
+-            state.heightObserver.observe(window.document.documentElement);
+-            state.loaded();
++        document.addEventListener("DOMContentLoaded", (e) => {
++            this.heightObserver.observe(window.document.documentElement);
++            this.loaded();
+         });
+ 
+-        document.addEventListener("selectionchange", function(e) {
+-            state.selectionChanged();
++        document.addEventListener("selectionchange", (e) => {
++            this.selectionChanged();
+         });
+ 
+         this.testResult = null;
+-- 
+2.29.2
+

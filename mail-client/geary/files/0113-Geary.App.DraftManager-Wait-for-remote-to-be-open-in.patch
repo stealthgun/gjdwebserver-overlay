@@ -1,0 +1,47 @@
+From be7938316eb31a95ed2f461fea635aeebb458f1c Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Sun, 25 Oct 2020 18:49:10 +1100
+Subject: [PATCH 113/124] Geary.App.DraftManager: Wait for remote to be open in
+ ctor
+
+When working offline, the draft manager is more or less useless and will
+just consume memory as drafts pile up. Also, when opening a composer
+immediately after application launch,
+`FolderProperties.create_never_returns_id` may not have been updated
+yet, and hence will prevent drafts from being saved, even if supported.
+
+So after opening the drafts folder, block waiting for the remote to
+open so we get an accurate idea of if the folder is usable.
+
+Fixes drafts issue mentioned in #955
+---
+ src/engine/app/app-draft-manager.vala | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
+
+diff --git a/src/engine/app/app-draft-manager.vala b/src/engine/app/app-draft-manager.vala
+index 8e9863af..9d5a31b1 100644
+--- a/src/engine/app/app-draft-manager.vala
++++ b/src/engine/app/app-draft-manager.vala
+@@ -219,8 +219,17 @@ public class Geary.App.DraftManager : BaseObject {
+ 
+         yield drafts_folder.open_async(Folder.OpenFlags.NO_DELAY, cancellable);
+ 
+-        // if drafts folder doesn't return the identifier of newly created emails, then this object
+-        // can't do it's work ... wait until open to check for this, to be absolutely sure
++        // if drafts folder doesn't return the identifier of newly
++        // created emails, then this object can't do it's work
++        // ... wait until open to check for this, to be absolutely
++        // sure
++        //
++        // Since open_async returns before a remote connection is
++        // made, need to wait for it here to ensure
++        var engine = this.drafts_folder as ImapEngine.MinimalFolder;
++        if (engine != null) {
++            yield engine.claim_remote_session(cancellable);
++        }
+         if (drafts_folder.properties.create_never_returns_id) {
+             try {
+                 yield drafts_folder.close_async();
+-- 
+2.29.2
+

@@ -1,0 +1,35 @@
+From e6fd0fe1742bd2143c1fa16fa30e82a5ea7996ed Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Thu, 23 Apr 2020 10:11:06 +0200
+Subject: [PATCH 1/8] accounts-editor: Wrap the welcome panel labels
+
+This helps the accounts editor fit in narrow screens.
+---
+ ui/accounts_editor_list_pane.ui | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/ui/accounts_editor_list_pane.ui b/ui/accounts_editor_list_pane.ui
+index 59f8c632..a40604e3 100644
+--- a/ui/accounts_editor_list_pane.ui
++++ b/ui/accounts_editor_list_pane.ui
+@@ -60,6 +60,8 @@
+                         <property name="halign">start</property>
+                         <property name="valign">start</property>
+                         <property name="label" translatable="yes">To get started, select an email provider below.</property>
++                        <property name="xalign">0</property>
++                        <property name="wrap">True</property>
+                       </object>
+                       <packing>
+                         <property name="left_attach">1</property>
+@@ -73,6 +75,8 @@
+                         <property name="halign">start</property>
+                         <property name="valign">end</property>
+                         <property name="label" translatable="yes">Welcome to Geary</property>
++                        <property name="xalign">0</property>
++                        <property name="wrap">True</property>
+                         <attributes>
+                           <attribute name="weight" value="bold"/>
+                         </attributes>
+-- 
+2.29.2
+

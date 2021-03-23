@@ -1,0 +1,104 @@
+From ec3057daf7fc8565960f913303d292833bc269cb Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Sat, 17 Oct 2020 13:45:23 +1100
+Subject: [PATCH 107/124] ConversationWebView: Fix plain text emails sometimes
+ being too wide
+
+Using `whitespace: pre-wrap` to format plain text email sometimes
+causes additional width to be allocated by the plain text blocks that
+then does not get used due to the constraints on the HTML element.
+The allocated space remains however and hence an un-needed horizontal
+scrollbar appears.
+
+Using `break-spaces` instead seems to help since it allows breaks after
+a space character, leading to the additional space not otherwise being
+allocated.
+---
+ src/engine/rfc822/rfc822-gmime-filter-blockquotes.vala | 2 +-
+ test/engine/rfc822/rfc822-message-test.vala            | 2 +-
+ ui/composer-web-view.css                               | 2 +-
+ ui/composer-web-view.js                                | 2 +-
+ ui/conversation-web-view.css                           | 2 +-
+ ui/conversation-web-view.js                            | 2 +-
+ 6 files changed, 6 insertions(+), 6 deletions(-)
+
+diff --git a/src/engine/rfc822/rfc822-gmime-filter-blockquotes.vala b/src/engine/rfc822/rfc822-gmime-filter-blockquotes.vala
+index 8cf7563d..d2a941c0 100644
+--- a/src/engine/rfc822/rfc822-gmime-filter-blockquotes.vala
++++ b/src/engine/rfc822/rfc822-gmime-filter-blockquotes.vala
+@@ -59,7 +59,7 @@ private class Geary.RFC822.FilterBlockquotes : GMime.Filter {
+         if (!initial_element) {
+             // We set the style explicitly so it will be set in HTML emails.  We also give it a
+             // class so users can customize the style in the viewer.
+-            insert_string("<div class=\"plaintext\" style=\"white-space: pre-wrap;\">", ref out_index);
++            insert_string("<div class=\"plaintext\" style=\"white-space: break-spaces;\">", ref out_index);
+             initial_element = true;
+         }
+ 
+diff --git a/test/engine/rfc822/rfc822-message-test.vala b/test/engine/rfc822/rfc822-message-test.vala
+index b7697dda..57976cca 100644
+--- a/test/engine/rfc822/rfc822-message-test.vala
++++ b/test/engine/rfc822/rfc822-message-test.vala
+@@ -15,7 +15,7 @@ class Geary.RFC822.MessageTest : TestCase {
+     private const string BASIC_MULTIPART_TNEF = "basic-multipart-tnef.eml";
+ 
+     private const string HTML_CONVERSION_TEMPLATE =
+-        "<div class=\"plaintext\" style=\"white-space: pre-wrap;\">%s</div>";
++        "<div class=\"plaintext\" style=\"white-space: break-spaces;\">%s</div>";
+ 
+     private const string BASIC_PLAIN_BODY = """This is the first line.
+ 
+diff --git a/ui/composer-web-view.css b/ui/composer-web-view.css
+index 07ae6869..462d5876 100644
+--- a/ui/composer-web-view.css
++++ b/ui/composer-web-view.css
+@@ -60,6 +60,6 @@ blockquote {
+ }
+ 
+ pre {
+-  white-space: pre-wrap;
++  white-space: break-spaces;
+   margin: 0;
+ }
+diff --git a/ui/composer-web-view.js b/ui/composer-web-view.js
+index 5ee4105e..bd010b6c 100644
+--- a/ui/composer-web-view.js
++++ b/ui/composer-web-view.js
+@@ -264,7 +264,7 @@ ComposerPageState.prototype = {
+     },
+     tabOut: function() {
+         document.execCommand(
+-            "inserthtml", false, "<span style='white-space: pre-wrap'>\t</span>"
++            "inserthtml", false, "<span style='white-space: break-spaces'>\t</span>"
+         );
+     },
+     tabIn: function() {
+diff --git a/ui/conversation-web-view.css b/ui/conversation-web-view.css
+index 8b0ef421..d1da2eae 100644
+--- a/ui/conversation-web-view.css
++++ b/ui/conversation-web-view.css
+@@ -77,7 +77,7 @@ blockquote {
+ }
+ 
+ pre {
+-  white-space: pre-wrap;
++  white-space: break-spaces;
+ }
+ 
+ /**
+diff --git a/ui/conversation-web-view.js b/ui/conversation-web-view.js
+index 1d730d47..7b3a1c89 100644
+--- a/ui/conversation-web-view.js
++++ b/ui/conversation-web-view.js
+@@ -213,7 +213,7 @@ ConversationPageState.prototype = {
+             if (ConversationPageState.isDescendantOf(
+                 ancestor, "DIV", "plaintext", false)) {
+                 dummy.classList.add("plaintext");
+-                dummy.setAttribute("style", "white-space: pre-wrap;");
++                dummy.setAttribute("style", "white-space: break-spaces;");
+                 includeDummy = true;
+             }
+             dummy.appendChild(range.cloneContents());
+-- 
+2.29.2
+

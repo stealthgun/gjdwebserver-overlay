@@ -1,0 +1,134 @@
+From ac425f57b134c2264723e20ea15319ab615f0f9d Mon Sep 17 00:00:00 2001
+From: Michael Gratton <mike@vee.net>
+Date: Wed, 23 Sep 2020 09:17:28 +1000
+Subject: [PATCH 025/124] Geary.Imap.SessionObject: Rename `claim_session` to
+ `get_session`
+
+Don't over-sell what it does.
+---
+ src/engine/imap/api/imap-account-session.vala | 10 +++++-----
+ src/engine/imap/api/imap-folder-session.vala  | 14 +++++++-------
+ src/engine/imap/api/imap-session-object.vala  |  2 +-
+ 3 files changed, 13 insertions(+), 13 deletions(-)
+
+diff --git a/src/engine/imap/api/imap-account-session.vala b/src/engine/imap/api/imap-account-session.vala
+index 238bd85c..813d9e5e 100644
+--- a/src/engine/imap/api/imap-account-session.vala
++++ b/src/engine/imap/api/imap-account-session.vala
+@@ -45,7 +45,7 @@ internal class Geary.Imap.AccountSession : Geary.Imap.SessionObject {
+      */
+     public async FolderPath get_default_personal_namespace(Cancellable? cancellable)
+     throws Error {
+-        ClientSession session = claim_session();
++        ClientSession session = get_session();
+         Gee.List<Namespace> personal = session.get_personal_namespaces();
+         if (personal.is_empty) {
+             throw new ImapError.INVALID("No personal namespace found");
+@@ -69,7 +69,7 @@ internal class Geary.Imap.AccountSession : Geary.Imap.SessionObject {
+     public bool is_folder_path_valid(FolderPath? path) throws GLib.Error {
+         bool is_valid = false;
+         if (path != null) {
+-            ClientSession session = claim_session();
++            ClientSession session = get_session();
+             try {
+                 session.get_mailbox_for_path(path);
+                 is_valid = true;
+@@ -94,7 +94,7 @@ internal class Geary.Imap.AccountSession : Geary.Imap.SessionObject {
+                                           Geary.Folder.SpecialUse? use,
+                                           Cancellable? cancellable)
+     throws Error {
+-        ClientSession session = claim_session();
++        ClientSession session = get_session();
+         MailboxSpecifier mailbox = session.get_mailbox_for_path(path);
+         bool can_create_special = session.capabilities.has_capability(Capabilities.CREATE_SPECIAL_USE);
+         CreateCommand cmd = (
+@@ -125,7 +125,7 @@ internal class Geary.Imap.AccountSession : Geary.Imap.SessionObject {
+     public async Imap.Folder fetch_folder_async(FolderPath path,
+                                                 Cancellable? cancellable)
+         throws Error {
+-        ClientSession session = claim_session();
++        ClientSession session = get_session();
+         Imap.Folder? folder = this.folders.get(path);
+         if (folder == null) {
+             Gee.List<MailboxInformation>? mailboxes = yield send_list_async(
+@@ -169,7 +169,7 @@ internal class Geary.Imap.AccountSession : Geary.Imap.SessionObject {
+         fetch_child_folders_async(FolderPath parent,
+                                   GLib.Cancellable? cancellable)
+         throws GLib.Error {
+-        ClientSession session = claim_session();
++        ClientSession session = get_session();
+         Gee.List<Imap.Folder> children = new Gee.ArrayList<Imap.Folder>();
+         Gee.List<MailboxInformation> mailboxes = yield send_list_async(
+             session, parent, true, cancellable
+diff --git a/src/engine/imap/api/imap-folder-session.vala b/src/engine/imap/api/imap-folder-session.vala
+index 98db3088..8b4212e6 100644
+--- a/src/engine/imap/api/imap-folder-session.vala
++++ b/src/engine/imap/api/imap-folder-session.vala
+@@ -127,7 +127,7 @@ private class Geary.Imap.FolderSession : Geary.Imap.SessionObject {
+      */
+     public async void enable_idle(Cancellable? cancellable)
+         throws Error {
+-        ClientSession session = claim_session();
++        ClientSession session = get_session();
+         int token = yield this.cmd_mutex.claim_async(cancellable);
+         Error? cmd_err = null;
+         try {
+@@ -303,7 +303,7 @@ private class Geary.Imap.FolderSession : Geary.Imap.SessionObject {
+                             Gee.Set<Imap.UID>? search_results,
+                             GLib.Cancellable? cancellable)
+         throws GLib.Error {
+-        ClientSession session = claim_session();
++        ClientSession session = get_session();
+         Gee.Map<Command, StatusResponse>? responses = null;
+         int token = yield this.cmd_mutex.claim_async(cancellable);
+ 
+@@ -648,7 +648,7 @@ private class Geary.Imap.FolderSession : Geary.Imap.SessionObject {
+     public async void remove_email_async(Gee.List<MessageSet> msg_sets,
+                                          GLib.Cancellable? cancellable)
+         throws GLib.Error {
+-        ClientSession session = claim_session();
++        ClientSession session = get_session();
+         Gee.List<MessageFlag> flags = new Gee.ArrayList<MessageFlag>();
+         flags.add(MessageFlag.DELETED);
+ 
+@@ -721,7 +721,7 @@ private class Geary.Imap.FolderSession : Geary.Imap.SessionObject {
+                                                      FolderPath destination,
+                                                      GLib.Cancellable? cancellable)
+         throws GLib.Error {
+-        ClientSession session = claim_session();
++        ClientSession session = get_session();
+ 
+         MailboxSpecifier mailbox = session.get_mailbox_for_path(destination);
+         CopyCommand cmd = new CopyCommand(msg_set, mailbox, cancellable);
+@@ -1164,12 +1164,12 @@ private class Geary.Imap.FolderSession : Geary.Imap.SessionObject {
+      * Returns a valid IMAP client session for use by this object.
+      *
+      * In addition to the checks made by {@link
+-     * SessionObject.claim_session}, this method also ensures that the
++     * SessionObject.get_session}, this method also ensures that the
+      * IMAP session is in the SELECTED state for the correct mailbox.
+      */
+-    protected override ClientSession claim_session()
++    protected override ClientSession get_session()
+         throws ImapError {
+-        var session = base.claim_session();
++        var session = base.get_session();
+         if (session.get_protocol_state() != SELECTED &&
+             !this.mailbox.equal_to(session.selected_mailbox)) {
+             throw new ImapError.NOT_CONNECTED(
+diff --git a/src/engine/imap/api/imap-session-object.vala b/src/engine/imap/api/imap-session-object.vala
+index d47c6950..4a46ae1e 100644
+--- a/src/engine/imap/api/imap-session-object.vala
++++ b/src/engine/imap/api/imap-session-object.vala
+@@ -90,7 +90,7 @@ public abstract class Geary.Imap.SessionObject : BaseObject, Logging.Source {
+      * or has been closed, or because the connection to the server was
+      * lost.
+      */
+-    protected virtual ClientSession claim_session()
++    protected virtual ClientSession get_session()
+         throws ImapError {
+         if (this.session == null ||
+             this.session.get_protocol_state() == NOT_CONNECTED) {
+-- 
+2.29.2
+

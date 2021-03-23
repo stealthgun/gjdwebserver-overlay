@@ -1,0 +1,338 @@
+From 12a7101ba55bb646161e9997485036744121f542 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Thu, 24 Oct 2019 14:36:04 +0200
+Subject: [PATCH 051/124] Use leaflets in the UI
+
+There is no way to navigate into the app, but it's a start.
+
+v2: replace expand with child vexpand
+---
+ .../application/application-main-window.vala  |  8 +--
+ src/client/components/main-toolbar.vala       |  5 +-
+ .../conversation-viewer.vala                  |  4 ++
+ ui/application-main-window.ui                 | 52 ++++++++++++++-----
+ ui/geary.css                                  | 11 ++++
+ ui/main-toolbar.ui                            | 33 +++++++-----
+ 6 files changed, 81 insertions(+), 32 deletions(-)
+
+diff --git a/src/client/application/application-main-window.vala b/src/client/application/application-main-window.vala
+index 4c6d1038..b56079cf 100644
+--- a/src/client/application/application-main-window.vala
++++ b/src/client/application/application-main-window.vala
+@@ -317,9 +317,9 @@ public class Application.MainWindow :
+     [GtkChild]
+     private Gtk.Box main_layout;
+     [GtkChild]
+-    private Gtk.Paned folder_paned;
++    private Hdy.Leaflet main_leaflet;
+     [GtkChild]
+-    private Gtk.Paned conversations_paned;
++    private Hdy.Leaflet conversations_leaflet;
+     [GtkChild]
+     private Gtk.Box folder_box;
+     [GtkChild]
+@@ -520,7 +520,6 @@ public class Application.MainWindow :
+         });
+ 
+         setup_layout(application.config);
+-        this.folder_paned.orientation = Gtk.Orientation.HORIZONTAL;
+         this.folder_box.pack_start(status_bar, false, false);
+ 
+         update_command_actions();
+@@ -1249,8 +1248,9 @@ public class Application.MainWindow :
+             on_conversation_view_added
+         );
+ 
+-        this.conversations_paned.pack2(this.conversation_viewer, true, false);
++        this.conversation_viewer.hexpand = true;
+         this.conversation_size_group.add_widget(this.conversation_viewer);
++        this.main_leaflet.add_with_properties(this.conversation_viewer, "name", "conversation", null);
+ 
+         // Main toolbar
+         this.main_toolbar = new MainToolbar(config);
+diff --git a/src/client/components/main-toolbar.vala b/src/client/components/main-toolbar.vala
+index 6ea472a8..286546d5 100644
+--- a/src/client/components/main-toolbar.vala
++++ b/src/client/components/main-toolbar.vala
+@@ -6,7 +6,7 @@
+ 
+ // Draws the main toolbar.
+ [GtkTemplate (ui = "/org/gnome/Geary/main-toolbar.ui")]
+-public class MainToolbar : Gtk.Box {
++public class MainToolbar : Hdy.Leaflet {
+     // How wide the left pane should be. Auto-synced with our settings
+     public int left_pane_width { get; set; }
+     // Used to form the title of the folder header
+@@ -97,7 +97,8 @@ public class MainToolbar : Gtk.Box {
+     public void set_conversation_header(Gtk.HeaderBar header) {
+         conversation_header.hide();
+         this.header_group.add_gtk_header_bar(header);
+-        pack_start(header, true, true);
++        header.hexpand = true;
++        add(header);
+     }
+ 
+     public void remove_conversation_header(Gtk.HeaderBar header) {
+diff --git a/src/client/conversation-viewer/conversation-viewer.vala b/src/client/conversation-viewer/conversation-viewer.vala
+index f04a1d26..eec5f6a4 100644
+--- a/src/client/conversation-viewer/conversation-viewer.vala
++++ b/src/client/conversation-viewer/conversation-viewer.vala
+@@ -68,6 +68,10 @@ public class ConversationViewer : Gtk.Stack, Geary.BaseInterface {
+     public signal void conversation_removed(ConversationListBox list);
+ 
+ 
++    static construct {
++        set_css_name("geary-conversation-viewer");
++    }
++
+     /**
+      * Constructs a new conversation view instance.
+      */
+diff --git a/ui/application-main-window.ui b/ui/application-main-window.ui
+index 872f31bd..f7bb884e 100644
+--- a/ui/application-main-window.ui
++++ b/ui/application-main-window.ui
+@@ -24,13 +24,18 @@
+             <property name="can_focus">False</property>
+             <property name="orientation">vertical</property>
+             <child>
+-              <object class="GtkPaned" id="conversations_paned">
++              <object class="HdyLeaflet" id="main_leaflet">
+                 <property name="visible">True</property>
+                 <property name="can_focus">True</property>
++                <property name="can_swipe_back">True</property>
++                <property name="transition_type">over</property>
+                 <child>
+-                  <object class="GtkPaned" id="folder_paned">
++                  <object class="HdyLeaflet" id="conversations_leaflet">
+                     <property name="visible">True</property>
+                     <property name="can_focus">True</property>
++                    <property name="hexpand_set">True</property>
++                    <property name="can_swipe_back">True</property>
++                    <property name="transition_type">over</property>
+                     <child>
+                       <object class="GtkBox" id="folder_box">
+                         <property name="visible">True</property>
+@@ -40,6 +45,7 @@
+                           <object class="GtkFrame" id="folder_frame">
+                             <property name="visible">True</property>
+                             <property name="can_focus">False</property>
++                            <property name="vexpand">True</property>
+                             <property name="label_xalign">0</property>
+                             <property name="shadow_type">in</property>
+                             <child>
+@@ -55,15 +61,26 @@
+                             </style>
+                           </object>
+                           <packing>
+-                            <property name="expand">True</property>
+                             <property name="fill">True</property>
+                             <property name="position">0</property>
+                           </packing>
+                         </child>
+                       </object>
+                       <packing>
+-                        <property name="resize">False</property>
+-                        <property name="shrink">False</property>
++                        <property name="name">folder</property>
++                      </packing>
++                    </child>
++                    <child>
++                      <object class="GtkSeparator" id="folder_separator">
++                        <property name="visible">True</property>
++                        <property name="can_focus">False</property>
++                        <property name="orientation">vertical</property>
++                        <style>
++                          <class name="sidebar"/>
++                        </style>
++                      </object>
++                      <packing>
++                        <property name="navigatable">False</property>
+                       </packing>
+                     </child>
+                     <child>
+@@ -97,22 +114,27 @@
+                         </child>
+                       </object>
+                       <packing>
+-                        <property name="resize">True</property>
+-                        <property name="shrink">False</property>
++                        <property name="name">conversations</property>
+                       </packing>
+                     </child>
++                  </object>
++                  <packing>
++                    <property name="name">conversations</property>
++                  </packing>
++                </child>
++                <child>
++                  <object class="GtkSeparator" id="conversations_separator">
++                    <property name="visible">True</property>
++                    <property name="can_focus">False</property>
++                    <property name="orientation">vertical</property>
+                     <style>
+                       <class name="geary-sidebar-pane-separator"/>
+                     </style>
+                   </object>
+                   <packing>
+-                    <property name="resize">False</property>
+-                    <property name="shrink">False</property>
++                    <property name="navigatable">False</property>
+                   </packing>
+                 </child>
+-                <child>
+-                  <placeholder/>
+-                </child>
+               </object>
+               <packing>
+                 <property name="expand">True</property>
+@@ -146,6 +168,9 @@
+   </object>
+   <object class="GtkSizeGroup" id="folder_separator_size_group">
+     <property name="mode">horizontal</property>
++    <widgets>
++      <widget name="folder_separator"/>
++    </widgets>
+   </object>
+   <object class="GtkSizeGroup" id="conversations_size_group">
+     <property name="mode">horizontal</property>
+@@ -155,6 +180,9 @@
+   </object>
+   <object class="GtkSizeGroup" id="conversations_separator_size_group">
+     <property name="mode">horizontal</property>
++    <widgets>
++      <widget name="conversations_separator"/>
++    </widgets>
+   </object>
+   <object class="GtkSizeGroup" id="conversation_size_group">
+     <property name="mode">horizontal</property>
+diff --git a/ui/geary.css b/ui/geary.css
+index 0ddfab30..2d1d48c3 100644
+--- a/ui/geary.css
++++ b/ui/geary.css
+@@ -12,12 +12,23 @@
+   border-left-width: 0;
+   border-top-width: 0;
+   border-right-width: 0;
++  min-width: 300px;
+ }
+ .geary-conversation-frame > border {
+   border-left-width: 0;
+   border-top-width: 0;
+   border-right-width: 0;
++  min-width: 360px;
+ }
++
++treeview.sidebar {
++  border: none;
++}
++
++geary-conversation-viewer {
++  min-width: 360px;
++}
++
+ /* For 3-pane mode only */
+ .geary-sidebar-pane-separator.vertical .conversation-frame > border {
+   border-bottom-width: 0;
+diff --git a/ui/main-toolbar.ui b/ui/main-toolbar.ui
+index 732a01b9..441cd146 100644
+--- a/ui/main-toolbar.ui
++++ b/ui/main-toolbar.ui
+@@ -7,13 +7,18 @@
+     <property name="can_focus">False</property>
+     <property name="icon_name">mail-archive-symbolic</property>
+   </object>
+-  <template class="MainToolbar" parent="GtkBox">
++  <template class="MainToolbar" parent="HdyLeaflet">
+     <property name="visible">True</property>
+     <property name="can_focus">False</property>
++    <property name="can_swipe_back">True</property>
++    <property name="transition_type">over</property>
+     <child>
+-      <object class="GtkBox">
++      <object class="HdyLeaflet" id="conversations_leaflet">
+         <property name="visible">True</property>
+         <property name="can_focus">False</property>
++        <property name="can_swipe_back">True</property>
++        <property name="transition_type">over</property>
++        <property name="hexpand_set">True</property>
+         <child>
+           <object class="GtkHeaderBar" id="folder_header">
+             <property name="visible">True</property>
+@@ -41,6 +46,9 @@
+               </packing>
+             </child>
+           </object>
++          <packing>
++            <property name="name">folder</property>
++          </packing>
+         </child>
+         <child>
+           <object class="GtkSeparator" id="folder_separator">
+@@ -52,15 +60,14 @@
+             </style>
+           </object>
+           <packing>
+-            <property name="expand">False</property>
+-            <property name="fill">True</property>
+-            <property name="position">1</property>
++            <property name="navigatable">False</property>
+           </packing>
+         </child>
+         <child>
+           <object class="GtkHeaderBar" id="conversations_header">
+             <property name="visible">True</property>
+             <property name="can_focus">False</property>
++            <property name="hexpand">True</property>
+             <property name="show_close_button" bind-source="MainToolbar" bind-property="show_close_button" bind-flags="sync-create"/>
+             <child>
+               <object class="GtkButton" id="compose_new_message_button">
+@@ -102,12 +109,13 @@
+               </packing>
+             </child>
+           </object>
++          <packing>
++            <property name="name">conversations</property>
++          </packing>
+         </child>
+       </object>
+       <packing>
+-        <property name="expand">False</property>
+-        <property name="fill">True</property>
+-        <property name="position">0</property>
++        <property name="name">conversations</property>
+       </packing>
+     </child>
+     <child>
+@@ -120,15 +128,14 @@
+         </style>
+       </object>
+       <packing>
+-        <property name="expand">False</property>
+-        <property name="fill">True</property>
+-        <property name="position">1</property>
++        <property name="navigatable">False</property>
+       </packing>
+     </child>
+     <child>
+       <object class="GtkHeaderBar" id="conversation_header">
+         <property name="visible">True</property>
+         <property name="can_focus">False</property>
++        <property name="hexpand">True</property>
+         <property name="show_close_button" bind-source="MainToolbar" bind-property="show_close_button" bind-flags="sync-create"/>
+         <child>
+           <object class="GtkBox" id="reply_forward_buttons">
+@@ -362,9 +369,7 @@
+         </child>
+       </object>
+       <packing>
+-        <property name="expand">True</property>
+-        <property name="fill">True</property>
+-        <property name="position">2</property>
++        <property name="name">conversation</property>
+       </packing>
+     </child>
+   </template>
+-- 
+2.29.2
+

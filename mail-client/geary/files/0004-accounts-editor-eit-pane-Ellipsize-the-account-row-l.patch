@@ -1,0 +1,28 @@
+From 84c94463cd806ac5dbb1692ef3c04107b5a5f12f Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Mon, 27 Apr 2020 10:43:45 +0200
+Subject: [PATCH 4/8] accounts-editor-eit-pane: Ellipsize the account row label
+
+This will help the pane fit in narrower widths.
+---
+ src/client/accounts/accounts-editor-edit-pane.vala | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/src/client/accounts/accounts-editor-edit-pane.vala b/src/client/accounts/accounts-editor-edit-pane.vala
+index 2722db6e..5b944333 100644
+--- a/src/client/accounts/accounts-editor-edit-pane.vala
++++ b/src/client/accounts/accounts-editor-edit-pane.vala
+@@ -376,7 +376,9 @@ private class Accounts.MailboxRow : AccountRow<EditorEditPane,Gtk.Label> {
+ 
+     public MailboxRow(Geary.AccountInformation account,
+                       Geary.RFC822.MailboxAddress mailbox) {
+-        base(account, "", new Gtk.Label(""));
++        var label = new Gtk.Label("");
++        label.ellipsize = Pango.EllipsizeMode.END;
++        base(account, "", label);
+         this.mailbox = mailbox;
+         enable_drag();
+ 
+-- 
+2.29.2
+
