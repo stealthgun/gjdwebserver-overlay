@@ -1,0 +1,434 @@
+From 482cfce46e1f8ec546499b782c2c2d96e6a9203e Mon Sep 17 00:00:00 2001
+From: Stephan Gerhold <stephan@gerhold.net>
+Date: Sat, 21 Dec 2019 18:30:13 +0100
+Subject: [PATCH] core: Add support for Qualcomm MSM/QMI modems via rpmsg
+
+Most older Qualcomm SoCs (e.g. MSM8916, MSM8974, ...) communicate with
+the integrated modem via shared memory (SMD channels). This is similar
+to QRTR on newer SoCs, but without the "network" layer. In fact, the older
+SoCs also have QRTR, but the modem QMI services are not exposed there.
+
+The mainline Linux kernel exposes SMD channels via the "remote processor
+messaging bus" (rpmsg). Through special IOCTL calls it is possible to
+create a char device for a rpmsg/SMD channel. We can then use these to
+send QMI/AT messages to the modem, much like the ordinary serial char
+devices when using a Qualcomm modem through USB.
+
+The QMI/AT messages needed to use the modem seem to be pretty much
+the same as when using QMI via USB. We have tested on a few smartphones
+with MSM8916 which are running a (close-to) mainline kernel, e.g.:
+
+   - BQ Aquaris X5
+   - Motorola Moto G4 Play
+   - Samsung Galaxy A3/A5 (2015)
+   - Wileyfox Swift
+   - Xiaomi Redmi 2
+
+Most of the modem functionality seems to be working fine, without any
+changes to the QMI/AT messages that are sent to the modem:
+
+   - Voice calls
+   - SMS
+   - Mobile Internet
+   - GPS (modem sends NMEA messages, so far we were unable to get a fix
+          for some reason...)
+
+However, note that the implementation of voice call audio and network
+interface is very different from the USB modems. It is completely
+independent of the rpmsg channels that are used to control the modem.
+I have written special drivers for:
+
+  - Voice call audio (q6voice) [1]
+  - Network interface (BAM DMUX) [2]
+    (Note: Newer SoCs use IPA (IP Accelerator) instead of BAM DMUX...)
+
+I have plans to upstream these, but there is still some more work
+needed (mostly fine tuning for some edge cases). This is independent of the
+changes in ModemManager, because the additional drivers are only necessary
+if you want to have audio/Internet actually working.
+
+This commit adds support for probing rpmsg ports within ModemManager.
+I think most of the changes are quite straightforward, but there are
+some FIXME comments scattered over the code where I was not sure about
+the best way to implement it. Those still need to be discussed :)
+
+Note: This commit does not add the udev rules necessary to use rpmsg
+modems with ModemManager. The reason for that is that you typically need
+additional system services/tools and udev rules anyway for the modem to work.
+
+Currently I'm using:
+
+    SYMLINK=="modem", SUBSYSTEM=="rpmsg", ENV{ID_MM_CANDIDATE}="1", ENV{ID_MM_DEVICE_PROCESS}="1", ENV{ID_MM_PORT_TYPE_QCDM}="1", ENV{ID_MM_PHYSDEV_UID}="qcom-rpmsg"
+    SYMLINK=="modem-at", SUBSYSTEM=="rpmsg", ENV{ID_MM_CANDIDATE}="1", ENV{ID_MM_DEVICE_PROCESS}="1", ENV{ID_MM_PHYSDEV_UID}="qcom-rpmsg"
+    ENV{INTERFACE}=="rmnet0", SUBSYSTEM=="net", ENV{ID_MM_CANDIDATE}="1", ENV{ID_MM_DEVICE_PROCESS}="1", ENV{ID_MM_PHYSDEV_UID}="qcom-rpmsg"
+
+The purpose of `ENV{ID_MM_PHYSDEV_UID}` is to link the network interface
+to the modem in ModemManager, since it isn't related to the rpmsg ports
+in any way. Of course this is rather naive because there could be also
+other network interfaces called `rmnet0`...
+
+Also, the udev rules assume that we already have set up the rpmsg
+char devices at /dev/modem (SMD channel `DATA5_CNTL`) and /dev/modem-at
+(SMD channel `DATA4`). Those can be set up using rpmsgexport [3].
+In postmarketOS [4], this is handled using additional udev rules, see [5].
+
+[1]: https://github.com/msm8916-mainline/linux/commits/q6voice
+[2]: https://github.com/msm8916-mainline/linux/commits/bam-dmux
+[3]: https://github.com/andersson/rpmsgexport
+[4]: https://postmarketos.org
+[5]: https://gitlab.com/postmarketOS/pmaports/-/blob/master/modem/msm-modem/udev-rpmsg.rules
+---
+ plugins/generic/mm-plugin-generic.c |  2 +-
+ src/mm-base-manager.c               | 12 +++++--
+ src/mm-base-modem.c                 | 55 ++++++++++++++++++++++++-----
+ src/mm-broadband-modem-qmi.c        | 12 ++++++-
+ src/mm-plugin.c                     | 19 ++++++++++
+ src/mm-port-probe.c                 | 24 ++++++++++---
+ src/mm-port-qmi.c                   |  7 ++--
+ src/mm-port-qmi.h                   |  2 +-
+ src/mm-port-serial-at.c             |  3 +-
+ src/mm-port.h                       |  3 +-
+ 10 files changed, 118 insertions(+), 21 deletions(-)
+
+diff --git a/plugins/generic/mm-plugin-generic.c b/plugins/generic/mm-plugin-generic.c
+index c2e3a07e..db4e3462 100644
+--- a/plugins/generic/mm-plugin-generic.c
++++ b/plugins/generic/mm-plugin-generic.c
+@@ -91,7 +91,7 @@ create_modem (MMPlugin *self,
+ G_MODULE_EXPORT MMPlugin *
+ mm_plugin_create (void)
+ {
+-    static const gchar *subsystems[] = { "tty", "net", "usb", NULL };
++    static const gchar *subsystems[] = { "tty", "net", "usb", "rpmsg", NULL };
+ 
+     return MM_PLUGIN (
+         g_object_new (MM_TYPE_PLUGIN_GENERIC,
+diff --git a/src/mm-base-manager.c b/src/mm-base-manager.c
+index 653adb5c..da2a3294 100644
+--- a/src/mm-base-manager.c
++++ b/src/mm-base-manager.c
+@@ -467,7 +467,8 @@ handle_uevent (GUdevClient *client,
+     /* A bit paranoid */
+     subsys = g_udev_device_get_subsystem (device);
+     g_return_if_fail (subsys != NULL);
+-    g_return_if_fail (g_str_equal (subsys, "tty") || g_str_equal (subsys, "net") || g_str_has_prefix (subsys, "usb"));
++    g_return_if_fail (g_str_equal (subsys, "tty") || g_str_equal (subsys, "net") ||
++                      g_str_has_prefix (subsys, "usb") || g_str_equal (subsys, "rpmsg"));
+ 
+     kernel_device = mm_kernel_device_udev_new (device);
+ 
+@@ -561,6 +562,13 @@ process_scan (MMBaseManager *self,
+         g_object_unref (G_OBJECT (iter->data));
+     }
+     g_list_free (devices);
++
++    devices = g_udev_client_query_by_subsystem (self->priv->udev, "rpmsg");
++    for (iter = devices; iter; iter = g_list_next (iter)) {
++        start_device_added (self, G_UDEV_DEVICE (iter->data), manual_scan);
++        g_object_unref (G_OBJECT (iter->data));
++    }
++    g_list_free (devices);
+ }
+ 
+ #endif
+@@ -1448,7 +1456,7 @@ mm_base_manager_init (MMBaseManager *self)
+ 
+ #if defined WITH_UDEV
+     {
+-        const gchar *subsys[5] = { "tty", "net", "usb", "usbmisc", NULL };
++        const gchar *subsys[] = { "tty", "net", "usb", "usbmisc", "rpmsg", NULL };
+ 
+         /* Setup UDev client */
+         self->priv->udev = g_udev_client_new (subsys);
+diff --git a/src/mm-base-modem.c b/src/mm-base-modem.c
+index 0805cedb..e4aef11a 100644
+--- a/src/mm-base-modem.c
++++ b/src/mm-base-modem.c
+@@ -175,6 +175,7 @@ mm_base_modem_grab_port (MMBaseModem         *self,
+     if (!g_str_equal (subsys, "net") &&
+         !g_str_equal (subsys, "tty") &&
+         !(g_str_has_prefix (subsys, "usb") && g_str_has_prefix (name, "cdc-wdm")) &&
++        !g_str_equal (subsys, "rpmsg") &&
+         !g_str_equal (subsys, "virtual")) {
+         g_set_error (error,
+                      MM_CORE_ERROR,
+@@ -297,7 +298,7 @@ mm_base_modem_grab_port (MMBaseModem         *self,
+              g_str_has_prefix (name, "cdc-wdm")) {
+ #if defined WITH_QMI
+         if (ptype == MM_PORT_TYPE_QMI)
+-            port = MM_PORT (mm_port_qmi_new (name));
++            port = MM_PORT (mm_port_qmi_new (name, MM_PORT_SUBSYS_USB));
+ #endif
+ #if defined WITH_MBIM
+         if (!port && ptype == MM_PORT_TYPE_MBIM)
+@@ -340,6 +341,36 @@ mm_base_modem_grab_port (MMBaseModem         *self,
+         /* Store flags already */
+         mm_port_serial_at_set_flags (MM_PORT_SERIAL_AT (port), at_pflags);
+     }
++    /* rpmsg ports... */
++    else if (g_str_equal (subsys, "rpmsg")) {
++#if defined WITH_QMI
++        if (ptype == MM_PORT_TYPE_QMI)
++            port = MM_PORT (mm_port_qmi_new (name, MM_PORT_SUBSYS_RPMSG));
++#endif
++        /* Non-serial AT port */
++        if (!port && ptype == MM_PORT_TYPE_AT) {
++            port = MM_PORT (mm_port_serial_at_new (name, MM_PORT_SUBSYS_RPMSG));
++
++            /* Set common response parser */
++            mm_port_serial_at_set_response_parser (MM_PORT_SERIAL_AT (port),
++                                                   mm_serial_parser_v1_parse,
++                                                   mm_serial_parser_v1_new (),
++                                                   mm_serial_parser_v1_destroy);
++            /* Store flags already */
++            mm_port_serial_at_set_flags (MM_PORT_SERIAL_AT (port), at_pflags);
++        }
++
++        if (!port) {
++            g_set_error (error,
++                         MM_CORE_ERROR,
++                         MM_CORE_ERROR_UNSUPPORTED,
++                         "Cannot add port '%s/%s', unsupported",
++                         subsys,
++                         name);
++            g_free (key);
++            return FALSE;
++        }
++    }
+     else
+         /* We already filter out before all non-tty, non-net, non-cdc-wdm ports */
+         g_assert_not_reached ();
+@@ -711,7 +742,17 @@ mm_base_modem_peek_port_qmi_for_data (MMBaseModem *self,
+ {
+     GList *cdc_wdm_qmi_ports, *l;
+     const gchar *net_port_parent_path;
+-    MMPortQmi *found = NULL;
++    MMPortQmi *found = NULL, *primary;
++
++    /* FIXME: For RPMSG modems the network interface is not related to the
++     * QMI device, they are managed through completely different subsystems.
++     * For now there should be just one QMI and one net port so we can just
++     * return the primary QMI port.
++     */
++    primary = mm_base_modem_peek_port_qmi (MM_BASE_MODEM (self));
++    if (primary && mm_port_get_subsys (MM_PORT (primary)) == MM_PORT_SUBSYS_RPMSG)
++            /* Assume there is just one QMI port */
++            return primary;
+ 
+     g_warn_if_fail (mm_port_get_subsys (data) == MM_PORT_SUBSYS_NET);
+     net_port_parent_path = mm_kernel_device_get_interface_sysfs_path (mm_port_peek_kernel_device (data));
+@@ -1239,13 +1280,11 @@ mm_base_modem_organize_ports (MMBaseModem *self,
+         secondary = backup_primary ? backup_primary : backup_secondary;
+ 
+ #if defined WITH_QMI
+-    /* On QMI-based modems, we need to have at least a net port */
++    /* On QMI-based modems, a net port is required for broadband.
++     * However, all other functionality works without so just warn about this.
++     */
+     if (qmi_primary && !data_primary) {
+-        g_set_error_literal (error,
+-                             MM_CORE_ERROR,
+-                             MM_CORE_ERROR_FAILED,
+-                             "Failed to find a net port in the QMI modem");
+-        return FALSE;
++        mm_obj_warn (self, "Failed to find a net port in the QMI modem");
+     }
+ #endif
+ 
+diff --git a/src/mm-broadband-modem-qmi.c b/src/mm-broadband-modem-qmi.c
+index 83e808c2..e641c401 100644
+--- a/src/mm-broadband-modem-qmi.c
++++ b/src/mm-broadband-modem-qmi.c
+@@ -9457,7 +9457,17 @@ initialization_started (MMBroadbandModem *self,
+ 
+     /* Now open our QMI port */
+     mm_port_qmi_open (ctx->qmi,
+-                      TRUE,
++                      /* FIXME: Parts of the "data format" functionality on libqmi
++                       * assume that we are talking to qmi_wwan, which exposes the
++                       * kernel data format through sysfs.
++                       *
++                       * For RPMSG modems the driver that manages the net port
++                       * is a different one, and setting the kernel data format
++                       * therefore eventually works differently there.
++                       * For now skip setting the data format entirely for RPMSG
++                       * to avoid a Segmentation Fault.
++                       */
++                      mm_port_get_subsys (MM_PORT (ctx->qmi)) != MM_PORT_SUBSYS_RPMSG,
+                       NULL,
+                       (GAsyncReadyCallback)qmi_port_open_ready,
+                       task);
+diff --git a/src/mm-plugin.c b/src/mm-plugin.c
+index 77bd6528..f6bee411 100644
+--- a/src/mm-plugin.c
++++ b/src/mm-plugin.c
+@@ -773,6 +773,12 @@ mm_plugin_supports_port (MMPlugin            *self,
+ 
+     /* Build flags depending on what probing needed */
+     probe_run_flags = MM_PORT_PROBE_NONE;
++    if (g_str_equal (mm_kernel_device_get_subsystem (port), "rpmsg")) {
++        if (self->priv->at)
++            probe_run_flags |= MM_PORT_PROBE_AT;
++        if (self->priv->qmi)
++            probe_run_flags |= MM_PORT_PROBE_QMI;
++    } else
+     if (!g_str_has_prefix (mm_kernel_device_get_name (port), "cdc-wdm")) {
+         /* Serial ports... */
+         if (self->priv->at)
+@@ -958,6 +964,18 @@ mm_plugin_create_modem (MMPlugin  *self,
+             }
+ 
+ #if defined WITH_QMI
++/* FIXME: For RPMSG modems the network interface usually won't be managed
++ * by the USB qmi_wwan driver so the check below prevents them from getting
++ * registered in ModemManager.
++ *
++ * I guess it should be just skipped in the RPMSG case. However, to detect that
++ * it seems like we would need to iterate another time over "port_probes"
++ * to see if the QMI port is provided by the RPMSG subsystem.
++ *
++ * I'm not sure if there is a simple way to detect this situation only based
++ * on the network device itself (which has nothing to do with RPMSG).
++ */
++#if 0
+             if (MM_IS_BROADBAND_MODEM_QMI (modem) &&
+                 port_type == MM_PORT_TYPE_NET &&
+                 g_strcmp0 (driver, "qmi_wwan") != 0) {
+@@ -966,6 +984,7 @@ mm_plugin_create_modem (MMPlugin  *self,
+                 force_ignored = TRUE;
+                 goto grab_port;
+             }
++#endif
+ 
+             if (!MM_IS_BROADBAND_MODEM_QMI (modem) &&
+                 port_type == MM_PORT_TYPE_NET &&
+diff --git a/src/mm-port-probe.c b/src/mm-port-probe.c
+index 0c1edef1..b062f236 100644
+--- a/src/mm-port-probe.c
++++ b/src/mm-port-probe.c
+@@ -484,6 +484,9 @@ static void
+ wdm_probe_qmi (MMPortProbe *self)
+ {
+     PortProbeRunContext *ctx;
++#if defined WITH_QMI
++    MMPortSubsys subsys = MM_PORT_SUBSYS_USB;
++#endif
+ 
+     g_assert (self->priv->task);
+     ctx = g_task_get_task_data (self->priv->task);
+@@ -491,8 +494,11 @@ wdm_probe_qmi (MMPortProbe *self)
+ #if defined WITH_QMI
+     mm_obj_dbg (self, "probing QMI...");
+ 
++    if (g_str_equal (mm_kernel_device_get_subsystem (self->priv->port), "rpmsg"))
++        subsys = MM_PORT_SUBSYS_RPMSG;
++
+     /* Create a port and try to open it */
+-    ctx->port_qmi = mm_port_qmi_new (mm_kernel_device_get_name (self->priv->port));
++    ctx->port_qmi = mm_port_qmi_new (mm_kernel_device_get_name (self->priv->port), subsys);
+     mm_port_qmi_open (ctx->port_qmi,
+                       FALSE,
+                       NULL,
+@@ -1269,6 +1275,8 @@ serial_open_at (MMPortProbe *self)
+ 
+         if (g_str_has_prefix (mm_kernel_device_get_subsystem (self->priv->port), "usb"))
+             subsys = MM_PORT_SUBSYS_USB;
++        if (g_str_equal (mm_kernel_device_get_subsystem (self->priv->port), "rpmsg"))
++            subsys = MM_PORT_SUBSYS_RPMSG;
+ 
+         ctx->serial = MM_PORT_SERIAL (mm_port_serial_at_new (mm_kernel_device_get_name (self->priv->port), subsys));
+         if (!ctx->serial) {
+@@ -1570,9 +1578,10 @@ mm_port_probe_is_qmi (MMPortProbe *self)
+ 
+     subsys = mm_kernel_device_get_subsystem (self->priv->port);
+     name = mm_kernel_device_get_name (self->priv->port);
+-    if (!g_str_has_prefix (subsys, "usb") ||
+-        !name ||
+-        !g_str_has_prefix (name, "cdc-wdm"))
++    if ((!g_str_has_prefix (subsys, "usb") ||
++         !name ||
++         !g_str_has_prefix (name, "cdc-wdm")) &&
++        !g_str_equal (subsys, "rpmsg"))
+         return FALSE;
+ 
+     return self->priv->is_qmi;
+@@ -1656,6 +1665,13 @@ mm_port_probe_get_port_type (MMPortProbe *self)
+         }
+     }
+ 
++    if (g_str_equal (subsys, "rpmsg")) {
++#if defined WITH_QMI
++        if (self->priv->is_qmi)
++            return MM_PORT_TYPE_QMI;
++#endif
++    }
++
+     if (self->priv->flags & MM_PORT_PROBE_QCDM &&
+         self->priv->is_qcdm)
+         return MM_PORT_TYPE_QCDM;
+diff --git a/src/mm-port-qmi.c b/src/mm-port-qmi.c
+index 83d92b9d..0c4a4a98 100644
+--- a/src/mm-port-qmi.c
++++ b/src/mm-port-qmi.c
+@@ -788,11 +788,14 @@ mm_port_qmi_close (MMPortQmi           *self,
+ /*****************************************************************************/
+ 
+ MMPortQmi *
+-mm_port_qmi_new (const gchar *name)
++mm_port_qmi_new (const gchar *name, MMPortSubsys subsys)
+ {
++    g_return_val_if_fail (subsys == MM_PORT_SUBSYS_USB ||
++                          subsys == MM_PORT_SUBSYS_RPMSG, NULL);
++
+     return MM_PORT_QMI (g_object_new (MM_TYPE_PORT_QMI,
+                                       MM_PORT_DEVICE, name,
+-                                      MM_PORT_SUBSYS, MM_PORT_SUBSYS_USB,
++                                      MM_PORT_SUBSYS, subsys,
+                                       MM_PORT_TYPE, MM_PORT_TYPE_QMI,
+                                       NULL));
+ }
+diff --git a/src/mm-port-qmi.h b/src/mm-port-qmi.h
+index b4e8460c..6a5c298a 100644
+--- a/src/mm-port-qmi.h
++++ b/src/mm-port-qmi.h
+@@ -46,7 +46,7 @@ struct _MMPortQmiClass {
+ 
+ GType mm_port_qmi_get_type (void);
+ 
+-MMPortQmi *mm_port_qmi_new (const gchar *name);
++MMPortQmi *mm_port_qmi_new (const gchar *name, MMPortSubsys subsys);
+ 
+ void     mm_port_qmi_open         (MMPortQmi            *self,
+                                    gboolean              set_data_format,
+diff --git a/src/mm-port-serial-at.c b/src/mm-port-serial-at.c
+index c8e4782f..11a086ed 100644
+--- a/src/mm-port-serial-at.c
++++ b/src/mm-port-serial-at.c
+@@ -532,7 +532,8 @@ mm_port_serial_at_new (const char *name,
+ {
+     g_return_val_if_fail (subsys == MM_PORT_SUBSYS_TTY ||
+                           subsys == MM_PORT_SUBSYS_USB ||
+-                          subsys == MM_PORT_SUBSYS_UNIX, NULL);
++                          subsys == MM_PORT_SUBSYS_UNIX ||
++                          subsys == MM_PORT_SUBSYS_RPMSG, NULL);
+ 
+     return MM_PORT_SERIAL_AT (g_object_new (MM_TYPE_PORT_SERIAL_AT,
+                                             MM_PORT_DEVICE, name,
+diff --git a/src/mm-port.h b/src/mm-port.h
+index 33b07d97..861a086b 100644
+--- a/src/mm-port.h
++++ b/src/mm-port.h
+@@ -28,8 +28,9 @@ typedef enum { /*< underscore_name=mm_port_subsys >*/
+     MM_PORT_SUBSYS_NET,
+     MM_PORT_SUBSYS_USB,
+     MM_PORT_SUBSYS_UNIX,
++    MM_PORT_SUBSYS_RPMSG,
+ 
+-    MM_PORT_SUBSYS_LAST = MM_PORT_SUBSYS_UNIX /*< skip >*/
++    MM_PORT_SUBSYS_LAST = MM_PORT_SUBSYS_RPMSG /*< skip >*/
+ } MMPortSubsys;
+ 
+ typedef enum { /*< underscore_name=mm_port_type >*/
+-- 
+2.28.0
+
