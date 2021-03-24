@@ -26,7 +26,7 @@ DEPEND="
 	introspection? ( >=dev-libs/gobject-introspection-0.9.6:= )
 	mbim? ( >=net-libs/libmbim-1.24.0 )
 	policykit? ( >=sys-auth/polkit-0.106[introspection] )
-	qmi? ( >=net-libs/libqmi-1.26.0:= )
+	qmi? ( >=net-libs/libqmi-1.28.0:= )
 	elogind? ( sys-auth/elogind )
 	systemd? ( >=sys-apps/systemd-209 )
 "
@@ -43,10 +43,7 @@ BDEPEND="
 "
 PATCHES="
 	${FILESDIR}/0001-mm-broadband-modem-improve-voice-capabilities-detect.patch
-	${FILESDIR}/0002-serial-parsers-do-not-fail-to-detect-a-valid-respons.patch
-	${FILESDIR}/0003-context-add-test-no-suspend-resume-cli-parameter.patch
 	${FILESDIR}/0004-broadband-modem-qmi_Enable_AT_URCs_and_QMI_indications.patch
-	${FILESDIR}/temp_modemmanager_rpmsg.patch
 "
 
 S="${WORKDIR}/ModemManager-${PV}"
