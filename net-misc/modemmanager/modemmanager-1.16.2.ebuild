@@ -26,10 +26,9 @@ DEPEND="
 	introspection? ( >=dev-libs/gobject-introspection-0.9.6:= )
 	mbim? ( >=net-libs/libmbim-1.24.0 )
 	policykit? ( >=sys-auth/polkit-0.106[introspection] )
-	qmi? ( >=net-libs/libqmi-1.26.0:= )
+	qmi? ( >=net-libs/libqmi-1.28.0:= )
 	elogind? ( sys-auth/elogind )
 	systemd? ( >=sys-apps/systemd-209 )
-	>=libqmi-glib-1.28.0
 "
 RDEPEND="${DEPEND}
 	policykit? ( acct-group/plugdev )
