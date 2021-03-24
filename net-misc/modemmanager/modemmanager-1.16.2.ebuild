@@ -43,7 +43,6 @@ BDEPEND="
 "
 PATCHES="
 	${FILESDIR}/0001-mm-broadband-modem-improve-voice-capabilities-detect.patch
-	${FILESDIR}/0003-context-add-test-no-suspend-resume-cli-parameter.patch
 	${FILESDIR}/0004-broadband-modem-qmi_Enable_AT_URCs_and_QMI_indications.patch
 	${FILESDIR}/temp_modemmanager_rpmsg.patch
 "
