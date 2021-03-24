@@ -29,6 +29,7 @@ DEPEND="
 	qmi? ( >=net-libs/libqmi-1.26.0:= )
 	elogind? ( sys-auth/elogind )
 	systemd? ( >=sys-apps/systemd-209 )
+	>=libqmi-glib-1.28.0
 "
 RDEPEND="${DEPEND}
 	policykit? ( acct-group/plugdev )
