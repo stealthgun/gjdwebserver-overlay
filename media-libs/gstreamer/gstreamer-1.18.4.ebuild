@@ -35,7 +35,8 @@ DEPEND="${RDEPEND}
 "
 
 src_configure() {
-	multilib-minimal_src_configure
+	vala_src_prepare
+	xdg_src_prepare
 }
 
 multilib_src_configure() {
@@ -44,7 +45,7 @@ multilib_src_configure() {
 	# helpers from there.
 	# Disable static archives and examples to speed up build time
 	# Disable debug, as it only affects -g passing (debugging symbols), this must done through make.conf in gentoo
-	local myconf=(
+	local emesonargs=(
 		--libexecdir="${EPREFIX}"/usr/$(get_libdir)
 		--disable-benchmarks
 		--disable-debug
@@ -61,40 +62,20 @@ multilib_src_configure() {
 		--with-package-name="GStreamer ebuild for Gentoo"
 		--with-package-origin="https://packages.gentoo.org/package/media-libs/gstreamer"
 	)
-
-	if use caps ; then
-		myconf+=( --with-ptp-helper-permissions=capabilities )
-	else
-		myconf+=(
-			--with-ptp-helper-permissions=setuid-root
-			--with-ptp-helper-setuid-user=nobody
-			--with-ptp-helper-setuid-group=nobody
-		)
-	fi
-
-	ECONF_SOURCE="${S}" econf "${myconf[@]}"
-
-	if multilib_is_native_abi; then
-		local x
-		for x in gst libs plugins; do
-			ln -s "${S}"/docs/${x}/html docs/${x}/html || die
-		done
-	fi
+	
+	meson_src_configure
 }
 
-multilib_src_install() {
-	# can't do "default", we want to install docs in multilib_src_install_all
-	emake DESTDIR="${D}" install
-
-	# Needed for orc-using gst plugins on hardened/PaX systems, bug #421579
-	use orc && pax-mark -m "${ED}usr/$(get_libdir)/gstreamer-${SLOT}/gst-plugin-scanner"
+src_test() {
+	virtx meson_src_test
 }
 
-multilib_src_install_all() {
-	DOCS="AUTHORS ChangeLog NEWS MAINTAINERS README RELEASE"
-	einstalldocs
-	find "${ED}" -name '*.la' -delete || die
+pkg_postinst() {
+	xdg_pkg_postinst
+	gnome2_schemas_update
+}
 
-	# Needed for orc-using gst plugins on hardened/PaX systems, bug #421579
-	use orc && pax-mark -m "${ED}usr/bin/gst-launch-${SLOT}"
+pkg_postrm() {
+	xdg_pkg_postrm
+	gnome2_schemas_update
 }
