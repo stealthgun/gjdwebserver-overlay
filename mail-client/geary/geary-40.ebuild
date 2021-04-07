@@ -53,6 +53,7 @@ DEPEND="
 	>=dev-libs/libxml2-2.7.8:2
 	dev-libs/snowball-stemmer
 	>=net-mail/ytnef-1.9.3
+	>=app-text/hunspell-1.7.0
 "
 RDEPEND="${DEPEND}
 	gnome-base/gsettings-desktop-schemas
