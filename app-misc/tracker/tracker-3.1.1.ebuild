@@ -34,6 +34,7 @@ RDEPEND="
 	networkmanager? ( >=net-misc/networkmanager-0.8 )
 	stemmer? ( dev-libs/snowball-stemmer )
 	sys-apps/util-linux
+	>=dev-python/snowballstemmer-2.1.0
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
