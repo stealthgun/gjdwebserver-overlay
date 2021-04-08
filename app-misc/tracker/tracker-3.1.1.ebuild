@@ -35,6 +35,7 @@ RDEPEND="
 	stemmer? ( dev-libs/snowball-stemmer )
 	sys-apps/util-linux
 	>=dev-python/snowballstemmer-2.1.0
+	>=app-shells/bash-completion-2.11
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
