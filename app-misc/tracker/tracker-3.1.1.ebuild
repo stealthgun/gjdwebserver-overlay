@@ -12,7 +12,7 @@ HOMEPAGE="https://wiki.gnome.org/Projects/Tracker"
 
 LICENSE="GPL-2+ LGPL-2.1+"
 SLOT="3/3.0"
-IUSE="gtk-doc +miners networkmanager stemmer"
+IUSE="gtk-doc +miners networkmanager stemmer test example"
 
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~ppc ~ppc64 ~sparc ~x86"
 #RESTRICT="!test? ( test )"
