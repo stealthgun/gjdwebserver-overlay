@@ -7,7 +7,7 @@ VALA_MIN_API_VERSION="0.40"
 
 inherit bash-completion-r1 gnome.org gnome2-utils linux-info meson python-any-r1 systemd vala xdg
 
-DESCRIPTION="A tagging metadata database, search tool and indexer"
+DESCRIPTION="A tagging metadata database, search tool and indexer (virtual)"
 HOMEPAGE="https://wiki.gnome.org/Projects/Tracker"
 
 LICENSE="GPL-2+ LGPL-2.1+"
@@ -35,7 +35,6 @@ RDEPEND="
 	stemmer? ( dev-libs/snowball-stemmer )
 	sys-apps/util-linux
 	>=dev-python/snowballstemmer-2.1.0
-	>=app-shells/bash-completion-2.11
 "
 DEPEND="${RDEPEND}"
 BDEPEND="
@@ -50,55 +49,3 @@ BDEPEND="
 	${PYTHON_DEPS}
 "
 PDEPEND="miners? ( >=app-misc/tracker-miners-${PV_SERIES} )"
-
-function inotify_enabled() {
-	if linux_config_exists; then
-		if ! linux_chkconfig_present INOTIFY_USER; then
-			ewarn "You should enable the INOTIFY support in your kernel."
-			ewarn "Check the 'Inotify support for userland' under the 'File systems'"
-			ewarn "option. It is marked as CONFIG_INOTIFY_USER in the config"
-			die 'missing CONFIG_INOTIFY'
-		fi
-	else
-		einfo "Could not check for INOTIFY support in your kernel."
-	fi
-}
-
-pkg_setup() {
-	linux-info_pkg_setup
-	inotify_enabled
-
-	python-any-r1_pkg_setup
-}
-
-src_prepare() {
-	xdg_src_prepare
-	vala_src_prepare
-}
-
-src_configure() {
-	local emesonargs=(
-		-Dfts=true
-		-Dfunctional_tests=false # many fail in 2.2; retry with 2.3
-		#$(meson_use test functional_tests)
-		-Dman=true
-		$(meson_feature networkmanager network_manager)
-		$(meson_feature stemmer)
-		-Dunicode_support=icu
-	)
-	meson_src_configure
-}
-
-src_test() {
-	dbus-run-session meson test -C "${BUILD_DIR}" || die 'tests failed'
-}
-
-pkg_postinst() {
-	xdg_pkg_postinst
-	gnome2_schemas_update
-}
-
-pkg_postrm() {
-	xdg_pkg_postrm
-	gnome2_schemas_update
-}
