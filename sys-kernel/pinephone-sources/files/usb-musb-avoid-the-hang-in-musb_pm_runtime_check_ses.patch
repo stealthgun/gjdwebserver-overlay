@@ -1,0 +1,35 @@
+From 3ed430f6b94479c7b4d26323b5fe6381ca11c0e4 Mon Sep 17 00:00:00 2001
+From: Tony Lindgren <tony@atomide.com>
+Date: Tue, 27 Oct 2020 13:18:57 +0530
+Subject: [PATCH] usb: musb: avoid the hang in musb_pm_runtime_check_session
+
+See thread at: https://lore.kernel.org/linux-usb/20201027045519.GA947883@aquila.localdomain/
+---
+ drivers/usb/musb/musb_core.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
+index 384a8039a7fd5..fe87046d8b28a 100644
+--- a/drivers/usb/musb/musb_core.c
++++ b/drivers/usb/musb/musb_core.c
+@@ -2005,10 +2005,13 @@ static void musb_pm_runtime_check_session(struct musb *musb)
+ 		MUSB_DEVCTL_HR;
+ 	switch (devctl & ~s) {
+ 	case MUSB_QUIRK_B_DISCONNECT_99:
+-		musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
+-		schedule_delayed_work(&musb->irq_work,
+-				      msecs_to_jiffies(1000));
+-		break;
++		if (musb->quirk_retries && !musb->flush_irq_work) {
++			musb_dbg(musb, "Poll devctl in case of suspend after disconnect\n");
++			schedule_delayed_work(&musb->irq_work,
++						  msecs_to_jiffies(1000));
++			musb->quirk_retries--;
++			break;
++		}
+ 	case MUSB_QUIRK_B_INVALID_VBUS_91:
+ 		if (musb->quirk_retries && !musb->flush_irq_work) {
+ 			musb_dbg(musb,
+-- 
+2.29.1
+
