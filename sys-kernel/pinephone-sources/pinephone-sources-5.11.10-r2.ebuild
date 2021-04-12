@@ -13,8 +13,8 @@ DESCRIPTION="Full sources for the Linux kernel, with megi's patch for pinephone"
 HOMEPAGE="https://www.kernel.org"
 
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86"
-MEGI_PATCH_URI="https://xff.cz/kernels/5.11/patches/all.patch"
-SRC_URI="${KERNEL_URI} ${MEGI_PATCH_URI} -> all-5.11.12.patch"
+MEGI_PATCH_URI="https://xff.cz/kernels/${PV:0:4}/patches/all.patch"
+SRC_URI="${KERNEL_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
 
 PATCHES=(
 	${DISTDIR}/all-${PV}.patch
@@ -39,7 +39,7 @@ PATCHES=(
     ${FILESDIR}/PATCH-1-4-HID-magicmouse-add-Apple-Magic-Mouse-2-support.patch
     ${FILESDIR}/PATCH-2-4-HID-magicmouse-fix-3-button-emulation-of-Mouse-2.patch
     ${FILESDIR}/PATCH-3-4-HID-magicmouse-fix-reconnection-of-Magic-Mouse-2.patch
-    #${FILESDIR}/PATCH-4-4-HID-input-map-battery-capacity-00850065.patch
+    ${FILESDIR}/PATCH-4-4-HID-input-map-battery-capacity-00850065.patch
     #${FILESDIR}/camera-added-bggr-bayer-mode.patch
     #${FILESDIR}/0002-Bluetooth-Fix-LL-PRivacy-BLE-device-fails-to-connect.patch
     #${FILESDIR}/0003-Bluetooth-Fix-attempting-to-set-RPA-timeout-when-unsupported.patch
