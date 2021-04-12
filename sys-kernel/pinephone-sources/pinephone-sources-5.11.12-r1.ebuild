@@ -13,8 +13,8 @@ DESCRIPTION="Full sources for the Linux kernel, with megi's patch for pinephone"
 HOMEPAGE="https://www.kernel.org"
 
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86"
-MEGI_PATCH_URI="https://xff.cz/kernels/${PV:0:4}/patches/all.patch"
-SRC_URI="${KERNEL_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
+MEGI_PATCH_URI="https://xff.cz/kernels/5.12/patches/all.patch"
+SRC_URI="${KERNEL_URI} ${MEGI_PATCH_URI} -> all-5.11.12.patch"
 
 PATCHES=(
 	${DISTDIR}/all-${PV}.patch
