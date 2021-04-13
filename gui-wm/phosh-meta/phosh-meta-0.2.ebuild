@@ -34,7 +34,6 @@ DEPEND="
 		sys-power/gtherm
 		sys-auth/rtkit
 		>=x11-libs/pango-1.46
-		media-sound/gnome-music
 		mail-client/geary
 		sci-geosciences/gnome-maps
 		gnome-extra/portfolio
