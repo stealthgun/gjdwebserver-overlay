@@ -21,6 +21,7 @@ DEPEND="
 		dev-libs/libwacom
 		media-libs/grilo
 		gnome-base/gnome-control-center
+		gnome-extra/gnome-system-monitor
 		gnome-extra/gnome-contacts
 		media-video/megapixels
 		gnome-extra/gnome-calculator
