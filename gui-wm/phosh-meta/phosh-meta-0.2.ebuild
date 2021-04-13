@@ -3,7 +3,7 @@
 
 EAPI=7
 
-DESCRIPTION="Meta package for Phosh without squeekboard"
+DESCRIPTION="Meta package for Phosh"
 HOMEPAGE="https://github.com/dreemurrs-embedded/Pine64-Arch"
 SRC_URI=""
 
