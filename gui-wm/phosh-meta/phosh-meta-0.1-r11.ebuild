@@ -35,6 +35,7 @@ DEPEND="
 		sys-power/gtherm
 		sys-auth/rtkit
 		>=x11-libs/pango-1.46
+		gnome-extra/postmarketos-tweaks
 "
 
 RDEPEND="${DEPEND}"
