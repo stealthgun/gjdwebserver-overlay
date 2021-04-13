@@ -8,7 +8,7 @@ HOMEPAGE="https://github.com/dreemurrs-embedded/Pine64-Arch"
 SRC_URI=""
 
 LICENSE="MIT"
-#SLOT="0"
+SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm64 ~arm"
 IUSE=""
 
