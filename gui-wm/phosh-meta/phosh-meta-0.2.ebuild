@@ -43,7 +43,8 @@ DEPEND="
 		media-sound/lollypop
 		app-text/evince
 		gnome-extra/postmarketos-tweaks
-		>=x11-themes/adwaita-icon-theme-40.0
+		>=x11-themes/adwaita-icon-theme-40
+		>=x11-themes/gnome-backgrounds-40
 "
 
 RDEPEND="${DEPEND}"
