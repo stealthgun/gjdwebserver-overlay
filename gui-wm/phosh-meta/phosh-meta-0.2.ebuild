@@ -26,7 +26,6 @@ DEPEND="
 		gnome-extra/gnome-calculator
 		gnome-extra/gnome-calendar
 		www-client/epiphany
-		app-mobilephone/mobile-config-firefox
 		app-mobilephone/flashlight
 		x11-terms/gnome-terminal
 		x11-themes/sound-theme-librem5
@@ -35,6 +34,15 @@ DEPEND="
 		sys-power/gtherm
 		sys-auth/rtkit
 		>=x11-libs/pango-1.46
+		media-sound/gnome-music
+		mail-client/geary
+		sci-geosciences/gnome-maps
+		gnome-extra/portfolio
+		gnome-extra/gnome-weather
+		x11-misc/squeekboard
+		www-client/chromium-bin
+		media-sound/lollypop
+		app-text/evince
 		gnome-extra/postmarketos-tweaks
 "
 
