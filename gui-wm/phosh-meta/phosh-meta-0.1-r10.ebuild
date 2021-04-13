@@ -21,7 +21,7 @@ DEPEND="
 		dev-libs/libwacom
 		media-libs/grilo
 		gnome-base/gnome-control-center
-		gnome-extra/gnome-system-monitor
+		#gnome-extra/gnome-system-monitor
 		gnome-extra/gnome-contacts
 		media-video/megapixels
 		gnome-extra/gnome-calculator
@@ -40,7 +40,6 @@ DEPEND="
 		gnome-extra/portfolio
 		gnome-extra/gnome-weather
 		x11-misc/squeekboard
-		www-client/chromium-bin
 		media-sound/lollypop
 		gnome-extra/postmarketos-tweaks
 		>=x11-themes/adwaita-icon-theme-40
