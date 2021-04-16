@@ -67,10 +67,6 @@ BDEPEND="
 # eautoreconf needs:
 #  app-text/yelp-tools
 
-PATCHES=(
-	"${FILESDIR}"/3.30.2-internal-synctex.patch # don't automagically link to synctex from texlive-core - always use internal copy of this small parser for now; requires eautoreconf
-)
-
 src_prepare() {
 	gnome2_src_prepare
 
