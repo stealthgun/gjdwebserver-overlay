@@ -72,10 +72,6 @@ BDEPEND="
 # perl for pod2man
 # Prevent dev-python/pylint dep, bug #482538
 
-PATCHES=(
-	"${FILESDIR}"/${PV}-gst-inspect-sandbox.patch # Allow disabling calls to gst-inspect (sandbox issue)
-)
-
 pkg_setup() {
 	use python && python-single-r1_pkg_setup
 }
