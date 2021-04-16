@@ -3,7 +3,7 @@
 
 EAPI=7
 
-DESCRIPTION="Meta package for Phosh"
+DESCRIPTION="Meta package for Phosh without squeekboard"
 HOMEPAGE="https://github.com/dreemurrs-embedded/Pine64-Arch"
 SRC_URI=""
 
@@ -16,7 +16,6 @@ DEPEND="
 		gui-wm/phosh
 		net-voip/calls
 		net-im/chatty
-		x11-misc/squeekboard
 		net-dns/dnsmasq
 		app-editors/gedit
 		gnome-base/gnome-control-center
@@ -27,11 +26,9 @@ DEPEND="
 		www-client/epiphany
 		app-mobilephone/mobile-config-firefox
 		app-mobilephone/flashlight
-		#x11-misc/squeekboard
 		x11-terms/gnome-terminal
 		x11-themes/sound-theme-librem5
 		app-text/evince
-		app-editors/gedit
 		sys-power/gtherm
 		sys-auth/rtkit
 "
