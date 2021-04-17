@@ -90,7 +90,7 @@ such device.
 Signed-off-by: John Chen <johnchen902@gmail.com>
 ---
  drivers/hid/hid-debug.c |  1 +
- drivers/hid/hid-input.c | 11 +++++++++++
+ drivers/hid/hid-input.c |  9 +++++++++
  include/linux/hid.h     |  3 +++
  3 files changed, 15 insertions(+)
 
