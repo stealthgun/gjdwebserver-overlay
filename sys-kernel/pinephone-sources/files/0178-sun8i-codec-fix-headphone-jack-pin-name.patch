@@ -1,0 +1,25 @@
+From 2253c0d31cf17debb97db418bec21ad59cd47c14 Mon Sep 17 00:00:00 2001
+From: Arnaud Ferraris <arnaud.ferraris@collabora.com>
+Date: Tue, 3 Nov 2020 17:04:35 +0100
+Subject: [PATCH 178/183] sun8i-codec: fix headphone jack pin name
+
+---
+ sound/soc/sunxi/sun8i-codec.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/sound/soc/sunxi/sun8i-codec.c b/sound/soc/sunxi/sun8i-codec.c
+index 6128d861df90..ab751fd7c426 100644
+--- a/sound/soc/sunxi/sun8i-codec.c
++++ b/sound/soc/sunxi/sun8i-codec.c
+@@ -1272,7 +1272,7 @@ static const struct snd_soc_dapm_route sun8i_codec_legacy_routes[] = {
+ 
+ static struct snd_soc_jack_pin sun8i_codec_jack_pins[] = {
+ 	{
+-		.pin	= "Headphone Jack",
++		.pin	= "Headphone",
+ 		.mask	= SND_JACK_HEADPHONE,
+ 	},
+ 	{
+-- 
+2.30.0
+

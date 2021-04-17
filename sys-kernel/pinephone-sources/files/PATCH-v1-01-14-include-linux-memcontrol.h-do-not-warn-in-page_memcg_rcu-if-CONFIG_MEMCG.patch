@@ -1,0 +1,129 @@
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Return-Path: <linux-kernel-owner@kernel.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+	aws-us-west-2-korg-lkml-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
+	version=3.4.0
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 42B16C433DB
+	for <linux-kernel@archiver.kernel.org>; Sat, 13 Mar 2021 07:59:06 +0000 (UTC)
+Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
+	by mail.kernel.org (Postfix) with ESMTP id 11CED64ECE
+	for <linux-kernel@archiver.kernel.org>; Sat, 13 Mar 2021 07:59:06 +0000 (UTC)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S233237AbhCMH6e (ORCPT <rfc822;linux-kernel@archiver.kernel.org>);
+        Sat, 13 Mar 2021 02:58:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58944 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230349AbhCMH56 (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Sat, 13 Mar 2021 02:57:58 -0500
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B7EAC061574
+        for <linux-kernel@vger.kernel.org>; Fri, 12 Mar 2021 23:57:58 -0800 (PST)
+Received: by mail-yb1-xb49.google.com with SMTP id d8so32058455ybs.11
+        for <linux-kernel@vger.kernel.org>; Fri, 12 Mar 2021 23:57:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=CiMQJrfmhcT/Xw28mTP3VlU5SRPV8bRsC232LNJk7tU=;
+        b=U+bvs2P4aWZrWqfRwrXFunM/l5sWGKqRdiGQFJBSXwSH+vfw4kB3WjkPPQpoUgHwwx
+         +4KITrOtke32as1JFmSOW/QJ8GYL6J2CyqtNZysfNDnr4dUu1eafFf0OU/BN2PlR6TZw
+         u/bOTirXcAreUn8QrcDvxRKbQwugJdk2JWl2TqDc7KAmb0AodFb/pAgQnWip2QOqWta3
+         5ohqe66l196K6u9PNyDcJqEzz4CuJBMkGEAupVYjzX/HNuFZ1kLz2lz2FxSR38TqyX8I
+         aWFk3lMppRkLaWpnC4nC3SQhZcJq9YOxrujTA4BSnsEwscy7qJzgt8w9xEMiwzmAoN1g
+         Bm1Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=CiMQJrfmhcT/Xw28mTP3VlU5SRPV8bRsC232LNJk7tU=;
+        b=Qi2PdmMPthJWQMXSQ05Fb8upxFWwOHNAFsy8LixbQ0QGPKWVlwBzQDYwPCpG05WFP8
+         cYIfPhq3nv9++78Y1Pw7Q8oiGEv7KJ0j/sHIaRZGlWZdHWwciPpKdT9M4JVXYhn4NxhF
+         6YrPBHSTOTN7v9fuCOcPqKSOKTBYMF/eETj9XoeqtvetJVZ1i3Dqxu4TawWOlymnTTkh
+         9IQRnTz2ffdTJdBCH6iTA0UfrEDWDnESubVvzuRfmLvCt3b427gwHWXaK/i7F/60+65O
+         8gzoqIJ9gqwTfdGB3vB6HXtbmWosQ39Zy7gnpTpf0CB7afg1Gnx/4Y26GMLjtLkzeviQ
+         6K7w==
+X-Gm-Message-State: AOAM531kmbzmJE5p9rtDGXbRHYBSsGjPyFJxoBPqsQzAq6DHfRzY/is2
+        Lgnmsa+bse/YLa5M+1JDlGqGCZxMntQ=
+X-Google-Smtp-Source: ABdhPJxUTV3MKesWpiHjP1OfC2lc1y93+U3j9zDFMK1igY41oF3Fyu2enmEiwR5c1z6fz0Ykw1sgyEJETNk=
+X-Received: from yuzhao.bld.corp.google.com ([2620:15c:183:200:f931:d3e4:faa0:4f74])
+ (user=yuzhao job=sendgmr) by 2002:a25:dfd1:: with SMTP id w200mr24182984ybg.362.1615622277472;
+ Fri, 12 Mar 2021 23:57:57 -0800 (PST)
+Date:   Sat, 13 Mar 2021 00:57:34 -0700
+In-Reply-To: <20210313075747.3781593-1-yuzhao@google.com>
+Message-Id: <20210313075747.3781593-2-yuzhao@google.com>
+Mime-Version: 1.0
+References: <20210313075747.3781593-1-yuzhao@google.com>
+X-Mailer: git-send-email 2.31.0.rc2.261.g7f71774620-goog
+Subject: [PATCH v1 01/14] include/linux/memcontrol.h: do not warn in
+ page_memcg_rcu() if !CONFIG_MEMCG
+From:   Yu Zhao <yuzhao@google.com>
+To:     linux-mm@kvack.org
+Cc:     Alex Shi <alex.shi@linux.alibaba.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Hillf Danton <hdanton@sina.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@suse.com>,
+        Roman Gushchin <guro@fb.com>, Vlastimil Babka <vbabka@suse.cz>,
+        Wei Yang <richard.weiyang@linux.alibaba.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Ying Huang <ying.huang@intel.com>,
+        linux-kernel@vger.kernel.org, page-reclaim@google.com,
+        Yu Zhao <yuzhao@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+Archived-At: <https://lore.kernel.org/lkml/20210313075747.3781593-2-yuzhao@google.com/>
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+
+We want to make sure the rcu lock is held while using
+page_memcg_rcu(). But having a WARN_ON_ONCE() in page_memcg_rcu() when
+!CONFIG_MEMCG is superfluous because of the following legit use case:
+
+  memcg = lock_page_memcg(page1)
+    (rcu_read_lock() if CONFIG_MEMCG=y)
+
+  do something to page1
+
+  if (page_memcg_rcu(page2) == memcg)
+    do something to page2 too as it cannot be migrated away from the
+    memcg either.
+
+  unlock_page_memcg(page1)
+    (rcu_read_unlock() if CONFIG_MEMCG=y)
+
+This patch removes the WARN_ON_ONCE() from page_memcg_rcu() for the
+!CONFIG_MEMCG case.
+
+Signed-off-by: Yu Zhao <yuzhao@google.com>
+---
+ include/linux/memcontrol.h | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
+index e6dc793d587d..f325aeb4b4e8 100644
+--- a/include/linux/memcontrol.h
++++ b/include/linux/memcontrol.h
+@@ -1079,7 +1079,6 @@ static inline struct mem_cgroup *page_memcg(struct page *page)
+ 
+ static inline struct mem_cgroup *page_memcg_rcu(struct page *page)
+ {
+-	WARN_ON_ONCE(!rcu_read_lock_held());
+ 	return NULL;
+ }
+ 
+-- 
+2.31.0.rc2.261.g7f71774620-goog
+
+
