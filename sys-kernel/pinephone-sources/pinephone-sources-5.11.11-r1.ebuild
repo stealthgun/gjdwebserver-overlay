@@ -17,7 +17,7 @@ MEGI_PATCH_URI="https://xff.cz/kernels/${PV:0:4}/patches/all.patch"
 SRC_URI="${KERNEL_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
 
 PATCHES=(
-	${DISTDIR}/all-${PV}.patch
+    ${DISTDIR}/all-${PV}.patch
     ${FILESDIR}/enable-hdmi-output-pinetab.patch
     ${FILESDIR}/enable-jack-detection-pinetab.patch
     ${FILESDIR}/pinetab-bluetooth.patch
@@ -37,7 +37,6 @@ PATCHES=(
     ${FILESDIR}/PATCH-1-4-HID-magicmouse-add-Apple-Magic-Mouse-2-support.patch
     ${FILESDIR}/PATCH-2-4-HID-magicmouse-fix-3-button-emulation-of-Mouse-2.patch
     ${FILESDIR}/PATCH-3-4-HID-magicmouse-fix-reconnection-of-Magic-Mouse-2.patch
-    ${FILESDIR}/PATCH-4-4-HID-input-map-battery-capacity-00850065.patch
 )
 
 src_prepare() {
