@@ -19,7 +19,6 @@ SRC_URI="${KERNEL_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
 PATCHES=(
 	${DISTDIR}/all-${PV}.patch
     ${FILESDIR}/enable-hdmi-output-pinetab.patch
-    #${FILESDIR}/improve-brightness.patch
     ${FILESDIR}/enable-jack-detection-pinetab.patch
     ${FILESDIR}/pinetab-bluetooth.patch
     ${FILESDIR}/pinetab-accelerometer.patch
@@ -28,7 +27,6 @@ PATCHES=(
 	${FILESDIR}/media-ov5640-Implement-autofocus.patch
 	${FILESDIR}/0011-dts-pinetab-hardcode-mmc-numbers.patch
 	${FILESDIR}/0002-dts-add-pinetab-dev-old-display-panel.patch
-	#${FILESDIR}/0001-arm64-dts-allwinner-pinephone-stop-LEDs-on-suspend.patch
 	${FILESDIR}/0010-dts-pinephone-Add-pine64-pinephone-to-compat-list.patch
 	${FILESDIR}/0012-pinephone-fix-pogopin-i2c.patch
 	${FILESDIR}/0107-quirk-kernel-org-bug-210681-firmware_rome_error.patch
@@ -40,12 +38,6 @@ PATCHES=(
     ${FILESDIR}/PATCH-2-4-HID-magicmouse-fix-3-button-emulation-of-Mouse-2.patch
     ${FILESDIR}/PATCH-3-4-HID-magicmouse-fix-reconnection-of-Magic-Mouse-2.patch
     ${FILESDIR}/PATCH-4-4-HID-input-map-battery-capacity-00850065.patch
-    #${FILESDIR}/camera-added-bggr-bayer-mode.patch
-    #${FILESDIR}/0002-Bluetooth-Fix-LL-PRivacy-BLE-device-fails-to-connect.patch
-    #${FILESDIR}/0003-Bluetooth-Fix-attempting-to-set-RPA-timeout-when-unsupported.patch
-    #${FILESDIR}/0001-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch
-	#${FILESDIR}/0002-revert-fbcon-remove-no-op-fbcon_set_origin.patch
-	#${FILESDIR}/0003-revert-fbcon-remove-soft-scrollback-code.patch
 )
 
 src_prepare() {
