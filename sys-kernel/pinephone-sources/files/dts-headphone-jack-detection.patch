@@ -1,0 +1,18 @@
+diff --git a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
+index 086b5ebfa512..b4a71b02c474 100644
+--- a/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
++++ b/arch/arm64/boot/dts/allwinner/sun50i-a64-pinephone.dtsi
+@@ -304,11 +304,13 @@ &codec {
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&aif2_pins>, <&aif3_pins>;
+ 	status = "okay";
++	allwinner,inverted-jack-detection;
+ };
+ 
+ &codec_analog {
+ 	cpvdd-supply = <&reg_eldo1>;
+ 	status = "okay";
++	allwinner,internal-bias-resistor;
+ };
+ 
+ &cpu0 {
