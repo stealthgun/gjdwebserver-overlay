@@ -1,0 +1,144 @@
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Return-Path: <linux-kernel-owner@kernel.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+	aws-us-west-2-korg-lkml-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
+	version=3.4.0
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E3438C43332
+	for <linux-kernel@archiver.kernel.org>; Sat, 13 Mar 2021 07:59:06 +0000 (UTC)
+Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
+	by mail.kernel.org (Postfix) with ESMTP id C990264F1D
+	for <linux-kernel@archiver.kernel.org>; Sat, 13 Mar 2021 07:59:06 +0000 (UTC)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S233489AbhCMH6l (ORCPT <rfc822;linux-kernel@archiver.kernel.org>);
+        Sat, 13 Mar 2021 02:58:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58984 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232702AbhCMH6G (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Sat, 13 Mar 2021 02:58:06 -0500
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F2FEC061574
+        for <linux-kernel@vger.kernel.org>; Fri, 12 Mar 2021 23:58:06 -0800 (PST)
+Received: by mail-yb1-xb49.google.com with SMTP id j4so31727869ybt.23
+        for <linux-kernel@vger.kernel.org>; Fri, 12 Mar 2021 23:58:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=sM28HXat3Ro78N+fdELj5tA2TTORYcmSJRB7y0xn668=;
+        b=TkMSfULPVVqqEs8nJoS183e8mdw8yepLBTDn2eNINUqggav0COpVRzISc3zd89NvN9
+         G1/R3rFQNbXB4Mc0QhWaGTD1Fq53asLndQ1E2i8CSZ95KHVj8MUNkswp9uk2yDDtfErk
+         Sbw+4/WN0WzNqVfegG6JQMHiPP9iXEqGFYVgSZLK8flNYafDsz7FgT4K+/4AxxZLFwj6
+         mhv5FnKYJxQDSuEX1b3S54OYObhuyWJnGpPGLfPwfJ/quLWGTNO+ZIAeb5KMAmBdnEKV
+         rF1QTgCoPPMsWsShNKe8BsfaSKCMVGiSbi90ZFx8J0HHcn4GpbXrkYUuLSCcm0F4KYI7
+         fQQw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=sM28HXat3Ro78N+fdELj5tA2TTORYcmSJRB7y0xn668=;
+        b=RiLWz/T/zcexV2Bsbw7YiZb7BINvMGTgl79XdA6B/OHzniNtpaj8nGzPvt6kerrgat
+         ur0TSQPmxqyehHvbKNQ7mbs/PTvniAuwd45+Ub0Vv+9NgoF9uTsNfAK7Vd4jQHOWOvhm
+         m1E6fZ25eW7KaMDTCBmRrCvIXIblvOe8PuRRsZqiT991bZ5mnSFynpVrpRLetwouPyGk
+         pSnxWX8BcM/e6hZIrC3KPP2PeXLt4ehMvZ9h9fIeH0DezONgDMKpjc0TdLhdm0Z+EAPP
+         gLoBDsqcG45NgWLNP2KcFrcDXtjwD+f9JAiMZvrNFb7RI7F78RYvzjAuegAab8YW/u+o
+         Nkzg==
+X-Gm-Message-State: AOAM530brY8KWy4SQHMkv1r6LKzek0Cq4xuuj7kcDTW0m3zhQz3OLAJt
+        GTHrB+1mfPD6eAMjZFoSYPQ7AwnDTeo=
+X-Google-Smtp-Source: ABdhPJzZYSt4fmXD7VdJ6T+CnbKC2/TjZT+i4G4gEva1Omiq/qzC/4JrVYLGPq2Q22anUOeAEZWsql+skQ8=
+X-Received: from yuzhao.bld.corp.google.com ([2620:15c:183:200:f931:d3e4:faa0:4f74])
+ (user=yuzhao job=sendgmr) by 2002:a25:2308:: with SMTP id j8mr24384456ybj.474.1615622285438;
+ Fri, 12 Mar 2021 23:58:05 -0800 (PST)
+Date:   Sat, 13 Mar 2021 00:57:40 -0700
+In-Reply-To: <20210313075747.3781593-1-yuzhao@google.com>
+Message-Id: <20210313075747.3781593-8-yuzhao@google.com>
+Mime-Version: 1.0
+References: <20210313075747.3781593-1-yuzhao@google.com>
+X-Mailer: git-send-email 2.31.0.rc2.261.g7f71774620-goog
+Subject: [PATCH v1 07/14] mm/pagewalk.c: add pud_entry_post() for post-order traversals
+From:   Yu Zhao <yuzhao@google.com>
+To:     linux-mm@kvack.org
+Cc:     Alex Shi <alex.shi@linux.alibaba.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Hillf Danton <hdanton@sina.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@suse.com>,
+        Roman Gushchin <guro@fb.com>, Vlastimil Babka <vbabka@suse.cz>,
+        Wei Yang <richard.weiyang@linux.alibaba.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Ying Huang <ying.huang@intel.com>,
+        linux-kernel@vger.kernel.org, page-reclaim@google.com,
+        Yu Zhao <yuzhao@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+Archived-At: <https://lore.kernel.org/lkml/20210313075747.3781593-8-yuzhao@google.com/>
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+
+Add a new callback pud_entry_post() to struct mm_walk_ops so that page
+table walkers can visit the non-leaf PMD entries of a PUD entry after
+they have visited with the leaf PTE entries. This allows page table
+walkers who clear the accessed bit to take advantage of the last
+commit, in a similar way walk_pte_range() works for the PTE entries of
+a PMD entry: they only need to take PTL once to search all the child
+entries of a parent entry.
+
+Signed-off-by: Yu Zhao <yuzhao@google.com>
+---
+ include/linux/pagewalk.h | 4 ++++
+ mm/pagewalk.c            | 5 +++++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/include/linux/pagewalk.h b/include/linux/pagewalk.h
+index b1cb6b753abb..2b68ae9d27d3 100644
+--- a/include/linux/pagewalk.h
++++ b/include/linux/pagewalk.h
+@@ -11,6 +11,8 @@ struct mm_walk;
+  * @pgd_entry:		if set, called for each non-empty PGD (top-level) entry
+  * @p4d_entry:		if set, called for each non-empty P4D entry
+  * @pud_entry:		if set, called for each non-empty PUD entry
++ * @pud_entry_post:	if set, called for each non-empty PUD entry after
++ *			pmd_entry is called, for post-order traversal.
+  * @pmd_entry:		if set, called for each non-empty PMD entry
+  *			this handler is required to be able to handle
+  *			pmd_trans_huge() pmds.  They may simply choose to
+@@ -41,6 +43,8 @@ struct mm_walk_ops {
+ 			 unsigned long next, struct mm_walk *walk);
+ 	int (*pud_entry)(pud_t *pud, unsigned long addr,
+ 			 unsigned long next, struct mm_walk *walk);
++	int (*pud_entry_post)(pud_t *pud, unsigned long addr,
++			      unsigned long next, struct mm_walk *walk);
+ 	int (*pmd_entry)(pmd_t *pmd, unsigned long addr,
+ 			 unsigned long next, struct mm_walk *walk);
+ 	int (*pte_entry)(pte_t *pte, unsigned long addr,
+diff --git a/mm/pagewalk.c b/mm/pagewalk.c
+index e81640d9f177..8ed1533f7eda 100644
+--- a/mm/pagewalk.c
++++ b/mm/pagewalk.c
+@@ -160,6 +160,11 @@ static int walk_pud_range(p4d_t *p4d, unsigned long addr, unsigned long end,
+ 		err = walk_pmd_range(pud, addr, next, walk);
+ 		if (err)
+ 			break;
++
++		if (ops->pud_entry_post)
++			err = ops->pud_entry_post(pud, addr, next, walk);
++		if (err)
++			break;
+ 	} while (pud++, addr = next, addr != end);
+ 
+ 	return err;
+-- 
+2.31.0.rc2.261.g7f71774620-goog
+
+
