@@ -29,13 +29,6 @@ PATCHES=(
 	${FILESDIR}/dts-pinephone-drop-modem-power-node.patch
 	${FILESDIR}/dts-headphone-jack-detection.patch
 	${FILESDIR}/0107-quirk-kernel-org-bug-210681-firmware_rome_error.patch
-	${FILESDIR}/0003-Bluetooth-btusb.patch
-    #${FILESDIR}/camera-added-bggr-bayer-mode.patch
-    #${FILESDIR}/0002-Bluetooth-Fix-LL-PRivacy-BLE-device-fails-to-connect.patch
-    #${FILESDIR}/0003-Bluetooth-Fix-attempting-to-set-RPA-timeout-when-unsupported.patch
-    #${FILESDIR}/0001-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch
-	#${FILESDIR}/0002-revert-fbcon-remove-no-op-fbcon_set_origin.patch
-	#${FILESDIR}/0003-revert-fbcon-remove-soft-scrollback-code.patch
 )
 
 src_prepare() {
