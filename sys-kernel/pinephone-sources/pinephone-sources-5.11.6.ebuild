@@ -17,18 +17,23 @@ MEGI_PATCH_URI="https://xff.cz/kernels/${PV:0:4}/patches/all.patch"
 SRC_URI="${KERNEL_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
 
 PATCHES=(
-	${DISTDIR}/all-${PV}.patch
+    ${DISTDIR}/all-${PV}.patch
     ${FILESDIR}/panic-led.patch
     ${FILESDIR}/enable-hdmi-output-pinetab.patch
     ${FILESDIR}/improve-brightness.patch
     ${FILESDIR}/enable-jack-detection-pinetab.patch
     ${FILESDIR}/pinetab-bluetooth.patch
     ${FILESDIR}/pinetab-accelerometer.patch
-    ${FILESDIR}/camera-autofocus.patch
-    ${FILESDIR}/media-ov5640-dont-break-when-firmware-for-autofocus-isnt-loaded.patch
 	${FILESDIR}/dts-pinephone-drop-modem-power-node.patch
 	${FILESDIR}/dts-headphone-jack-detection.patch
+	${FILESDIR}/media-ov5640-Implement-autofocus.patch
+	${FILESDIR}/0011-dts-pinetab-hardcode-mmc-numbers.patch
+	${FILESDIR}/0002-dts-add-pinetab-dev-old-display-panel.patch
+	${FILESDIR}/0001-arm64-dts-allwinner-pinephone-stop-LEDs-on-suspend.patch
+	${FILESDIR}/0010-dts-pinephone-Add-pine64-pinephone-to-compat-list.patch
+	${FILESDIR}/0012-pinephone-fix-pogopin-i2c.patch
 	${FILESDIR}/0107-quirk-kernel-org-bug-210681-firmware_rome_error.patch
+
 )
 
 src_prepare() {
