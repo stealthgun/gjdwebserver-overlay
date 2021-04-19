@@ -19,6 +19,7 @@ DEPEND="
 		net-dns/dnsmasq
 		app-editors/gedit
 		gnome-base/gnome-control-center
+		gnome-extra/gnome-system-monitor
 		gnome-extra/gnome-contacts
 		media-video/megapixels
 		gnome-extra/gnome-calculator
