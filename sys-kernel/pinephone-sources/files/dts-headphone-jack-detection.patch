@@ -16,3 +16,17 @@ index 086b5ebfa512..b4a71b02c474 100644
  };
  
  &cpu0 {
+@@ -758,11 +760,11 @@ &sound {
+ 	simple-audio-card,aux-devs = <&codec_analog>, <&speaker_amp>;
+ 	simple-audio-card,widgets = "Microphone", "Headset Microphone",
+ 				    "Microphone", "Internal Microphone",
+-				    "Headphone", "Headphone Jack",
++				    "Headphone", "Headphone",
+ 				    "Speaker", "Internal Earpiece",
+ 				    "Speaker", "Internal Speaker";
+ 	simple-audio-card,routing =
+-			"Headphone Jack", "HP",
++			"Headphone", "HP",
+ 			"Internal Earpiece", "EARPIECE",
+ 			"Internal Speaker", "Speaker Amp OUTL",
+ 			"Internal Speaker", "Speaker Amp OUTR",
