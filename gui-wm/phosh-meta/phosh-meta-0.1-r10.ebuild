@@ -23,6 +23,10 @@ DEPEND="
 		media-video/megapixels
 		gnome-extra/gnome-calculator
 		gnome-extra/gnome-calendar
+		gnome-extra/gnome-clocks
+		media-video/totem
+		sci-geosciences/gnome-maps
+		app-misc/gnote
 		www-client/epiphany
 		app-mobilephone/mobile-config-firefox
 		app-mobilephone/flashlight
@@ -31,6 +35,10 @@ DEPEND="
 		app-text/evince
 		sys-power/gtherm
 		sys-auth/rtkit
+		sys-firmware/anx7688-firmware 
+		sys-firmware/ov5640-firmware 
+		sys-firmware/rtl8723bt-firmware
+
 "
 
 RDEPEND="${DEPEND}"
