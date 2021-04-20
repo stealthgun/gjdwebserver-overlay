@@ -13,18 +13,22 @@ KEYWORDS="~amd64 ~x86 ~arm64 ~arm"
 IUSE=""
 
 DEPEND="
+		app-misc/neofetch
 		gui-wm/phosh
 		net-voip/calls
 		net-im/chatty
 		net-dns/dnsmasq
 		app-editors/gedit
+		media-video/megapixels
 		gnome-base/gnome-control-center
 		gnome-extra/gnome-system-monitor
 		gnome-extra/gnome-contacts
-		media-video/megapixels
 		gnome-extra/gnome-calculator
 		gnome-extra/gnome-calendar
 		gnome-extra/gnome-clocks
+		gnome-extra/gnome-tweaks
+		gnome-extra/portfolio 
+		gnome-extra/gnome-weather
 		media-video/totem
 		sci-geosciences/gnome-maps
 		app-misc/gnote
