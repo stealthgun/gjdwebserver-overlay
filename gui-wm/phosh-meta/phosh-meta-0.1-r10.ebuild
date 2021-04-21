@@ -25,7 +25,6 @@ DEPEND="
 		gnome-extra/gnome-calendar
 		gnome-extra/gnome-clocks
 		gnome-extra/gnome-weather
-		gnome-extra/gnome-tweaks
 		gnome-extra/portfolio 
 		gnome-extra/gnome-weather
 		media-video/totem
