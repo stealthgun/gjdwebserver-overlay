@@ -25,12 +25,7 @@ DEPEND="
 		gnome-extra/gnome-calculator
 		gnome-extra/gnome-calendar
 		gnome-extra/gnome-clocks
-		gnome-extra/gnome-tweaks
-		#gnome-extra/portfolio 
 		gnome-extra/gnome-weather
-		#media-video/totem
-		sci-geosciences/gnome-maps
-		#app-misc/gnote
 		www-client/epiphany
 		app-mobilephone/flashlight
 		x11-terms/gnome-terminal
