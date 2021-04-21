@@ -20,7 +20,6 @@ DEPEND="
 		app-editors/gedit
 		media-video/megapixels
 		gnome-base/gnome-control-center
-		gnome-extra/gnome-system-monitor
 		gnome-extra/gnome-contacts
 		gnome-extra/gnome-calculator
 		gnome-extra/gnome-calendar
