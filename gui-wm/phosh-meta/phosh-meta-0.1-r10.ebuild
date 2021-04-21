@@ -26,9 +26,9 @@ DEPEND="
 		gnome-extra/gnome-clocks
 		gnome-extra/gnome-weather
 		gnome-extra/portfolio 
-		gnome-extra/gnome-weather
 		media-video/totem
 		sci-geosciences/gnome-maps
+		www-client/epiphany
 		app-misc/gnote
 		app-mobilephone/flashlight
 		x11-terms/gnome-terminal
