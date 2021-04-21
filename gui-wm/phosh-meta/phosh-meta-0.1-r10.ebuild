@@ -13,7 +13,6 @@ KEYWORDS="~amd64 ~x86 ~arm64 ~arm"
 IUSE=""
 
 DEPEND="
-		app-misc/neofetch
 		gui-wm/phosh
 		net-voip/calls
 		net-im/chatty
@@ -39,9 +38,6 @@ DEPEND="
 		app-text/evince
 		sys-power/gtherm
 		sys-auth/rtkit
-		sys-firmware/anx7688-firmware 
-		sys-firmware/ov5640-firmware 
-		sys-firmware/rtl8723bt-firmware
 
 "
 
