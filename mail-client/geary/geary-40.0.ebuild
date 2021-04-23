@@ -21,7 +21,7 @@ SRC_URI=""
 
 EGIT_REPO_URI="https://gitlab.gnome.org/GNOME/${PN}.git"
 if [[ ${PV} != 9999 ]]; then
-    EGIT_COMMIT="tags/gnome-${PV}.rc"
+    EGIT_COMMIT="tags/gnome-${PV}"
 else
     KEYWORDS=""
 fi
