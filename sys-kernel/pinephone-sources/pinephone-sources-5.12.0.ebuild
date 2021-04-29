@@ -36,7 +36,6 @@ PATCHES=(
     	${FILESDIR}/pinetab-bluetooth.patch
     	${FILESDIR}/pinetab-accelerometer.patch
 	${FILESDIR}/dts-headphone-jack-detection.patch
-	${FILESDIR}/media-ov5640-Implement-autofocus.patch
 	${FILESDIR}/0011-dts-pinetab-hardcode-mmc-numbers.patch
 	${FILESDIR}/0012-pinephone-fix-pogopin-i2c.patch
 	${FILESDIR}/0107-quirk-kernel-org-bug-210681-firmware_rome_error.patch
