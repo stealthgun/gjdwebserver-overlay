@@ -1,0 +1,474 @@
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Return-Path: <linux-kernel-owner@kernel.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+	aws-us-west-2-korg-lkml-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-26.2 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
+	version=3.4.0
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id D9882C433ED
+	for <linux-kernel@archiver.kernel.org>; Tue, 13 Apr 2021 06:57:29 +0000 (UTC)
+Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
+	by mail.kernel.org (Postfix) with ESMTP id B8C7E613B1
+	for <linux-kernel@archiver.kernel.org>; Tue, 13 Apr 2021 06:57:29 +0000 (UTC)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1345148AbhDMG5r (ORCPT
+        <rfc822;linux-kernel@archiver.kernel.org>);
+        Tue, 13 Apr 2021 02:57:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44204 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345094AbhDMG5S (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Tue, 13 Apr 2021 02:57:18 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3319EC06175F
+        for <linux-kernel@vger.kernel.org>; Mon, 12 Apr 2021 23:56:59 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id p75so9209456ybc.8
+        for <linux-kernel@vger.kernel.org>; Mon, 12 Apr 2021 23:56:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=AtcshlKlEpO25DWX4HdWHYKkg2qmJuRhLpG3jAQhwYc=;
+        b=KpNWVguu83mUBVdG9rV7ayYNm+Qrzu5gAuasFnKSoWlkRinGKl/FvUmCisXgOrxGC0
+         C9Wgab1jU/EJCdE85EdYCvp7ANytDv3ICBmljKThBcjCsU/wnl68RE3qlTlwro63hIWt
+         MNfXX7skFRf+i1zpUlA6T7R/rTDSlD3n0pboX0T6KXoxN8TAWeB2SgBy2EDQkapMZU3f
+         Yj8IM3/wDy/W+hgIexStVVze+0Y+gs0LOFo9um6QLrtZfsj/heNSAn50raUEB2w/UGHv
+         wBBLmbIZyRpiDtLinzpzu1fIqj9Y/2CPQeg1p+ZMcg3wMV0JQXyTUvVglWkME0v6fKsG
+         fSRw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=AtcshlKlEpO25DWX4HdWHYKkg2qmJuRhLpG3jAQhwYc=;
+        b=I5wcigjJOE57JyIN1RgYnvjQfqi/Tu5QohjDJ3zHpF6wCQbLs1mU8eUZ+TYGRp5xwm
+         PxULqfFEi9PFVydtMob1umooK7ndwpJBomSO9+hgGyBluwloY/kUvS3XtnV4b4UD45J/
+         Ny/ylsjBg1K+INdvvcBjsJ62q+kSQWanrORUhTCG8yKu+Uug/vhGdOECiKug4pBAgktX
+         gjqN4aglQeOGaw3UbEG4s6mQuxRdsGY9S1TSistPPCZr+GCvEHf6tG/uc1wmO0zvm3M9
+         5zAnThurIlICc11ju7PpVVH/k5HZNlo7SLO0yxf5Pr03wG+SAnHTeSmT9zPzHWGTfA/6
+         FxdA==
+X-Gm-Message-State: AOAM532rwFd52QDY7yVuzhsUHKx/vQ3mvqMJUIYRA4CK/9WfDNvEvp4X
+        aLVlWGREIYgvAVa4LwBCuixrg5f/t3I=
+X-Google-Smtp-Source: ABdhPJxtAb+i00KPB+eZ1AkPEHseGFum+ilW8ElwcmLIJblIT+FK3beKZjdoBl7K4l7X3wfk5ecz7lYtrhU=
+X-Received: from yuzhao.bld.corp.google.com ([2620:15c:183:200:d02d:cccc:9ebe:9fe9])
+ (user=yuzhao job=sendgmr) by 2002:a25:f0b:: with SMTP id 11mr41690159ybp.208.1618297018316;
+ Mon, 12 Apr 2021 23:56:58 -0700 (PDT)
+Date:   Tue, 13 Apr 2021 00:56:29 -0600
+In-Reply-To: <20210413065633.2782273-1-yuzhao@google.com>
+Message-Id: <20210413065633.2782273-13-yuzhao@google.com>
+Mime-Version: 1.0
+References: <20210413065633.2782273-1-yuzhao@google.com>
+X-Mailer: git-send-email 2.31.1.295.g9ea45b61b8-goog
+Subject: [PATCH v2 12/16] mm: multigenerational lru: eviction
+From:   Yu Zhao <yuzhao@google.com>
+To:     linux-mm@kvack.org
+Cc:     Alex Shi <alexs@kernel.org>, Andi Kleen <ak@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Benjamin Manes <ben.manes@gmail.com>,
+        Dave Chinner <david@fromorbit.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Hillf Danton <hdanton@sina.com>, Jens Axboe <axboe@kernel.dk>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Mel Gorman <mgorman@suse.de>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Michael Larabel <michael@michaellarabel.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Michel Lespinasse <michel@lespinasse.org>,
+        Rik van Riel <riel@surriel.com>,
+        Roman Gushchin <guro@fb.com>,
+        Rong Chen <rong.a.chen@intel.com>,
+        SeongJae Park <sjpark@amazon.de>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Yang Shi <shy828301@gmail.com>,
+        Ying Huang <ying.huang@intel.com>, Zi Yan <ziy@nvidia.com>,
+        linux-kernel@vger.kernel.org, lkp@lists.01.org,
+        page-reclaim@google.com, Yu Zhao <yuzhao@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+Archived-At: <https://lore.kernel.org/lkml/20210413065633.2782273-13-yuzhao@google.com/>
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+
+The eviction consumes old generations. Given an lruvec, the eviction
+scans the pages on the per-zone lists indexed by either of min_seq[2].
+It first tries to select a type based on the values of min_seq[2].
+When anon and file types are both available from the same generation,
+it selects the one that has a lower refault rate.
+
+During a scan, the eviction sorts pages according to their generation
+numbers, if the aging has found them referenced. It also moves pages
+from the tiers that have higher refault rates than tier 0 to the next
+generation. When it finds all the per-zone lists of a selected type
+are empty, the eviction increments min_seq[2] indexed by this selected
+type.
+
+Signed-off-by: Yu Zhao <yuzhao@google.com>
+---
+ mm/vmscan.c | 341 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 341 insertions(+)
+
+diff --git a/mm/vmscan.c b/mm/vmscan.c
+index 31e1b4155677..6239b1acd84f 100644
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -5468,6 +5468,347 @@ static bool walk_mm_list(struct lruvec *lruvec, unsigned long max_seq,
+ 	return true;
+ }
+ 
++/******************************************************************************
++ *                          the eviction
++ ******************************************************************************/
++
++static bool sort_page(struct page *page, struct lruvec *lruvec, int tier_to_isolate)
++{
++	bool success;
++	int gen = page_lru_gen(page);
++	int file = page_is_file_lru(page);
++	int zone = page_zonenum(page);
++	int tier = lru_tier_from_usage(page_tier_usage(page));
++	struct lrugen *lrugen = &lruvec->evictable;
++
++	VM_BUG_ON_PAGE(gen == -1, page);
++	VM_BUG_ON_PAGE(tier_to_isolate < 0, page);
++
++	/* a lazy-free page that has been written into? */
++	if (file && PageDirty(page) && PageAnon(page)) {
++		success = lru_gen_deletion(page, lruvec);
++		VM_BUG_ON_PAGE(!success, page);
++		SetPageSwapBacked(page);
++		add_page_to_lru_list_tail(page, lruvec);
++		return true;
++	}
++
++	/* page_update_gen() has updated the page? */
++	if (gen != lru_gen_from_seq(lrugen->min_seq[file])) {
++		list_move(&page->lru, &lrugen->lists[gen][file][zone]);
++		return true;
++	}
++
++	/* activate the page if its tier has a higher refault rate */
++	if (tier_to_isolate < tier) {
++		int sid = sid_from_seq_or_gen(gen);
++
++		page_inc_gen(page, lruvec, false);
++		WRITE_ONCE(lrugen->activated[sid][file][tier - 1],
++			   lrugen->activated[sid][file][tier - 1] + thp_nr_pages(page));
++		inc_lruvec_state(lruvec, WORKINGSET_ACTIVATE_BASE + file);
++		return true;
++	}
++
++	/*
++	 * A page can't be immediately evicted, and page_inc_gen() will mark it
++	 * for reclaim and hopefully writeback will write it soon if it's dirty.
++	 */
++	if (PageLocked(page) || PageWriteback(page) || (file && PageDirty(page))) {
++		page_inc_gen(page, lruvec, true);
++		return true;
++	}
++
++	return false;
++}
++
++static bool should_skip_page(struct page *page, struct scan_control *sc)
++{
++	if (!sc->may_unmap && page_mapped(page))
++		return true;
++
++	if (!(sc->may_writepage && (sc->gfp_mask & __GFP_IO)) &&
++	    (PageDirty(page) || (PageAnon(page) && !PageSwapCache(page))))
++		return true;
++
++	if (!get_page_unless_zero(page))
++		return true;
++
++	if (!TestClearPageLRU(page)) {
++		put_page(page);
++		return true;
++	}
++
++	return false;
++}
++
++static void isolate_page(struct page *page, struct lruvec *lruvec)
++{
++	bool success;
++
++	success = lru_gen_deletion(page, lruvec);
++	VM_BUG_ON_PAGE(!success, page);
++
++	if (PageActive(page)) {
++		ClearPageActive(page);
++		/* make sure shrink_page_list() rejects this page */
++		SetPageReferenced(page);
++		return;
++	}
++
++	/* make sure shrink_page_list() doesn't try to write this page */
++	ClearPageReclaim(page);
++	/* make sure shrink_page_list() doesn't reject this page */
++	ClearPageReferenced(page);
++}
++
++static int scan_lru_gen_pages(struct lruvec *lruvec, struct scan_control *sc,
++			      long *nr_to_scan, int file, int tier,
++			      struct list_head *list)
++{
++	bool success;
++	int gen, zone;
++	enum vm_event_item item;
++	int sorted = 0;
++	int scanned = 0;
++	int isolated = 0;
++	int batch_size = 0;
++	struct lrugen *lrugen = &lruvec->evictable;
++
++	VM_BUG_ON(!list_empty(list));
++
++	if (get_nr_gens(lruvec, file) == MIN_NR_GENS)
++		return -ENOENT;
++
++	gen = lru_gen_from_seq(lrugen->min_seq[file]);
++
++	for (zone = sc->reclaim_idx; zone >= 0; zone--) {
++		LIST_HEAD(moved);
++		int skipped = 0;
++		struct list_head *head = &lrugen->lists[gen][file][zone];
++
++		while (!list_empty(head)) {
++			struct page *page = lru_to_page(head);
++			int delta = thp_nr_pages(page);
++
++			VM_BUG_ON_PAGE(PageTail(page), page);
++			VM_BUG_ON_PAGE(PageUnevictable(page), page);
++			VM_BUG_ON_PAGE(PageActive(page), page);
++			VM_BUG_ON_PAGE(page_is_file_lru(page) != file, page);
++			VM_BUG_ON_PAGE(page_zonenum(page) != zone, page);
++
++			prefetchw_prev_lru_page(page, head, flags);
++
++			scanned += delta;
++
++			if (sort_page(page, lruvec, tier))
++				sorted += delta;
++			else if (should_skip_page(page, sc)) {
++				list_move(&page->lru, &moved);
++				skipped += delta;
++			} else {
++				isolate_page(page, lruvec);
++				list_add(&page->lru, list);
++				isolated += delta;
++			}
++
++			if (scanned >= *nr_to_scan || isolated >= SWAP_CLUSTER_MAX ||
++			    ++batch_size == MAX_BATCH_SIZE)
++				break;
++		}
++
++		list_splice(&moved, head);
++		__count_zid_vm_events(PGSCAN_SKIP, zone, skipped);
++
++		if (scanned >= *nr_to_scan || isolated >= SWAP_CLUSTER_MAX ||
++		    batch_size == MAX_BATCH_SIZE)
++			break;
++	}
++
++	success = try_inc_min_seq(lruvec, file);
++
++	item = current_is_kswapd() ? PGSCAN_KSWAPD : PGSCAN_DIRECT;
++	if (!cgroup_reclaim(sc))
++		__count_vm_events(item, scanned);
++	__count_memcg_events(lruvec_memcg(lruvec), item, scanned);
++	__count_vm_events(PGSCAN_ANON + file, scanned);
++
++	*nr_to_scan -= scanned;
++
++	if (*nr_to_scan <= 0 || success || isolated)
++		return isolated;
++	/*
++	 * We may have trouble finding eligible pages due to reclaim_idx,
++	 * may_unmap and may_writepage. The following check makes sure we won't
++	 * be stuck if we aren't making enough progress.
++	 */
++	return batch_size == MAX_BATCH_SIZE && sorted >= SWAP_CLUSTER_MAX ? 0 : -ENOENT;
++}
++
++static int get_tier_to_isolate(struct lruvec *lruvec, int file)
++{
++	int tier;
++	struct controller_pos sp, pv;
++
++	/*
++	 * Ideally we don't want to evict upper tiers that have higher refault
++	 * rates. However, we need to leave some margin for the fluctuation in
++	 * refault rates. So we use a larger gain factor to make sure upper
++	 * tiers are indeed more active. We choose 2 because the lowest upper
++	 * tier would have twice of the refault rate of the base tier, according
++	 * to their numbers of accesses.
++	 */
++	read_controller_pos(&sp, lruvec, file, 0, 1);
++	for (tier = 1; tier < MAX_NR_TIERS; tier++) {
++		read_controller_pos(&pv, lruvec, file, tier, 2);
++		if (!positive_ctrl_err(&sp, &pv))
++			break;
++	}
++
++	return tier - 1;
++}
++
++static int get_type_to_scan(struct lruvec *lruvec, int swappiness, int *tier_to_isolate)
++{
++	int file, tier;
++	struct controller_pos sp, pv;
++	int gain[ANON_AND_FILE] = { swappiness, 200 - swappiness };
++
++	/*
++	 * Compare the refault rates between the base tiers of anon and file to
++	 * determine which type to evict. Also need to compare the refault rates
++	 * of the upper tiers of the selected type with that of the base tier to
++	 * determine which tier of the selected type to evict.
++	 */
++	read_controller_pos(&sp, lruvec, 0, 0, gain[0]);
++	read_controller_pos(&pv, lruvec, 1, 0, gain[1]);
++	file = positive_ctrl_err(&sp, &pv);
++
++	read_controller_pos(&sp, lruvec, !file, 0, gain[!file]);
++	for (tier = 1; tier < MAX_NR_TIERS; tier++) {
++		read_controller_pos(&pv, lruvec, file, tier, gain[file]);
++		if (!positive_ctrl_err(&sp, &pv))
++			break;
++	}
++
++	*tier_to_isolate = tier - 1;
++
++	return file;
++}
++
++static int isolate_lru_gen_pages(struct lruvec *lruvec, struct scan_control *sc,
++				 int swappiness, long *nr_to_scan, int *type_to_scan,
++				 struct list_head *list)
++{
++	int i;
++	int file;
++	int isolated;
++	int tier = -1;
++	DEFINE_MAX_SEQ();
++	DEFINE_MIN_SEQ();
++
++	VM_BUG_ON(!seq_is_valid(lruvec));
++
++	if (max_nr_gens(max_seq, min_seq, swappiness) == MIN_NR_GENS)
++		return 0;
++	/*
++	 * Try to select a type based on generations and swappiness, and if that
++	 * fails, fall back to get_type_to_scan(). When anon and file are both
++	 * available from the same generation, swappiness 200 is interpreted as
++	 * anon first and swappiness 1 is interpreted as file first.
++	 */
++	file = !swappiness || min_seq[0] > min_seq[1] ||
++	       (min_seq[0] == min_seq[1] && swappiness != 200 &&
++		(swappiness == 1 || get_type_to_scan(lruvec, swappiness, &tier)));
++
++	if (tier == -1)
++		tier = get_tier_to_isolate(lruvec, file);
++
++	for (i = !swappiness; i < ANON_AND_FILE; i++) {
++		isolated = scan_lru_gen_pages(lruvec, sc, nr_to_scan, file, tier, list);
++		if (isolated >= 0)
++			break;
++
++		file = !file;
++		tier = get_tier_to_isolate(lruvec, file);
++	}
++
++	if (isolated < 0)
++		isolated = *nr_to_scan = 0;
++
++	*type_to_scan = file;
++
++	return isolated;
++}
++
++/* Main function used by foreground, background and user-triggered eviction. */
++static bool evict_lru_gen_pages(struct lruvec *lruvec, struct scan_control *sc,
++				int swappiness, long *nr_to_scan)
++{
++	int file;
++	int isolated;
++	int reclaimed;
++	LIST_HEAD(list);
++	struct page *page;
++	enum vm_event_item item;
++	struct reclaim_stat stat;
++	struct pglist_data *pgdat = lruvec_pgdat(lruvec);
++
++	spin_lock_irq(&lruvec->lru_lock);
++
++	isolated = isolate_lru_gen_pages(lruvec, sc, swappiness, nr_to_scan, &file, &list);
++	VM_BUG_ON(list_empty(&list) == !!isolated);
++
++	if (isolated)
++		__mod_node_page_state(pgdat, NR_ISOLATED_ANON + file, isolated);
++
++	spin_unlock_irq(&lruvec->lru_lock);
++
++	if (!isolated)
++		goto done;
++
++	reclaimed = shrink_page_list(&list, pgdat, sc, &stat, false);
++	/*
++	 * We need to prevent rejected pages from being added back to the same
++	 * lists they were isolated from. Otherwise we may risk looping on them
++	 * forever. We use PageActive() or !PageReferenced() && PageWorkingset()
++	 * to tell lru_gen_addition() not to add them to the oldest generation.
++	 */
++	list_for_each_entry(page, &list, lru) {
++		if (PageMlocked(page))
++			continue;
++
++		if (PageReferenced(page)) {
++			SetPageActive(page);
++			ClearPageReferenced(page);
++		} else {
++			ClearPageActive(page);
++			SetPageWorkingset(page);
++		}
++	}
++
++	spin_lock_irq(&lruvec->lru_lock);
++
++	move_pages_to_lru(lruvec, &list);
++
++	__mod_node_page_state(pgdat, NR_ISOLATED_ANON + file, -isolated);
++
++	item = current_is_kswapd() ? PGSTEAL_KSWAPD : PGSTEAL_DIRECT;
++	if (!cgroup_reclaim(sc))
++		__count_vm_events(item, reclaimed);
++	__count_memcg_events(lruvec_memcg(lruvec), item, reclaimed);
++	__count_vm_events(PGSTEAL_ANON + file, reclaimed);
++
++	spin_unlock_irq(&lruvec->lru_lock);
++
++	mem_cgroup_uncharge_list(&list);
++	free_unref_page_list(&list);
++
++	sc->nr_reclaimed += reclaimed;
++done:
++	return *nr_to_scan > 0 && sc->nr_reclaimed < sc->nr_to_reclaim;
++}
++
+ /******************************************************************************
+  *                          state change
+  ******************************************************************************/
+-- 
+2.31.1.295.g9ea45b61b8-goog
+
+

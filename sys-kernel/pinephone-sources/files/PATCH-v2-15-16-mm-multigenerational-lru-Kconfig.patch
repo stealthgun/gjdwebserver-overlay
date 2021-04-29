@@ -1,0 +1,175 @@
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Return-Path: <linux-kernel-owner@kernel.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+	aws-us-west-2-korg-lkml-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-26.2 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,
+	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
+	version=3.4.0
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 922C4C43461
+	for <linux-kernel@archiver.kernel.org>; Tue, 13 Apr 2021 06:57:45 +0000 (UTC)
+Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
+	by mail.kernel.org (Postfix) with ESMTP id 7572660FDB
+	for <linux-kernel@archiver.kernel.org>; Tue, 13 Apr 2021 06:57:45 +0000 (UTC)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S1345185AbhDMG6D (ORCPT
+        <rfc822;linux-kernel@archiver.kernel.org>);
+        Tue, 13 Apr 2021 02:58:03 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44240 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345121AbhDMG5X (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Tue, 13 Apr 2021 02:57:23 -0400
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90316C061574
+        for <linux-kernel@vger.kernel.org>; Mon, 12 Apr 2021 23:57:03 -0700 (PDT)
+Received: by mail-yb1-xb4a.google.com with SMTP id c4so2057580ybp.6
+        for <linux-kernel@vger.kernel.org>; Mon, 12 Apr 2021 23:57:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=OWomzY5O6nIPdL3TO8CK9fbu3idsDsiJdhlQbcNCNmk=;
+        b=hLHfxFzp5QFiDV0NCweRKZIoXrgJbYlQcW+yuS+vLMPcNKKc255Fg3tjNqfooV/OLd
+         U6CQ3iwK8H6zMls3pFdMBN0NLbmWj6RWEYNi/DCM+PrHNrSzMnt6S2Lg4zq0wvg3486H
+         +sx4x6j4kxGh5x9L9qgA+TxXylPtgpu5ds2+dsX0pD8ntrVyPxV7AvsnWB6UiW1V9ZVk
+         /LsyUFz5OtLMbBTake9P8xyrPjX9eTcGBEel6+oOeQ/dZObXKYPRK8qTg6fk2FWETrnD
+         Zbg2sgYJYwkCg4UC1pmuVjLWdyS1iObkTDP9YTfrBRXxxrrkE/8ced456rnZvUMSg1he
+         l4YQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=OWomzY5O6nIPdL3TO8CK9fbu3idsDsiJdhlQbcNCNmk=;
+        b=V7wMyHi072dce6ZnPpEv7/vgyxfGH4iYzC8xiwylgcN9u4SyLFR8AsWrgIpv2mVFrC
+         H9+fkRd2whFAERf06443LAgIA7SIiztKoG2b9INedj5rird9Kes1pDEafZP04/dNwIll
+         hJeAUb9N1qmeVv6vZIZsKpWDp0D/wa5gCBze6PfyzFRL82n1sUxPv6wP/l9ClegByA3J
+         8il8uC4X+iRjk3XACwZG+JrS7i4d2Q+qkj3ANVNNGNcDhaHbgsucUpMzpVDJleKoVoBL
+         Luvyo5PCSA38KyflkQS+SzfwNoU60rrlTa6oBMVzyUgoPqp3RNtFIp4yyJUcill3qvqi
+         5ymw==
+X-Gm-Message-State: AOAM532nNDpt3iSLmHBos2xzSSPUScQwSS+AZ2hM1blhHygr52zHuQkq
+        triAdzH/rSQIePQ4klFd5q1eM3rRWnU=
+X-Google-Smtp-Source: ABdhPJzyLPRGqf29+Ytj/xVq/duL5XVOMgJinIYyL+dmRy0rCrFAsDcush6F7fQT1oukQxSVakciHbYtiFU=
+X-Received: from yuzhao.bld.corp.google.com ([2620:15c:183:200:d02d:cccc:9ebe:9fe9])
+ (user=yuzhao job=sendgmr) by 2002:a25:cc90:: with SMTP id l138mr2006126ybf.150.1618297022801;
+ Mon, 12 Apr 2021 23:57:02 -0700 (PDT)
+Date:   Tue, 13 Apr 2021 00:56:32 -0600
+In-Reply-To: <20210413065633.2782273-1-yuzhao@google.com>
+Message-Id: <20210413065633.2782273-16-yuzhao@google.com>
+Mime-Version: 1.0
+References: <20210413065633.2782273-1-yuzhao@google.com>
+X-Mailer: git-send-email 2.31.1.295.g9ea45b61b8-goog
+Subject: [PATCH v2 15/16] mm: multigenerational lru: Kconfig
+From:   Yu Zhao <yuzhao@google.com>
+To:     linux-mm@kvack.org
+Cc:     Alex Shi <alexs@kernel.org>, Andi Kleen <ak@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Benjamin Manes <ben.manes@gmail.com>,
+        Dave Chinner <david@fromorbit.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Hillf Danton <hdanton@sina.com>, Jens Axboe <axboe@kernel.dk>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Mel Gorman <mgorman@suse.de>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Michael Larabel <michael@michaellarabel.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Michel Lespinasse <michel@lespinasse.org>,
+        Rik van Riel <riel@surriel.com>,
+        Roman Gushchin <guro@fb.com>,
+        Rong Chen <rong.a.chen@intel.com>,
+        SeongJae Park <sjpark@amazon.de>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Yang Shi <shy828301@gmail.com>,
+        Ying Huang <ying.huang@intel.com>, Zi Yan <ziy@nvidia.com>,
+        linux-kernel@vger.kernel.org, lkp@lists.01.org,
+        page-reclaim@google.com, Yu Zhao <yuzhao@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+Archived-At: <https://lore.kernel.org/lkml/20210413065633.2782273-16-yuzhao@google.com/>
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+
+Add configuration options for the multigenerational lru.
+
+Signed-off-by: Yu Zhao <yuzhao@google.com>
+---
+ mm/Kconfig | 55 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 55 insertions(+)
+
+diff --git a/mm/Kconfig b/mm/Kconfig
+index 24c045b24b95..0be1c6c90cc0 100644
+--- a/mm/Kconfig
++++ b/mm/Kconfig
+@@ -872,4 +872,59 @@ config MAPPING_DIRTY_HELPERS
+ config KMAP_LOCAL
+ 	bool
+ 
++config LRU_GEN
++	bool "Multigenerational LRU"
++	depends on MMU
++	help
++	  A high performance LRU implementation to heavily overcommit workloads
++	  that are not IO bound. See Documentation/vm/multigen_lru.rst for
++	  details.
++
++	  Warning: do not enable this option unless you plan to use it because
++	  it introduces a small per-process and per-memcg and per-node memory
++	  overhead.
++
++config NR_LRU_GENS
++	int "Max number of generations"
++	depends on LRU_GEN
++	range 4 31
++	default 7
++	help
++	  This will use order_base_2(N+1) spare bits from page flags.
++
++	  Warning: do not use numbers larger than necessary because each
++	  generation introduces a small per-node and per-memcg memory overhead.
++
++config TIERS_PER_GEN
++	int "Number of tiers per generation"
++	depends on LRU_GEN
++	range 2 5
++	default 4
++	help
++	  This will use N-2 spare bits from page flags.
++
++	  Higher values generally offer better protection to active pages under
++	  heavy buffered I/O workloads.
++
++config LRU_GEN_ENABLED
++	bool "Turn on by default"
++	depends on LRU_GEN
++	help
++	  The default value of /sys/kernel/mm/lru_gen/enabled is 0. This option
++	  changes it to 1.
++
++	  Warning: the default value is the fast path. See
++	  Documentation/static-keys.txt for details.
++
++config LRU_GEN_STATS
++	bool "Full stats for debugging"
++	depends on LRU_GEN
++	help
++	  This option keeps full stats for each generation, which can be read
++	  from /sys/kernel/debug/lru_gen_full.
++
++	  Warning: do not enable this option unless you plan to use it because
++	  it introduces an additional small per-process and per-memcg and
++	  per-node memory overhead.
++
+ endmenu
+-- 
+2.31.1.295.g9ea45b61b8-goog
+
+
