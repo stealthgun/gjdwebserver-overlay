@@ -35,7 +35,6 @@ PATCHES=(
     	${FILESDIR}/enable-jack-detection-pinetab.patch
     	${FILESDIR}/pinetab-bluetooth.patch
     	${FILESDIR}/pinetab-accelerometer.patch
-	${FILESDIR}/dts-pinephone-drop-modem-power-node.patch
 	${FILESDIR}/dts-headphone-jack-detection.patch
 	${FILESDIR}/media-ov5640-Implement-autofocus.patch
 	${FILESDIR}/0011-dts-pinetab-hardcode-mmc-numbers.patch
