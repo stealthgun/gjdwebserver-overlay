@@ -40,7 +40,6 @@ PATCHES=(
 	${FILESDIR}/0012-pinephone-fix-pogopin-i2c.patch
 	${FILESDIR}/0177-leds-gpio-make-max_brightness-configurable.patch
 	${FILESDIR}/0178-sun8i-codec-fix-headphone-jack-pin-name.patch
-	${FILESDIR}/0179-arm64-dts-allwinner-pinephone-improve-device-tree-5.12.patch
 	${FILESDIR}/panic-led-5.12.patch
 	${FILESDIR}/PATCH-1-4-HID-magicmouse-add-Apple-Magic-Mouse-2-support.patch
 	${FILESDIR}/PATCH-2-4-HID-magicmouse-fix-3-button-emulation-of-Mouse-2.patch
