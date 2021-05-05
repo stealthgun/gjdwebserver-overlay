@@ -28,7 +28,6 @@ DEPEND="
 		gnome-extra/portfolio 
 		www-client/epiphany
 		sci-geosciences/gnome-maps
-		app-mobilephone/flashlight
 		x11-terms/gnome-terminal
 		x11-themes/sound-theme-librem5
 		app-text/evince
