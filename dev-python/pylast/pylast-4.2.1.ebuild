@@ -23,6 +23,4 @@ BDEPEND="
 
 distutils_enable_tests --install pytest
 
-src_configure() {
-	export SETUPTOOLS_SCM_PRETEND_VERSION=${PV}
-}
+export SETUPTOOLS_SCM_PRETEND_VERSION=${PV}
