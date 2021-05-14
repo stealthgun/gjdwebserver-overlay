@@ -19,47 +19,28 @@ SRC_URI="https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P
 	devtools? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-resources.tar.xz )
 	amd64? (
 		https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-common-x86_64.tar.xz
-		wayland? (
-			vaapi? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-wayland_vaapi-x86_64.tar.xz )
-			!vaapi? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-wayland-x86_64.tar.xz )
-		)
-		!wayland? (
-			vaapi? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-x11_vaapi-x86_64.tar.xz )
-			!vaapi? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-x11-x86_64.tar.xz )
-		)
+		wayland? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-wayland-x86_64.tar.xz )
+		!wayland? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-x11-x86_64.tar.xz )
 	)
 	arm64? (
 		https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-common-aarch64.tar.xz
-		wayland? (
-			vaapi? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-wayland_vaapi-aarch64.tar.xz )
-			!vaapi? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-wayland-aarch64.tar.xz )
-		)
-		!wayland? (
-			vaapi? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-x11_vaapi-aarch64.tar.xz )
-			!vaapi? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-x11-aarch64.tar.xz )
-		)
+		wayland? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-wayland-aarch64.tar.xz )
+		!wayland? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-x11-aarch64.tar.xz )
 	)
 	x86? (
 		https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-common-i686.tar.xz
-		wayland? (
-			vaapi? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-wayland_vaapi-i686.tar.xz )
-			!vaapi? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-wayland-i686.tar.xz )
-		)
-		!wayland? (
-			vaapi? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-x11_vaapi-i686.tar.xz )
-			!vaapi? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-x11-i686.tar.xz )
-		)
+		wayland? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-wayland-i686.tar.xz )
+		!wayland? ( https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P}-x11-i686.tar.xz )
 	)"
 
 LICENSE="BSD"
 SLOT="0"
 KEYWORDS="-* ~amd64 ~arm64 ~x86"
-IUSE="cpu_flags_x86_sse2 devtools selinux suid +swiftshader vaapi wayland widevine"
+IUSE="cpu_flags_x86_sse2 devtools selinux suid +swiftshader wayland widevine"
 
 RDEPEND="
 	app-accessibility/at-spi2-atk:2
 	app-accessibility/at-spi2-core:2
-	app-arch/bzip2
 	app-arch/snappy
 	dev-libs/atk
 	dev-libs/expat
@@ -88,28 +69,21 @@ RDEPEND="
 	)
 	net-print/cups
 	sys-apps/dbus
-	sys-apps/pciutils
 	>=sys-devel/gcc-9.3.0
 	>=sys-libs/glibc-2.32
 	sys-libs/zlib[minizip]
-	virtual/opengl
 	virtual/ttf-fonts
-	virtual/udev
 	x11-libs/cairo
 	x11-libs/gdk-pixbuf:2
 	x11-libs/gtk+:3[X]
 	x11-libs/libX11
 	x11-libs/libXcomposite
-	x11-libs/libXcursor
 	x11-libs/libXdamage
 	x11-libs/libXext
 	x11-libs/libXfixes
-	x11-libs/libXi
 	x11-libs/libXrandr
-	x11-libs/libXrender
-	x11-libs/libXtst
-	x11-libs/libXScrnSaver
 	x11-libs/libxcb
+	x11-libs/libxkbcommon
 	x11-libs/libxshmfence
 	x11-libs/pango
 	x11-misc/xdg-utils
@@ -122,7 +96,6 @@ RDEPEND="
 		dev-libs/libffi
 		x11-libs/gtk+:3[wayland,X]
 		x11-libs/libdrm
-		x11-libs/libxkbcommon
 	)
 "
 
@@ -254,10 +227,11 @@ pkg_postinst() {
 	xdg_desktop_database_update
 	readme.gentoo_print_elog
 
-	if use vaapi; then
-		elog "VA-API is disabled by default at runtime. Either enable it"
-		elog "by navigating to chrome://flags/#enable-accelerated-video-decode"
-		elog "inside Chromium or add --enable-accelerated-video-decode"
-		elog "to CHROMIUM_BIN_FLAGS in /etc/chromium-bin/default."
-	fi
+	elog "For VA-API support you need to install x11-libs/libva with"
+	elog "USE=X and USE=drm enabled."
+	elog
+	elog "VA-API is disabled by default at runtime. Either enable it"
+	elog "by navigating to chrome://flags/#enable-accelerated-video-decode"
+	elog "inside Chromium or add --enable-accelerated-video-decode"
+	elog "to CHROMIUM_BIN_FLAGS in /etc/chromium-bin/default."
 }
