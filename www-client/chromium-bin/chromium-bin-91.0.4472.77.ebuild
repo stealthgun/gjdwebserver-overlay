@@ -45,7 +45,7 @@ RDEPEND="
 	dev-libs/atk
 	dev-libs/expat
 	dev-libs/glib:2
-	dev-libs/icu:0/68.2
+	dev-libs/icu:0/69.1
 	dev-libs/libxml2[icu]
 	dev-libs/libxslt
 	dev-libs/nspr
@@ -82,6 +82,7 @@ RDEPEND="
 	x11-libs/libXext
 	x11-libs/libXfixes
 	x11-libs/libXrandr
+	x11-libs/libXtst
 	x11-libs/libxcb
 	x11-libs/libxkbcommon
 	x11-libs/libxshmfence
