@@ -45,7 +45,7 @@ RDEPEND="
 	dev-libs/atk
 	dev-libs/expat
 	dev-libs/glib:2
-	dev-libs/icu:0/69.1
+	dev-libs/icu:0/69.2
 	dev-libs/libxml2[icu]
 	dev-libs/libxslt
 	dev-libs/nspr
