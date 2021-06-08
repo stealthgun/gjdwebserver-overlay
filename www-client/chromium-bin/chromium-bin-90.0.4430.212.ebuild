@@ -35,7 +35,7 @@ SRC_URI="https://dev.gentoo.org/~sultan/distfiles/www-client/chromium-bin/${MY_P
 
 LICENSE="BSD"
 SLOT="0"
-#KEYWORDS="-* ~amd64 ~arm64 ~x86"
+KEYWORDS="-* ~amd64 ~arm64 ~x86"
 IUSE="cpu_flags_x86_sse2 devtools selinux suid +swiftshader wayland widevine"
 
 RDEPEND="
@@ -45,7 +45,7 @@ RDEPEND="
 	dev-libs/atk
 	dev-libs/expat
 	dev-libs/glib:2
-	dev-libs/icu:0/69.1
+	dev-libs/icu:0/68.2
 	dev-libs/libxml2[icu]
 	dev-libs/libxslt
 	dev-libs/nspr
