@@ -1,0 +1,31 @@
+From 078854ae6b15fce4d817772de521d9a226a52704 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Sun, 30 May 2021 20:37:31 +0200
+Subject: [PATCH] data: Add gsd-wwan to required components
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This makes sure it's also started in systemd mode so the PIN request
+happens.
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ data/meson.build | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/data/meson.build b/data/meson.build
+index 64f1cdec..a60eb7db 100644
+--- a/data/meson.build
++++ b/data/meson.build
+@@ -14,6 +14,7 @@ gsd_required_components = [
+   'org.gnome.SettingsDaemon.Sound',
+   'org.gnome.SettingsDaemon.UsbProtection',
+   'org.gnome.SettingsDaemon.Wacom',
++  'org.gnome.SettingsDaemon.Wwan',
+   'org.gnome.SettingsDaemon.XSettings',
+ ]
+ 
+-- 
+GitLab
+

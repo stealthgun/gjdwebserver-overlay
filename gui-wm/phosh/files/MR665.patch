@@ -1,0 +1,281 @@
+From 3669f5caa68e026056dfc5359e373dbe193d4d32 Mon Sep 17 00:00:00 2001
+From: Alexander Mikhaylenko <alexm@gnome.org>
+Date: Mon, 16 Nov 2020 18:46:08 +0500
+Subject: [PATCH 1/2] Slide back windows that failed to close
+
+Fixes https://source.puri.sm/Librem5/phosh/-/issues/429
+---
+ src/activity.c       | 28 ++++++++++++++++++++++++++++
+ src/swipe-away-bin.c | 12 ++++++++++++
+ src/swipe-away-bin.h |  1 +
+ 3 files changed, 41 insertions(+)
+
+diff --git a/src/activity.c b/src/activity.c
+index 0d61aa79..96cbe38c 100644
+--- a/src/activity.c
++++ b/src/activity.c
+@@ -67,6 +67,7 @@ typedef struct
+   PhoshThumbnail *thumbnail;
+ 
+   gboolean hovering;
++  guint remove_timeout_id;
+ } PhoshActivityPrivate;
+ 
+ 
+@@ -171,9 +172,31 @@ closed_cb (PhoshActivity *self)
+ }
+ 
+ 
++static gboolean
++remove_timeout_cb (PhoshActivity *self)
++{
++  PhoshActivityPrivate *priv = phosh_activity_get_instance_private (self);
++
++  phosh_swipe_away_bin_undo (PHOSH_SWIPE_AWAY_BIN (priv->swipe_bin));
++
++  priv->remove_timeout_id = 0;
++
++  return G_SOURCE_REMOVE;
++}
++
++
+ static void
+ removed_cb (PhoshActivity *self)
+ {
++  PhoshActivityPrivate *priv = phosh_activity_get_instance_private (self);
++
++  if (priv->remove_timeout_id)
++    g_source_remove (priv->remove_timeout_id);
++
++  priv->remove_timeout_id =
++    g_timeout_add_seconds (1, (GSourceFunc) remove_timeout_cb, self);
++  g_source_set_name_by_id (priv->remove_timeout_id, "[phosh] remove_timeout_id");
++
+   g_signal_emit (self, signals[CLOSED], 0);
+ }
+ 
+@@ -276,6 +299,11 @@ phosh_activity_dispose (GObject *object)
+   g_clear_object (&priv->thumbnail);
+   g_clear_object (&priv->info);
+ 
++  if (priv->remove_timeout_id) {
++    g_source_remove (priv->remove_timeout_id);
++    priv->remove_timeout_id = 0;
++  }
++
+   G_OBJECT_CLASS (phosh_activity_parent_class)->dispose (object);
+ }
+ 
+diff --git a/src/swipe-away-bin.c b/src/swipe-away-bin.c
+index f38f6585..ff8be768 100644
+--- a/src/swipe-away-bin.c
++++ b/src/swipe-away-bin.c
+@@ -270,3 +270,15 @@ phosh_swipe_away_bin_remove (PhoshSwipeAwayBin *self)
+ 
+   animate (self, 200, 1);
+ }
++
++
++void
++phosh_swipe_away_bin_undo (PhoshSwipeAwayBin *self)
++{
++  g_return_if_fail (PHOSH_IS_SWIPE_AWAY_BIN (self));
++
++  if (self->animation)
++    phosh_animation_stop (self->animation);
++
++  animate (self, 200, 0);
++}
+diff --git a/src/swipe-away-bin.h b/src/swipe-away-bin.h
+index ea618c3d..67930046 100644
+--- a/src/swipe-away-bin.h
++++ b/src/swipe-away-bin.h
+@@ -14,3 +14,4 @@
+ G_DECLARE_FINAL_TYPE (PhoshSwipeAwayBin, phosh_swipe_away_bin, PHOSH, SWIPE_AWAY_BIN, GtkEventBox)
+ 
+ void phosh_swipe_away_bin_remove (PhoshSwipeAwayBin *self);
++void phosh_swipe_away_bin_undo   (PhoshSwipeAwayBin *self);
+-- 
+2.26.2
+
+
+From 852326dcccbf9ad5ec59f6ecb93d23e1cce4f9e3 Mon Sep 17 00:00:00 2001
+From: Alexander Mikhaylenko <alexm@gnome.org>
+Date: Mon, 16 Nov 2020 19:29:45 +0500
+Subject: [PATCH 2/2] Use easeOutBounce interpolator for the slide back
+ animation
+
+Make it a little fancier.
+---
+ src/animation.c      | 48 +++++++++++++++++++++++++++++++++++++++++++-
+ src/animation.h      | 13 ++++++++++++
+ src/swipe-away-bin.c | 10 +++++----
+ 3 files changed, 66 insertions(+), 5 deletions(-)
+
+diff --git a/src/animation.c b/src/animation.c
+index 6ba2f7ae..5770672b 100644
+--- a/src/animation.c
++++ b/src/animation.c
+@@ -24,6 +24,7 @@ struct _PhoshAnimation
+   double value_from;
+   double value_to;
+   gint64 duration;
++  PhoshAnimationType type;
+ 
+   gint64 start_time;
+   guint tick_cb_id;
+@@ -43,6 +44,49 @@ set_value (PhoshAnimation *self,
+ 
+ #define LERP(a, b, t) (a) * (1.0 - (t)) + (b) * (t)
+ 
++/* Adapted from https://github.com/janrembold/es6-easings/blob/master/src/index.ts#L135 */
++/* TODO: Move to libhandy at some point */
++static double
++ease_out_bounce (double t)
++{
++  double p;
++
++  if (t < 1.0 / 2.75)
++    return 7.5625 * t * t;
++
++  if (t < 2.0 / 2.75) {
++    p = t - (1.5 / 2.75);
++
++    return 7.5625 * p * p + 0.75;
++  }
++
++  if (t < 2.5 / 2.75) {
++    p = t - (2.25 / 2.75);
++
++    return 7.5625 * p * p + 0.9375;
++  }
++
++  p = t - (2.625 / 2.75);
++
++  return 7.5625 * p * p + 0.984375;
++}
++
++static inline double
++interpolate (PhoshAnimationType type,
++             double             t)
++{
++  switch (type) {
++  case PHOSH_ANIMATION_TYPE_EASE_OUT_CUBIC:
++    return hdy_ease_out_cubic (t);
++
++  case PHOSH_ANIMATION_TYPE_EASE_OUT_BOUNCE:
++    return ease_out_bounce (t);
++
++  default:
++    g_assert_not_reached ();
++  }
++}
++
+ static gboolean
+ tick_cb (GtkWidget       *widget,
+          GdkFrameClock   *frame_clock,
+@@ -63,7 +107,7 @@ tick_cb (GtkWidget       *widget,
+     return G_SOURCE_REMOVE;
+   }
+ 
+-  set_value (self, LERP (self->value_from, self->value_to, hdy_ease_out_cubic (t)));
++  set_value (self, LERP (self->value_from, self->value_to, interpolate (self->type, t)));
+ 
+   return G_SOURCE_CONTINUE;
+ }
+@@ -81,6 +125,7 @@ phosh_animation_new (GtkWidget                   *widget,
+                      double                       from,
+                      double                       to,
+                      gint64                       duration,
++                     PhoshAnimationType           type,
+                      PhoshAnimationValueCallback  value_cb,
+                      PhoshAnimationDoneCallback   done_cb,
+                      gpointer                     user_data)
+@@ -99,6 +144,7 @@ phosh_animation_new (GtkWidget                   *widget,
+   self->value_from = from;
+   self->value_to = to;
+   self->duration = duration;
++  self->type = type;
+   self->value_cb = value_cb;
+   self->done_cb = done_cb;
+   self->user_data = user_data;
+diff --git a/src/animation.h b/src/animation.h
+index 1e13791d..f474704e 100644
+--- a/src/animation.h
++++ b/src/animation.h
+@@ -13,6 +13,18 @@ G_BEGIN_DECLS
+ 
+ #define PHOSH_TYPE_ANIMATION (phosh_animation_get_type())
+ 
++/**
++ * PhoshAnimationType:
++ * @PHOSH_ANIMATION_TYPE_EASE_OUT_CUBIC: Use easeOutCubic interpolation.
++ * @PHOSH_ANIMATION_TYPE_EASE_OUT_BOUNCE: Use easeOutBounce interpolation.
++ *
++ * The animation type of #PhoshAnimationType.
++ */
++typedef enum {
++  PHOSH_ANIMATION_TYPE_EASE_OUT_CUBIC,
++  PHOSH_ANIMATION_TYPE_EASE_OUT_BOUNCE,
++} PhoshAnimationType;
++
+ typedef struct _PhoshAnimation PhoshAnimation;
+ 
+ typedef void (*PhoshAnimationValueCallback) (double   value,
+@@ -25,6 +37,7 @@ PhoshAnimation *phosh_animation_new       (GtkWidget                   *widget,
+                                            double                       from,
+                                            double                       to,
+                                            gint64                       duration,
++                                           PhoshAnimationType           type,
+                                            PhoshAnimationValueCallback  value_cb,
+                                            PhoshAnimationDoneCallback   done_cb,
+                                            gpointer                     user_data);
+diff --git a/src/swipe-away-bin.c b/src/swipe-away-bin.c
+index ff8be768..dca4723c 100644
+--- a/src/swipe-away-bin.c
++++ b/src/swipe-away-bin.c
+@@ -76,13 +76,15 @@ animation_done_cb (PhoshSwipeAwayBin *self)
+ static void
+ animate (PhoshSwipeAwayBin *self,
+          gint64             duration,
+-         double             to)
++         double             to,
++         PhoshAnimationType type)
+ {
+   self->animation =
+     phosh_animation_new (GTK_WIDGET (self),
+                          self->progress,
+                          to,
+                          duration,
++                         type,
+                          (PhoshAnimationValueCallback) animation_value_cb,
+                          (PhoshAnimationDoneCallback) animation_done_cb,
+                          self);
+@@ -112,7 +114,7 @@ end_swipe_cb (PhoshSwipeAwayBin *self,
+               gint64             duration,
+               double             to)
+ {
+-  animate (self, duration, to);
++  animate (self, duration, to, PHOSH_ANIMATION_TYPE_EASE_OUT_CUBIC);
+ }
+ 
+ 
+@@ -268,7 +270,7 @@ phosh_swipe_away_bin_remove (PhoshSwipeAwayBin *self)
+   if (self->animation)
+     phosh_animation_stop (self->animation);
+ 
+-  animate (self, 200, 1);
++  animate (self, 200, 1, PHOSH_ANIMATION_TYPE_EASE_OUT_CUBIC);
+ }
+ 
+ 
+@@ -280,5 +282,5 @@ phosh_swipe_away_bin_undo (PhoshSwipeAwayBin *self)
+   if (self->animation)
+     phosh_animation_stop (self->animation);
+ 
+-  animate (self, 200, 0);
++  animate (self, 600, 0, PHOSH_ANIMATION_TYPE_EASE_OUT_BOUNCE);
+ }
+-- 
+2.26.2
+

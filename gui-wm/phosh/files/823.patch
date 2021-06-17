@@ -1,0 +1,35 @@
+From 1bdbfb9e3c1a86f659476017cb6210227c01d601 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Fri, 21 May 2021 12:41:41 +0200
+Subject: [PATCH 1/2] po: Drop string from from jp translation
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+The translation switches %s and %d causing a crash.
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ po/ja.po | 7 -------
+ 1 file changed, 7 deletions(-)
+
+diff --git a/po/ja.po b/po/ja.po
+index a87bf11c..19710623 100644
+--- a/po/ja.po
++++ b/po/ja.po
+@@ -63,13 +63,6 @@ msgstr "ドック外"
+ msgid "Log Out"
+ msgstr "ログアウト"
+ 
+-#: src/end-session-dialog.c:165
+-#, c-format
+-msgid "%s will be logged out automatically in %d second."
+-msgid_plural "%s will be logged out automatically in %d seconds."
+-msgstr[0] "%d秒後、%sさんは自動でログアウトされます。"
+-msgstr[1] "%d秒後、%sさんは自動でログアウトされます。"
+-
+ #: src/end-session-dialog.c:172
+ #, c-format
+ msgid "The system will power off automatically in %d second."
+-- 
+GitLab

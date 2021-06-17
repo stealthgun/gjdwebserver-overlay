@@ -1,0 +1,27 @@
+--- a/src/lockscreen.c	2020-11-13 14:57:08.191840783 +0100
++++ b/src/lockscreen.c	2020-11-13 14:55:38.355171909 +0100
+@@ -21,6 +21,8 @@
+ #include <math.h>
+ #include <time.h>
+ 
++#include <shell.h>
++
+ #define HANDY_USE_UNSTABLE_API
+ #include <handy.h>
+ 
+@@ -402,6 +404,7 @@ carousel_position_notified_cb (PhoshLock
+                                GParamSpec      *pspec,
+                                HdyCarousel     *carousel)
+ {
++  PhoshShell *shell = phosh_shell_get_default ();
+   PhoshLockscreenPrivate *priv = phosh_lockscreen_get_instance_private (self);
+   double position;
+ 
+@@ -418,6 +421,7 @@ carousel_position_notified_cb (PhoshLock
+       priv->idle_timer = g_timeout_add_seconds (LOCKSCREEN_IDLE_SECONDS,
+                                                 (GSourceFunc) keypad_check_idle,
+                                                 self);
++      phosh_shell_set_transform (shell, 0);
+     }
+ 
+     return;
