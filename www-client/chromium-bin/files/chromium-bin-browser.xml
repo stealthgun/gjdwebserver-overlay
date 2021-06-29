@@ -3,10 +3,10 @@
 <default-apps>
   <web-browsers>
     <web-browser>
-      <name>Chromium</name>
-      <executable>chromium-browser</executable>
-      <command>chromium-browser %s</command>
-      <icon-name>chromium-browser</icon-name>
+      <name>Chromium (Bin)</name>
+      <executable>chromium-bin-browser</executable>
+      <command>chromium-bin-browser %s</command>
+      <icon-name>chromium-bin-browser</icon-name>
       <run-in-terminal>false</run-in-terminal>
     </web-browser>
   </web-browsers>
