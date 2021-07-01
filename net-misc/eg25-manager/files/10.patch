@@ -1,0 +1,57 @@
+From 04eed2496d2a02bb23b4eae91be0264417fb28c6 Mon Sep 17 00:00:00 2001
+From: Biktor <sleepyh@gmail.com>
+Date: Wed, 24 Feb 2021 12:32:46 +0100
+Subject: [PATCH] Set URC config to 'all' instead of 'usbat' dquote> When using
+ a custom kernel, if this setting is set to 'usbat' only, no RING urc is
+ reported on any interface. Changing QURCCFG to 'all' makes the modem report
+ RINGs on all supported interfaces, making receiving calls possible when using
+ a custom firmware
+
+---
+ data/pine64,pinephone-1.0.toml | 2 +-
+ data/pine64,pinephone-1.1.toml | 2 +-
+ data/pine64,pinephone-1.2.toml | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/data/pine64,pinephone-1.0.toml b/data/pine64,pinephone-1.0.toml
+index c0e9192..7287298 100644
+--- a/data/pine64,pinephone-1.0.toml
++++ b/data/pine64,pinephone-1.0.toml
+@@ -39,7 +39,7 @@ configure = [
+     { cmd = "QCFG", subcmd = "urc/ri/smsincoming", expect = "\"pulse\",2000" },
+     { cmd = "QCFG", subcmd = "urc/ri/other", expect = "\"off\",1" },
+     { cmd = "QCFG", subcmd = "urc/delay", expect = "1" },
+-    { cmd = "QURCCFG", subcmd = "urcport", expect = "\"usbat\"" },
++    { cmd = "QURCCFG", subcmd = "urcport", expect = "\"all\"" },
+     { cmd = "QGPS", value = "1" },
+     { cmd = "QSCLK", value = "1" },
+     { cmd = "QCFG", subcmd = "urc/cache", value = "0" }
+diff --git a/data/pine64,pinephone-1.1.toml b/data/pine64,pinephone-1.1.toml
+index c0e9192..7287298 100644
+--- a/data/pine64,pinephone-1.1.toml
++++ b/data/pine64,pinephone-1.1.toml
+@@ -39,7 +39,7 @@ configure = [
+     { cmd = "QCFG", subcmd = "urc/ri/smsincoming", expect = "\"pulse\",2000" },
+     { cmd = "QCFG", subcmd = "urc/ri/other", expect = "\"off\",1" },
+     { cmd = "QCFG", subcmd = "urc/delay", expect = "1" },
+-    { cmd = "QURCCFG", subcmd = "urcport", expect = "\"usbat\"" },
++    { cmd = "QURCCFG", subcmd = "urcport", expect = "\"all\"" },
+     { cmd = "QGPS", value = "1" },
+     { cmd = "QSCLK", value = "1" },
+     { cmd = "QCFG", subcmd = "urc/cache", value = "0" }
+diff --git a/data/pine64,pinephone-1.2.toml b/data/pine64,pinephone-1.2.toml
+index 566ac80..2effb30 100644
+--- a/data/pine64,pinephone-1.2.toml
++++ b/data/pine64,pinephone-1.2.toml
+@@ -32,7 +32,7 @@ configure = [
+     { cmd = "QCFG", subcmd = "risignaltype", expect = "\"physical\"" },
+     { cmd = "QCFG", subcmd = "ims", expect = "1" },
+     { cmd = "QCFG", subcmd = "apready", expect = "1,0,500" },
+-    { cmd = "QURCCFG", subcmd = "urcport", expect = "\"usbat\"" },
++    { cmd = "QURCCFG", subcmd = "urcport", expect = "\"all\"" },
+     { cmd = "QGPS", value = "1" },
+     { cmd = "QSCLK", value = "1" },
+     { cmd = "QCFG", subcmd = "urc/cache", value = "0" }
+-- 
+GitLab
+

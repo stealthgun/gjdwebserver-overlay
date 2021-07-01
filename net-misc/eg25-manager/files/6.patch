@@ -1,0 +1,895 @@
+From 09c0ddfbb81f15bf732b9a5af15eee9eb1be848b Mon Sep 17 00:00:00 2001
+From: Oliver Smith <ollieparanoid@postmarketos.org>
+Date: Mon, 8 Feb 2021 10:29:56 +0530
+Subject: [PATCH 1/5] src: add ofono-iface
+
+Start work on new ofono interface. So far, this detects ofono on dbus
+and complains if both mm and ofono are running.
+---
+ src/manager.c     | 10 ++++++++
+ src/manager.h     |  8 ++++++
+ src/meson.build   |  1 +
+ src/mm-iface.c    |  7 ++++++
+ src/ofono-iface.c | 62 +++++++++++++++++++++++++++++++++++++++++++++++
+ src/ofono-iface.h | 12 +++++++++
+ 6 files changed, 100 insertions(+)
+ create mode 100644 src/ofono-iface.c
+ create mode 100644 src/ofono-iface.h
+
+diff --git a/src/manager.c b/src/manager.c
+index aaa3905..7e43e62 100644
+--- a/src/manager.c
++++ b/src/manager.c
+@@ -8,6 +8,7 @@
+ #include "gpio.h"
+ #include "manager.h"
+ #include "mm-iface.h"
++#include "ofono-iface.h"
+ #include "suspend.h"
+ #include "udev.h"
+ 
+@@ -35,6 +36,7 @@ static gboolean quit_app(struct EG25Manager *manager)
+ 
+     at_destroy(manager);
+     mm_iface_destroy(manager);
++    ofono_iface_destroy(manager);
+     suspend_destroy(manager);
+     udev_destroy(manager);
+ 
+@@ -131,6 +133,13 @@ void modem_reset(struct EG25Manager *manager)
+     if (manager->reset_timer)
+         return;
+ 
++    /* If we are managing the modem through lets say ofono, we should not
++     * reset the modem based on the availability of USB ID
++     * TODO: Improve ofono plugin and add support for fetching USB ID
++     */
++    if (manager->modem_iface != MODEM_IFACE_MODEMMANAGER)
++        return;        
++
+     if (manager->modem_recovery_timer) {
+         g_source_remove(manager->modem_recovery_timer);
+         manager->modem_recovery_timer = 0;
+@@ -305,6 +314,7 @@ int main(int argc, char *argv[])
+     at_init(&manager, toml_table_in(toml_config, "at"));
+     gpio_init(&manager, toml_table_in(toml_config, "gpio"));
+     mm_iface_init(&manager, toml_table_in(toml_config, "mm-iface"));
++    ofono_iface_init(&manager);
+     suspend_init(&manager, toml_table_in(toml_config, "suspend"));
+     udev_init(&manager, toml_table_in(toml_config, "udev"));
+ 
+diff --git a/src/manager.h b/src/manager.h
+index 48ff237..5ed9e75 100644
+--- a/src/manager.h
++++ b/src/manager.h
+@@ -27,6 +27,12 @@ enum EG25State {
+     EG25_STATE_FINISHING
+ };
+ 
++enum ModemIface {
++    MODEM_IFACE_NONE = 0,
++    MODEM_IFACE_MODEMMANAGER,
++    MODEM_IFACE_OFONO
++};
++
+ struct EG25Manager {
+     GMainLoop *loop;
+     guint reset_timer;
+@@ -41,9 +47,11 @@ struct EG25Manager {
+     enum EG25State modem_state;
+     gchar *modem_usb_id;
+ 
++    enum ModemIface modem_iface;
+     guint mm_watch;
+     MMManager *mm_manager;
+     MMModem *mm_modem;
++    guint ofono_watch;
+ 
+     GDBusProxy *suspend_proxy;
+     int suspend_delay_fd;
+diff --git a/src/meson.build b/src/meson.build
+index 0d10362..7429950 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -11,6 +11,7 @@ executable (
+         'gpio.c', 'gpio.h',
+         'manager.c', 'manager.h',
+         'mm-iface.c', 'mm-iface.h',
++        'ofono-iface.c', 'ofono-iface.h',
+         'suspend.c', 'suspend.h',
+         'toml.c', 'toml.h',
+         'udev.c', 'udev.h',
+diff --git a/src/mm-iface.c b/src/mm-iface.c
+index 8afe2ea..e1e3726 100644
+--- a/src/mm-iface.c
++++ b/src/mm-iface.c
+@@ -163,6 +163,13 @@ static void mm_appeared_cb(GDBusConnection    *connection,
+ {
+     g_message("ModemManager appeared on D-Bus");
+ 
++    if (manager->modem_iface != MODEM_IFACE_NONE) {
++        g_critical("Modem interface already found!");
++        g_critical("Make sure to only run either of ModemManager or oFono.");
++        return;
++    }
++    manager->modem_iface = MODEM_IFACE_MODEMMANAGER;
++
+     mm_manager_new(connection, G_DBUS_OBJECT_MANAGER_CLIENT_FLAGS_NONE,
+                    NULL, (GAsyncReadyCallback)mm_manager_new_cb, manager);
+ }
+diff --git a/src/ofono-iface.c b/src/ofono-iface.c
+new file mode 100644
+index 0000000..d9051a3
+--- /dev/null
++++ b/src/ofono-iface.c
+@@ -0,0 +1,62 @@
++/*
++ * Copyright (C) 2020 Oliver Smith <ollieparanoid@postmarketos.org>
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++#include "ofono-iface.h"
++
++#include <string.h>
++
++// #include <ofono/dbus.h>
++#define OFONO_SERVICE "org.ofono"
++
++static void ofono_appeared_cb(GDBusConnection    *connection,
++                              const gchar        *name,
++                              const gchar        *name_owner,
++                              struct EG25Manager *manager)
++{
++    g_message("oFono appeared on D-Bus");
++
++    if (manager->modem_iface != MODEM_IFACE_NONE) {
++        g_critical("Modem interface already found!");
++        g_critical("Make sure to only run either of ModemManager or oFono.");
++        return;
++    }
++    manager->modem_iface = MODEM_IFACE_OFONO;
++
++    /* now connect to oFono! */
++}
++
++static void ofono_vanished_cb(GDBusConnection    *connection,
++                              const gchar        *name,
++                              struct EG25Manager *manager)
++{
++    g_message("oFono vanished from D-Bus");
++
++    if (manager->modem_iface == MODEM_IFACE_OFONO) {
++        manager->modem_iface = MODEM_IFACE_NONE;
++        ofono_iface_destroy(manager);
++    }
++}
++
++void ofono_iface_init(struct EG25Manager *manager)
++{
++    manager->ofono_watch = g_bus_watch_name(G_BUS_TYPE_SYSTEM, OFONO_SERVICE,
++                                            G_BUS_NAME_WATCHER_FLAGS_AUTO_START,
++                                            (GBusNameAppearedCallback)ofono_appeared_cb,
++                                            (GBusNameVanishedCallback)ofono_vanished_cb,
++                                            manager, NULL);
++}
++
++void ofono_iface_destroy(struct EG25Manager *manager)
++{
++    if (manager->modem_usb_id) {
++        g_free(manager->modem_usb_id);
++        manager->modem_usb_id = NULL;
++    }
++    if (manager->ofono_watch != 0) {
++        g_bus_unwatch_name(manager->ofono_watch);
++        manager->ofono_watch = 0;
++    }
++}
+diff --git a/src/ofono-iface.h b/src/ofono-iface.h
+new file mode 100644
+index 0000000..fd3766e
+--- /dev/null
++++ b/src/ofono-iface.h
+@@ -0,0 +1,12 @@
++/*
++ * Copyright (C) 2020 Oliver Smith <ollieparanoid@postmarketos.org>
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++#pragma once
++
++#include "manager.h"
++
++void ofono_iface_init(struct EG25Manager *data);
++void ofono_iface_destroy(struct EG25Manager *data);
+-- 
+GitLab
+
+
+From a3952107f5950535dd10d8c48ae807f3f4ec207e Mon Sep 17 00:00:00 2001
+From: Bhushan Shah <bhush94@gmail.com>
+Date: Thu, 11 Mar 2021 11:58:46 +0530
+Subject: [PATCH 2/5] src: watch ofono service for new modem
+
+If system is using ofono, use ofono dbus service to figure out the
+modem's USB id.
+---
+ src/libgdbofono/dbus-introspect.sh |  11 ++
+ src/libgdbofono/manager.xml        |  13 ++
+ src/libgdbofono/meson.build        |  50 ++++++
+ src/libgdbofono/modem-full.xml     | 249 +++++++++++++++++++++++++++++
+ src/libgdbofono/modem.xml          |  37 +++++
+ src/manager.h                      |   4 +
+ src/meson.build                    |   4 +
+ src/ofono-iface.c                  | 100 +++++++++++-
+ 8 files changed, 467 insertions(+), 1 deletion(-)
+ create mode 100755 src/libgdbofono/dbus-introspect.sh
+ create mode 100644 src/libgdbofono/manager.xml
+ create mode 100644 src/libgdbofono/meson.build
+ create mode 100644 src/libgdbofono/modem-full.xml
+ create mode 100644 src/libgdbofono/modem.xml
+
+diff --git a/src/libgdbofono/dbus-introspect.sh b/src/libgdbofono/dbus-introspect.sh
+new file mode 100755
+index 0000000..5a851ad
+--- /dev/null
++++ b/src/libgdbofono/dbus-introspect.sh
+@@ -0,0 +1,11 @@
++#!/bin/bash
++
++DEST="$1"
++OBJ_PATH="$2"
++METHOD="$3"
++shift 3
++
++dbus-send "$@" --print-reply --dest="$DEST" "$OBJ_PATH" "$METHOD" | \
++    grep -v '^method return' | \
++    sed -e 's/^[[:space:]]\+string "</</' \
++        -e 's_</node>"_</node>_'
+diff --git a/src/libgdbofono/manager.xml b/src/libgdbofono/manager.xml
+new file mode 100644
+index 0000000..13e9d56
+--- /dev/null
++++ b/src/libgdbofono/manager.xml
+@@ -0,0 +1,13 @@
++<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
++"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
++<node>
++
++  <interface name="org.ofono.Manager"><method name="GetModems"><arg name="modems" type="a(oa{sv})" direction="out"/>
++</method><signal name="ModemAdded"><arg name="path" type="o"/>
++<arg name="properties" type="a{sv}"/>
++</signal>
++<signal name="ModemRemoved"><arg name="path" type="o"/>
++</signal>
++  </interface>
++
++</node>
+diff --git a/src/libgdbofono/meson.build b/src/libgdbofono/meson.build
+new file mode 100644
+index 0000000..98eb9a3
+--- /dev/null
++++ b/src/libgdbofono/meson.build
+@@ -0,0 +1,50 @@
++#
++# Copyright (C) 2018 Purism SPC
++#
++# This file is part of Calls.
++#
++# Calls is free software: you can redistribute it and/or modify it
++# under the terms of the GNU General Public License as published by
++# the Free Software Foundation, either version 3 of the License, or
++# (at your option) any later version.
++#
++# Calls is distributed in the hope that it will be useful, but
++# WITHOUT ANY WARRANTY; without even the implied warranty of
++# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
++# General Public License for more details.
++#
++# You should have received a copy of the GNU General Public License
++# along with Calls.  If not, see <http://www.gnu.org/licenses/>.
++#
++# Author: Bob Ham <bob.ham@puri.sm>
++#
++# SPDX-License-Identifier: GPL-3.0-or-later
++#
++
++
++gnome = import('gnome')
++dbus_interfaces = ['manager', 'modem']
++
++gdbofono_src = []
++gdbofono_headers = []
++foreach iface: dbus_interfaces
++  src = gnome.gdbus_codegen(
++    'gdbo-' + iface,
++    iface + '.xml',
++    interface_prefix: 'org.ofono.',
++    namespace: 'GDBO'
++  )
++  gdbofono_src += src
++  gdbofono_headers += src[1]
++endforeach
++
++gdbofono_deps = [
++  dependency('gio-2.0'),
++  dependency('gio-unix-2.0'),
++]
++
++gdbofono_lib = static_library(
++  'gdbofono',
++  gdbofono_src,
++  dependencies: gdbofono_deps
++)
+diff --git a/src/libgdbofono/modem-full.xml b/src/libgdbofono/modem-full.xml
+new file mode 100644
+index 0000000..5319672
+--- /dev/null
++++ b/src/libgdbofono/modem-full.xml
+@@ -0,0 +1,249 @@
++<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
++"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
++<node>
++
++  <interface name="org.ofono.Modem"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="SetProperty"><arg name="property" type="s" direction="in"/>
++<arg name="value" type="v" direction="in"/>
++</method><signal name="PropertyChanged"><arg name="name" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++  </interface>
++
++  <interface name="org.ofono.SimManager"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="SetProperty"><arg name="property" type="s" direction="in"/>
++<arg name="value" type="v" direction="in"/>
++</method><method name="ChangePin"><arg name="type" type="s" direction="in"/>
++<arg name="oldpin" type="s" direction="in"/>
++<arg name="newpin" type="s" direction="in"/>
++</method><method name="EnterPin"><arg name="type" type="s" direction="in"/>
++<arg name="pin" type="s" direction="in"/>
++</method><method name="ResetPin"><arg name="type" type="s" direction="in"/>
++<arg name="puk" type="s" direction="in"/>
++<arg name="newpin" type="s" direction="in"/>
++</method><method name="LockPin"><arg name="type" type="s" direction="in"/>
++<arg name="pin" type="s" direction="in"/>
++</method><method name="UnlockPin"><arg name="type" type="s" direction="in"/>
++<arg name="pin" type="s" direction="in"/>
++</method><method name="GetIcon"><arg name="id" type="y" direction="in"/>
++<arg name="icon" type="ay" direction="out"/>
++</method><signal name="PropertyChanged"><arg name="name" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++  </interface>
++
++  <interface name="org.ofono.VoiceCallManager"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="Dial"><arg name="number" type="s" direction="in"/>
++<arg name="hide_callerid" type="s" direction="in"/>
++<arg name="path" type="o" direction="out"/>
++</method><method name="DialLast"></method><method name="DialMemory"><arg name="memory_location" type="u" direction="in"/>
++</method><method name="Transfer"></method><method name="SwapCalls"></method><method name="ReleaseAndAnswer"></method><method name="ReleaseAndSwap"></method><method name="HoldAndAnswer"></method><method name="HangupAll"></method><method name="PrivateChat"><arg name="call" type="o" direction="in"/>
++<arg name="calls" type="ao" direction="out"/>
++</method><method name="CreateMultiparty"><arg name="calls" type="ao" direction="out"/>
++</method><method name="HangupMultiparty"></method><method name="SendTones"><arg name="SendTones" type="s" direction="in"/>
++</method><method name="GetCalls"><arg name="calls_with_properties" type="a(oa{sv})" direction="out"/>
++</method><signal name="Forwarded"><arg name="type" type="s"/>
++</signal>
++<signal name="BarringActive"><arg name="type" type="s"/>
++</signal>
++<signal name="PropertyChanged"><arg name="name" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++<signal name="CallAdded"><arg name="path" type="o"/>
++<arg name="properties" type="a{sv}"/>
++</signal>
++<signal name="CallRemoved"><arg name="path" type="o"/>
++</signal>
++  </interface>
++
++  <interface name="org.ofono.AllowedAccessPoints"><method name="GetAllowedAccessPoints"><arg name="apnlist" type="as" direction="out"/>
++  </method></interface>
++
++  <interface name="org.ofono.SimAuthentication"><method name="GetApplications"><arg name="applications" type="a{oa{sv}}" direction="out"/>
++</method><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++  </method></interface>
++
++  <interface name="org.ofono.SimToolkit"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="SelectItem"><arg name="item" type="y" direction="in"/>
++<arg name="agent" type="o" direction="in"/>
++</method><method name="RegisterAgent"><arg name="path" type="o" direction="in"/>
++</method><method name="UnregisterAgent"><arg name="path" type="o" direction="in"/>
++</method><signal name="PropertyChanged"><arg name="name" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++  </interface>
++
++  <interface name="org.ofono.CallForwarding"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="SetProperty"><arg name="property" type="s" direction="in"/>
++<arg name="value" type="v" direction="in"/>
++</method><method name="DisableAll"><arg name="type" type="s" direction="in"/>
++</method><signal name="PropertyChanged"><arg name="name" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++  </interface>
++
++  <interface name="org.ofono.RadioSettings"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="SetProperty"><arg name="property" type="s" direction="in"/>
++<arg name="value" type="v" direction="in"/>
++</method><signal name="PropertyChanged"><arg name="name" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++  </interface>
++
++  <interface name="org.ofono.TextTelephony"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="SetProperty"><arg name="property" type="s" direction="in"/>
++<arg name="value" type="v" direction="in"/>
++</method><signal name="PropertyChanged"><arg name="name" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++  </interface>
++
++  <interface name="org.ofono.Phonebook"><method name="Import"><arg name="entries" type="s" direction="out"/>
++  </method></interface>
++
++  <interface name="org.ofono.MessageManager"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="SetProperty"><arg name="property" type="s" direction="in"/>
++<arg name="value" type="v" direction="in"/>
++</method><method name="SendMessage"><arg name="to" type="s" direction="in"/>
++<arg name="text" type="s" direction="in"/>
++<arg name="path" type="o" direction="out"/>
++</method><method name="GetMessages"><arg name="messages" type="a(oa{sv})" direction="out"/>
++</method><signal name="PropertyChanged"><arg name="name" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++<signal name="IncomingMessage"><arg name="message" type="s"/>
++<arg name="info" type="a{sv}"/>
++</signal>
++<signal name="ImmediateMessage"><arg name="message" type="s"/>
++<arg name="info" type="a{sv}"/>
++</signal>
++<signal name="MessageAdded"><arg name="path" type="o"/>
++<arg name="properties" type="a{sv}"/>
++</signal>
++<signal name="MessageRemoved"><arg name="path" type="o"/>
++</signal>
++  </interface>
++
++  <interface name="org.ofono.PushNotification"><method name="RegisterAgent"><arg name="path" type="o" direction="in"/>
++</method><method name="UnregisterAgent"><arg name="path" type="o" direction="in"/>
++  </method></interface>
++
++  <interface name="org.ofono.SmartMessaging"><method name="RegisterAgent"><arg name="path" type="o" direction="in"/>
++</method><method name="UnregisterAgent"><arg name="path" type="o" direction="in"/>
++</method><method name="SendBusinessCard"><arg name="to" type="s" direction="in"/>
++<arg name="card" type="ay" direction="in"/>
++<arg name="path" type="o" direction="out"/>
++</method><method name="SendAppointment"><arg name="to" type="s" direction="in"/>
++<arg name="appointment" type="ay" direction="in"/>
++<arg name="path" type="o" direction="out"/>
++  </method></interface>
++
++  <interface name="org.ofono.MessageWaiting"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="SetProperty"><arg name="property" type="s" direction="in"/>
++<arg name="value" type="v" direction="in"/>
++</method><signal name="PropertyChanged"><arg name="name" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++  </interface>
++
++  <interface name="org.ofono.CallSettings"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="SetProperty"><arg name="property" type="s" direction="in"/>
++<arg name="value" type="v" direction="in"/>
++</method><signal name="PropertyChanged"><arg name="property" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++  </interface>
++
++  <interface name="org.ofono.CallBarring"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="SetProperty"><arg name="property" type="s" direction="in"/>
++<arg name="value" type="v" direction="in"/>
++<arg name="pin2" type="s" direction="in"/>
++</method><method name="DisableAll"><arg name="password" type="s" direction="in"/>
++</method><method name="DisableAllIncoming"><arg name="password" type="s" direction="in"/>
++</method><method name="DisableAllOutgoing"><arg name="password" type="s" direction="in"/>
++</method><method name="ChangePassword"><arg name="old" type="s" direction="in"/>
++<arg name="new" type="s" direction="in"/>
++</method><signal name="PropertyChanged"><arg name="name" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++  </interface>
++
++  <interface name="org.ofono.SupplementaryServices"><method name="Initiate"><arg name="command" type="s" direction="in"/>
++<arg name="result_name" type="s" direction="out"/>
++<arg name="value" type="v" direction="out"/>
++</method><method name="Respond"><arg name="reply" type="s" direction="in"/>
++<arg name="result" type="s" direction="out"/>
++</method><method name="Cancel"></method><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><signal name="NotificationReceived"><arg name="message" type="s"/>
++</signal>
++<signal name="RequestReceived"><arg name="message" type="s"/>
++</signal>
++<signal name="PropertyChanged"><arg name="name" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++  </interface>
++
++  <interface name="org.ofono.CallMeter"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="SetProperty"><arg name="property" type="s" direction="in"/>
++<arg name="value" type="v" direction="in"/>
++<arg name="password" type="s" direction="in"/>
++</method><method name="Reset"><arg name="passoword" type="s" direction="in"/>
++</method><signal name="PropertyChanged"><arg name="property" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++<signal name="NearMaximumWarning"></signal>
++  </interface>
++
++  <interface name="org.ofono.CallVolume"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="SetProperty"><arg name="property" type="s" direction="in"/>
++<arg name="value" type="v" direction="in"/>
++</method><signal name="PropertyChanged"><arg name="property" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++  </interface>
++
++  <interface name="org.ofono.NetworkRegistration"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="Register"></method><method name="GetOperators"><arg name="operators_with_properties" type="a(oa{sv})" direction="out"/>
++</method><method name="Scan"><arg name="operators_with_properties" type="a(oa{sv})" direction="out"/>
++</method><signal name="PropertyChanged"><arg name="name" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++  </interface>
++
++  <interface name="org.ofono.CellBroadcast"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="SetProperty"><arg name="property" type="s" direction="in"/>
++<arg name="value" type="v" direction="in"/>
++</method><signal name="PropertyChanged"><arg name="property" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++<signal name="IncomingBroadcast"><arg name="message" type="s"/>
++<arg name="channel" type="q"/>
++</signal>
++<signal name="EmergencyBroadcast"><arg name="message" type="s"/>
++<arg name="dict" type="a{sv}"/>
++</signal>
++  </interface>
++
++  <interface name="org.ofono.AssistedSatelliteNavigation"><method name="SendPositioningElement"><arg name="xml_elements" type="(null)" direction="in"/>
++</method><method name="RegisterPositioningRequestAgent"><arg name="agent" type="o" direction="in"/>
++</method><method name="UnregisterPositioningRequestAgent"><arg name="agent" type="o" direction="in"/>
++  </method></interface>
++
++  <interface name="org.ofono.ConnectionManager"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="SetProperty"><arg name="property" type="s" direction="in"/>
++<arg name="value" type="v" direction="in"/>
++</method><method name="AddContext"><arg name="type" type="s" direction="in"/>
++<arg name="path" type="o" direction="out"/>
++</method><method name="RemoveContext"><arg name="path" type="o" direction="in"/>
++</method><method name="DeactivateAll"></method><method name="GetContexts"><arg name="contexts_with_properties" type="a(oa{sv})" direction="out"/>
++</method><method name="ResetContexts"></method><signal name="PropertyChanged"><arg name="name" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++<signal name="ContextAdded"><arg name="path" type="o"/>
++<arg name="properties" type="a{sv}"/>
++</signal>
++<signal name="ContextRemoved"><arg name="path" type="o"/>
++</signal>
++  </interface>
++
++</node>
+diff --git a/src/libgdbofono/modem.xml b/src/libgdbofono/modem.xml
+new file mode 100644
+index 0000000..c02d250
+--- /dev/null
++++ b/src/libgdbofono/modem.xml
+@@ -0,0 +1,37 @@
++<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
++"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
++<node>
++
++  <interface name="org.ofono.Modem"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="SetProperty"><arg name="property" type="s" direction="in"/>
++<arg name="value" type="v" direction="in"/>
++</method><signal name="PropertyChanged"><arg name="name" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++  </interface>
++
++  <interface name="org.ofono.VoiceCallManager"><method name="GetProperties"><arg name="properties" type="a{sv}" direction="out"/>
++</method><method name="Dial"><arg name="number" type="s" direction="in"/>
++<arg name="hide_callerid" type="s" direction="in"/>
++<arg name="path" type="o" direction="out"/>
++</method><method name="DialLast"></method><method name="DialMemory"><arg name="memory_location" type="u" direction="in"/>
++</method><method name="Transfer"></method><method name="SwapCalls"></method><method name="ReleaseAndAnswer"></method><method name="ReleaseAndSwap"></method><method name="HoldAndAnswer"></method><method name="HangupAll"></method><method name="PrivateChat"><arg name="call" type="o" direction="in"/>
++<arg name="calls" type="ao" direction="out"/>
++</method><method name="CreateMultiparty"><arg name="calls" type="ao" direction="out"/>
++</method><method name="HangupMultiparty"></method><method name="SendTones"><arg name="SendTones" type="s" direction="in"/>
++</method><method name="GetCalls"><arg name="calls_with_properties" type="a(oa{sv})" direction="out"/>
++</method><signal name="Forwarded"><arg name="type" type="s"/>
++</signal>
++<signal name="BarringActive"><arg name="type" type="s"/>
++</signal>
++<signal name="PropertyChanged"><arg name="name" type="s"/>
++<arg name="value" type="v"/>
++</signal>
++<signal name="CallAdded"><arg name="path" type="o"/>
++<arg name="properties" type="a{sv}"/>
++</signal>
++<signal name="CallRemoved"><arg name="path" type="o"/>
++</signal>
++  </interface>
++
++</node>
+diff --git a/src/manager.h b/src/manager.h
+index 5ed9e75..ec5550b 100644
+--- a/src/manager.h
++++ b/src/manager.h
+@@ -10,6 +10,7 @@
+ #include <gpiod.h>
+ #include <gudev/gudev.h>
+ #include <libmm-glib.h>
++#include <libgdbofono/gdbo-manager.h>
+ 
+ #include "toml.h"
+ 
+@@ -51,7 +52,10 @@ struct EG25Manager {
+     guint mm_watch;
+     MMManager *mm_manager;
+     MMModem *mm_modem;
++
+     guint ofono_watch;
++    GDBOManager *ofono_manager;
++    GDBusConnection *ofono_connection;
+ 
+     GDBusProxy *suspend_proxy;
+     int suspend_delay_fd;
+diff --git a/src/meson.build b/src/meson.build
+index 7429950..6a9f52d 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -4,6 +4,9 @@
+ # SPDX-License-Identifier: GPL-3.0-or-later
+ #
+ 
++
++subdir('libgdbofono')
++
+ executable (
+     'eg25manager',
+     [
+@@ -17,5 +20,6 @@ executable (
+         'udev.c', 'udev.h',
+     ],
+     dependencies : mgr_deps,
++    link_with: gdbofono_lib,
+     install : true
+ )
+diff --git a/src/ofono-iface.c b/src/ofono-iface.c
+index d9051a3..00bf665 100644
+--- a/src/ofono-iface.c
++++ b/src/ofono-iface.c
+@@ -8,14 +8,91 @@
+ 
+ #include <string.h>
+ 
++#include <libgdbofono/gdbo-manager.h>
++#include <libgdbofono/gdbo-modem.h>
++
+ // #include <ofono/dbus.h>
+ #define OFONO_SERVICE "org.ofono"
+ 
++static void modem_added_cb(GDBOManager *manager_proxy,
++                           const gchar *path,
++                           GVariant *properties,
++                           struct EG25Manager *manager)
++{
++    GVariant *modem_path;
++    /*
++    gdbo_modem_proxy_new(manager->ofono_connection,
++                         G_DBUS_PROXY_FLAGS_NONE,
++                         g_dbus_proxy_get_name(G_DBUS_PROXY(manager_proxy)),
++                         path,
++                         NULL,
++                         (GAsyncReadyCallback) modem_proxy_new_cb,
++                         manager);
++    */
++    g_debug("Adding ofono modem '%s'", path);
++
++    if (manager->modem_state == EG25_STATE_RESUMING) {
++        if (manager->modem_recovery_timer) {
++            g_source_remove(manager->modem_recovery_timer);
++            manager->modem_recovery_timer = 0;
++        }
++        modem_resume_post(manager);
++        manager->modem_state = EG25_STATE_CONFIGURED;
++    }
++
++    if (manager->modem_state < EG25_STATE_ACQUIRED)
++        manager->modem_state = EG25_STATE_ACQUIRED;
++
++    if (manager->modem_state < EG25_STATE_CONFIGURED)
++        modem_configure(manager);
++
++    modem_path = g_variant_lookup_value(properties, "SystemPath", G_VARIANT_TYPE_STRING);
++    if (manager->modem_usb_id)
++        g_free(manager->modem_usb_id);
++    manager->modem_usb_id = g_strdup(strrchr(g_variant_dup_string(modem_path, NULL), '/') + 1);
++}
++
++static void modem_removed_cb(GDBOManager *manager_proxy,
++                             const gchar *path,
++                             struct EG25Manager *manager)
++{
++}
++
++static void get_modems_cb(GDBOManager *manager_proxy,
++                          GAsyncResult *res,
++                          struct EG25Manager *manager)
++{
++    gboolean ok;
++    GVariant *modems;
++    GVariantIter *modems_iter = NULL;
++    g_autoptr(GError) error = NULL;
++
++    const gchar *path;
++    GVariant *properties;
++
++    ok = gdbo_manager_call_get_modems_finish(manager_proxy, &modems,
++                                             res, &error);
++    if (!ok) {
++        g_warning("Error getting modems from ofono manager: %s", error->message);
++        return;
++    }
++
++    g_variant_get(modems, "a(oa{sv})", &modems_iter);
++    while(g_variant_iter_loop(modems_iter, "(&o@a{sv})", &path, &properties)) {
++        g_debug("Got modem object path '%s'", path);
++        modem_added_cb(manager_proxy, path, properties, manager);
++    }
++    g_variant_iter_free(modems_iter);
++    g_variant_unref(modems);
++}
++
+ static void ofono_appeared_cb(GDBusConnection    *connection,
+                               const gchar        *name,
+                               const gchar        *name_owner,
+                               struct EG25Manager *manager)
+ {
++    GError *error = NULL;
++
+     g_message("oFono appeared on D-Bus");
+ 
+     if (manager->modem_iface != MODEM_IFACE_NONE) {
+@@ -23,9 +100,30 @@ static void ofono_appeared_cb(GDBusConnection    *connection,
+         g_critical("Make sure to only run either of ModemManager or oFono.");
+         return;
+     }
++    /* now connect to oFono! */
++    manager->ofono_connection = connection;
++    manager->ofono_manager = gdbo_manager_proxy_new_sync(connection,
++                                                         G_DBUS_PROXY_FLAGS_NONE,
++                                                         OFONO_SERVICE,
++                                                         "/",
++                                                         NULL,
++                                                         &error);
++    if (!manager->ofono_manager) {
++        g_critical("Error creating ofono object manager proxy: %s", error->message);
++        return;
++    }
++
+     manager->modem_iface = MODEM_IFACE_OFONO;
+ 
+-    /* now connect to oFono! */
++    g_signal_connect(manager->ofono_manager, "modem-added",
++                     G_CALLBACK(modem_added_cb), manager);
++    g_signal_connect(manager->ofono_manager, "modem-removed",
++                     G_CALLBACK(modem_removed_cb), manager);
++
++    gdbo_manager_call_get_modems(manager->ofono_manager,
++                                 NULL,
++                                 (GAsyncReadyCallback) get_modems_cb,
++                                 manager);
+ }
+ 
+ static void ofono_vanished_cb(GDBusConnection    *connection,
+-- 
+GitLab
+
+
+From 9c4f5669fc6b76eac280f165aab972552f2df824 Mon Sep 17 00:00:00 2001
+From: Bhushan Shah <bhush94@gmail.com>
+Date: Thu, 11 Mar 2021 12:13:04 +0530
+Subject: [PATCH 3/5] at: if we are using ofono, don't query modem manager for
+ state
+
+---
+ src/at.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/src/at.c b/src/at.c
+index 4b5cd62..32138d0 100644
+--- a/src/at.c
++++ b/src/at.c
+@@ -76,12 +76,16 @@ static gboolean send_at_command(struct EG25Manager *manager)
+ 
+         g_message("Sending command: %s", g_strstrip(command));
+     } else if (manager->modem_state < EG25_STATE_CONFIGURED) {
+-        MMModemState modem_state = mm_modem_get_state(manager->mm_modem);
+-
+-        if (manager->mm_modem && modem_state >= MM_MODEM_STATE_REGISTERED)
+-            modem_update_state(manager, modem_state);
+-        else
++        if (manager->modem_iface == MODEM_IFACE_MODEMMANAGER) {
++            MMModemState modem_state = mm_modem_get_state(manager->mm_modem);
++
++            if (manager->mm_modem && modem_state >= MM_MODEM_STATE_REGISTERED)
++                modem_update_state(manager, modem_state);
++            else
++                manager->modem_state = EG25_STATE_CONFIGURED;
++        } else {
+             manager->modem_state = EG25_STATE_CONFIGURED;
++        }
+     } else if (manager->modem_state == EG25_STATE_SUSPENDING) {
+         modem_suspend_post(manager);
+     } else if (manager->modem_state == EG25_STATE_RESETTING) {
+-- 
+GitLab
+
+
+From 742172a9129a3c11c2825d323f8f98730f7533db Mon Sep 17 00:00:00 2001
+From: Bhushan Shah <bhush94@gmail.com>
+Date: Thu, 11 Mar 2021 13:08:21 +0530
+Subject: [PATCH 4/5] suspend: if we are using ofono, mark modem as resumed
+ immediately
+
+---
+ src/suspend.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/src/suspend.c b/src/suspend.c
+index 256636e..b82ca7e 100644
+--- a/src/suspend.c
++++ b/src/suspend.c
+@@ -170,11 +170,14 @@ static void signal_cb(GDBusProxy *proxy,
+         g_message("system is resuming");
+         take_inhibitor(manager, FALSE);
+         modem_resume_pre(manager);
+-        if (manager->mm_modem) {
++        if (manager->mm_modem || manager->modem_iface == MODEM_IFACE_OFONO) {
+             /*
+              * On some systems ModemManager doesn't handle suspend/resume, so
+              * we still have a valid/managed modem when resuming. In this case,
+              * do the whole resume sequence immediately.
++             *
++             * If modem is managed by ofono, we also do resume sequence immediately
++             * as ofono handles resuming from sleep itself.
+              */
+             manager->modem_state = EG25_STATE_CONFIGURED;
+             modem_resume_post(manager);
+-- 
+GitLab
+
+
+From 87ff1e0a5a6f379528e1e581372e9d60d35e044f Mon Sep 17 00:00:00 2001
+From: Bhushan Shah <bhush94@gmail.com>
+Date: Thu, 11 Mar 2021 14:22:50 +0530
+Subject: [PATCH 5/5] ofono-iface: add spdx copyright info
+
+---
+ src/ofono-iface.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/src/ofono-iface.c b/src/ofono-iface.c
+index 00bf665..caf32dd 100644
+--- a/src/ofono-iface.c
++++ b/src/ofono-iface.c
+@@ -1,5 +1,6 @@
+ /*
+  * Copyright (C) 2020 Oliver Smith <ollieparanoid@postmarketos.org>
++ * Copyright (C) 2021 Bhushan Shah <bshah@kde.org>
+  *
+  * SPDX-License-Identifier: GPL-3.0-or-later
+  */
+-- 
+GitLab
+

@@ -1,0 +1,1262 @@
+From e6d410275ccf193e1a6dd21bb2200443e41ca03b Mon Sep 17 00:00:00 2001
+From: Dylan Van Assche <me@dylanvanassche.be>
+Date: Wed, 12 May 2021 16:41:48 +0200
+Subject: [PATCH 1/5] at: g_free doesn't require NULL checking
+
+From the docs: If mem is NULL it simply returns, so there is no need to check mem against NULL before calling this function.
+---
+ src/at.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
+
+diff --git a/src/at.c b/src/at.c
+index a34025f..c6a90d4 100644
+--- a/src/at.c
++++ b/src/at.c
+@@ -104,14 +104,10 @@ static void next_at_command(struct EG25Manager *manager)
+     if (!at_cmd)
+         return;
+ 
+-    if (at_cmd->cmd)
+-        g_free(at_cmd->cmd);
+-    if (at_cmd->subcmd)
+-        g_free(at_cmd->subcmd);
+-    if (at_cmd->value)
+-        g_free(at_cmd->value);
+-    if (at_cmd->expected)
+-        g_free(at_cmd->expected);
++    g_free(at_cmd->cmd);
++    g_free(at_cmd->subcmd);
++    g_free(at_cmd->value);
++    g_free(at_cmd->expected);
+     g_free(at_cmd);
+     manager->at_cmds = g_list_remove(manager->at_cmds, at_cmd);
+ 
+@@ -142,8 +138,7 @@ static void process_at_result(struct EG25Manager *manager, char *response)
+         return;
+ 
+     if (at_cmd->expected && !strstr(response, at_cmd->expected)) {
+-        if (at_cmd->value)
+-            g_free(at_cmd->value);
++        g_free(at_cmd->value);
+         at_cmd->value = at_cmd->expected;
+         at_cmd->expected = NULL;
+         g_message("Got a different result than expected, changing value...");
+-- 
+GitLab
+
+
+From 828176baf168334744596e33b214551d8164346d Mon Sep 17 00:00:00 2001
+From: Dylan Van Assche <me@dylanvanassche.be>
+Date: Wed, 12 May 2021 18:21:29 +0200
+Subject: [PATCH 2/5] at: make next_at_command, send_at_command,
+ process_at_result, and append_at_command public methods
+
+Allows other modules to send AT commands as well
+---
+ src/at.c | 47 ++++++++++++++++++++++++-----------------------
+ src/at.h | 22 ++++++++++++++++------
+ 2 files changed, 40 insertions(+), 29 deletions(-)
+
+diff --git a/src/at.c b/src/at.c
+index c6a90d4..b08cf4f 100644
+--- a/src/at.c
++++ b/src/at.c
+@@ -52,7 +52,7 @@ static int configure_serial(const char *tty)
+     return fd;
+ }
+ 
+-static gboolean send_at_command(struct EG25Manager *manager)
++gboolean at_send_command(struct EG25Manager *manager)
+ {
+     char command[256];
+     struct AtCommand *at_cmd = manager->at_cmds ? g_list_nth_data(manager->at_cmds, 0) : NULL;
+@@ -97,7 +97,7 @@ static gboolean send_at_command(struct EG25Manager *manager)
+     return FALSE;
+ }
+ 
+-static void next_at_command(struct EG25Manager *manager)
++void at_next_command(struct EG25Manager *manager)
+ {
+     struct AtCommand *at_cmd = manager->at_cmds ? g_list_nth_data(manager->at_cmds, 0) : NULL;
+ 
+@@ -111,7 +111,7 @@ static void next_at_command(struct EG25Manager *manager)
+     g_free(at_cmd);
+     manager->at_cmds = g_list_remove(manager->at_cmds, at_cmd);
+ 
+-    send_at_command(manager);
++    at_send_command(manager);
+ }
+ 
+ static void retry_at_command(struct EG25Manager *manager)
+@@ -124,13 +124,14 @@ static void retry_at_command(struct EG25Manager *manager)
+     at_cmd->retries++;
+     if (at_cmd->retries > 3) {
+         g_critical("Command %s retried %d times, aborting...", at_cmd->cmd, at_cmd->retries);
+-        next_at_command(manager);
++        at_next_command(manager);
+     } else {
+-        g_timeout_add(500, G_SOURCE_FUNC(send_at_command), manager);
++        g_timeout_add(500, G_SOURCE_FUNC(at_send_command), manager);
+     }
+ }
+ 
+-static void process_at_result(struct EG25Manager *manager, char *response)
++void at_process_result(struct EG25Manager *manager,
++                       const char         *response)
+ {
+     struct AtCommand *at_cmd = manager->at_cmds ? g_list_nth_data(manager->at_cmds, 0) : NULL;
+ 
+@@ -143,17 +144,17 @@ static void process_at_result(struct EG25Manager *manager, char *response)
+         at_cmd->expected = NULL;
+         g_message("Got a different result than expected, changing value...");
+         g_message("\t%s\n\t%s", at_cmd->expected, response);
+-        send_at_command(manager);
++        at_send_command(manager);
+     } else {
+-        next_at_command(manager);
++        at_next_command(manager);
+     }
+ }
+ 
+-static int append_at_command(struct EG25Manager *manager,
+-                             const char         *cmd,
+-                             const char         *subcmd,
+-                             const char         *value,
+-                             const char         *expected)
++int at_append_command(struct EG25Manager *manager,
++                      const char         *cmd,
++                      const char         *subcmd,
++                      const char         *value,
++                      const char         *expected)
+ {
+     struct AtCommand *at_cmd = calloc(1, sizeof(struct AtCommand));
+ 
+@@ -213,10 +214,10 @@ static gboolean modem_response(gint fd,
+         else if (strstr(response, "ERROR"))
+             retry_at_command(manager);
+         else if (strstr(response, "OK"))
+-            process_at_result(manager, response);
++            at_process_result(manager, response);
+         else
+             // Not a recognized response, try running next command, just in case
+-            next_at_command(manager);
++            at_next_command(manager);
+     }
+ 
+     return TRUE;
+@@ -321,34 +322,34 @@ void at_sequence_configure(struct EG25Manager *manager)
+ {
+     for (guint i = 0; i < configure_commands->len; i++) {
+         struct AtCommand *cmd = &g_array_index(configure_commands, struct AtCommand, i);
+-        append_at_command(manager, cmd->cmd, cmd->subcmd, cmd->value, cmd->expected);
++        at_append_command(manager, cmd->cmd, cmd->subcmd, cmd->value, cmd->expected);
+     }
+-    send_at_command(manager);
++    at_send_command(manager);
+ }
+ 
+ void at_sequence_suspend(struct EG25Manager *manager)
+ {
+     for (guint i = 0; i < suspend_commands->len; i++) {
+         struct AtCommand *cmd = &g_array_index(suspend_commands, struct AtCommand, i);
+-        append_at_command(manager, cmd->cmd, cmd->subcmd, cmd->value, cmd->expected);
++        at_append_command(manager, cmd->cmd, cmd->subcmd, cmd->value, cmd->expected);
+     }
+-    send_at_command(manager);
++    at_send_command(manager);
+ }
+ 
+ void at_sequence_resume(struct EG25Manager *manager)
+ {
+     for (guint i = 0; i < resume_commands->len; i++) {
+         struct AtCommand *cmd = &g_array_index(resume_commands, struct AtCommand, i);
+-        append_at_command(manager, cmd->cmd, cmd->subcmd, cmd->value, cmd->expected);
++        at_append_command(manager, cmd->cmd, cmd->subcmd, cmd->value, cmd->expected);
+     }
+-    send_at_command(manager);
++    at_send_command(manager);
+ }
+ 
+ void at_sequence_reset(struct EG25Manager *manager)
+ {
+     for (guint i = 0; i < reset_commands->len; i++) {
+         struct AtCommand *cmd = &g_array_index(reset_commands, struct AtCommand, i);
+-        append_at_command(manager, cmd->cmd, cmd->subcmd, cmd->value, cmd->expected);
++        at_append_command(manager, cmd->cmd, cmd->subcmd, cmd->value, cmd->expected);
+     }
+-    send_at_command(manager);
++    at_send_command(manager);
+ }
+diff --git a/src/at.h b/src/at.h
+index ba294a4..e0445af 100644
+--- a/src/at.h
++++ b/src/at.h
+@@ -8,10 +8,20 @@
+ 
+ #include "manager.h"
+ 
+-int at_init(struct EG25Manager *data, toml_table_t *config);
+-void at_destroy(struct EG25Manager *data);
++int at_init(struct EG25Manager *manager, toml_table_t *config);
++void at_destroy(struct EG25Manager *manager);
+ 
+-void at_sequence_configure(struct EG25Manager *data);
+-void at_sequence_suspend(struct EG25Manager *data);
+-void at_sequence_resume(struct EG25Manager *data);
+-void at_sequence_reset(struct EG25Manager *data);
++void at_process_result(struct EG25Manager *manager,
++                       const char         *response);
++void at_next_command(struct EG25Manager *manager);
++gboolean at_send_command(struct EG25Manager *manager);
++int at_append_command(struct EG25Manager *manager,
++                      const char         *cmd,
++                      const char         *subcmd,
++                      const char         *value,
++                      const char         *expected);
++
++void at_sequence_configure(struct EG25Manager *manager);
++void at_sequence_suspend(struct EG25Manager *manager);
++void at_sequence_resume(struct EG25Manager *manager);
++void at_sequence_reset(struct EG25Manager *manager);
+-- 
+GitLab
+
+
+From 59c701c38ddf0c861a35277615f91eb126538c6f Mon Sep 17 00:00:00 2001
+From: Dylan Van Assche <me@dylanvanassche.be>
+Date: Wed, 12 May 2021 18:25:40 +0200
+Subject: [PATCH 3/5] at: log expected result before setting it to NULL
+
+Otherwise the log contains NULL instead of the expected value, making it hard to debug
+---
+ src/at.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/at.c b/src/at.c
+index b08cf4f..ccc3a2c 100644
+--- a/src/at.c
++++ b/src/at.c
+@@ -141,9 +141,9 @@ void at_process_result(struct EG25Manager *manager,
+     if (at_cmd->expected && !strstr(response, at_cmd->expected)) {
+         g_free(at_cmd->value);
+         at_cmd->value = at_cmd->expected;
+-        at_cmd->expected = NULL;
+         g_message("Got a different result than expected, changing value...");
+-        g_message("\t%s\n\t%s", at_cmd->expected, response);
++        g_message("Expected: [%s]\nResponse: [%s]", at_cmd->expected, response);
++        at_cmd->expected = NULL;
+         at_send_command(manager);
+     } else {
+         at_next_command(manager);
+-- 
+GitLab
+
+
+From e691f830f9f2ccad9916bd1e1720b42ce6a57269 Mon Sep 17 00:00:00 2001
+From: Dylan Van Assche <me@dylanvanassche.be>
+Date: Wed, 12 May 2021 18:34:03 +0200
+Subject: [PATCH 4/5] at: allow custom callbacks for AT command response
+ processing
+
+---
+ src/at.c      | 32 +++++++++++++++++---------------
+ src/at.h      | 14 +++++++++++++-
+ src/manager.h |  1 +
+ 3 files changed, 31 insertions(+), 16 deletions(-)
+
+diff --git a/src/at.c b/src/at.c
+index ccc3a2c..1f3ad8c 100644
+--- a/src/at.c
++++ b/src/at.c
+@@ -16,14 +16,6 @@
+ 
+ #include <glib-unix.h>
+ 
+-struct AtCommand {
+-    char *cmd;
+-    char *subcmd;
+-    char *value;
+-    char *expected;
+-    int retries;
+-};
+-
+ static GArray *configure_commands = NULL;
+ static GArray *suspend_commands = NULL;
+ static GArray *resume_commands = NULL;
+@@ -69,6 +61,7 @@ gboolean at_send_command(struct EG25Manager *manager)
+             len = sprintf(command, "AT+%s=\"%s\"\r\n", at_cmd->cmd, at_cmd->subcmd);
+         else if (at_cmd->subcmd && at_cmd->value)
+             len = sprintf(command, "AT+%s=\"%s\",%s\r\n", at_cmd->cmd, at_cmd->subcmd, at_cmd->value);
++        manager->at_callback = at_cmd->callback;
+ 
+         ret = write(manager->at_fd, command, len);
+         if (ret < len)
+@@ -154,7 +147,10 @@ int at_append_command(struct EG25Manager *manager,
+                       const char         *cmd,
+                       const char         *subcmd,
+                       const char         *value,
+-                      const char         *expected)
++                      const char         *expected,
++                      void              (*callback)
++                                        (struct EG25Manager *manager,
++                                         const char *response))
+ {
+     struct AtCommand *at_cmd = calloc(1, sizeof(struct AtCommand));
+ 
+@@ -168,6 +164,8 @@ int at_append_command(struct EG25Manager *manager,
+         at_cmd->value = g_strdup(value);
+     if (expected)
+         at_cmd->expected = g_strdup(expected);
++    if (callback)
++        at_cmd->callback = callback;
+ 
+     manager->at_cmds = g_list_append(manager->at_cmds, at_cmd);
+ 
+@@ -213,8 +211,12 @@ static gboolean modem_response(gint fd,
+         }
+         else if (strstr(response, "ERROR"))
+             retry_at_command(manager);
+-        else if (strstr(response, "OK"))
+-            at_process_result(manager, response);
++        else if (strstr(response, "OK")) {
++            if (manager->at_callback != NULL)
++                manager->at_callback(manager, response);
++            else
++                g_warning("AT command succesfull but no callback registered");
++        }
+         else
+             // Not a recognized response, try running next command, just in case
+             at_next_command(manager);
+@@ -322,7 +324,7 @@ void at_sequence_configure(struct EG25Manager *manager)
+ {
+     for (guint i = 0; i < configure_commands->len; i++) {
+         struct AtCommand *cmd = &g_array_index(configure_commands, struct AtCommand, i);
+-        at_append_command(manager, cmd->cmd, cmd->subcmd, cmd->value, cmd->expected);
++        at_append_command(manager, cmd->cmd, cmd->subcmd, cmd->value, cmd->expected, at_process_result);
+     }
+     at_send_command(manager);
+ }
+@@ -331,7 +333,7 @@ void at_sequence_suspend(struct EG25Manager *manager)
+ {
+     for (guint i = 0; i < suspend_commands->len; i++) {
+         struct AtCommand *cmd = &g_array_index(suspend_commands, struct AtCommand, i);
+-        at_append_command(manager, cmd->cmd, cmd->subcmd, cmd->value, cmd->expected);
++        at_append_command(manager, cmd->cmd, cmd->subcmd, cmd->value, cmd->expected, at_process_result);
+     }
+     at_send_command(manager);
+ }
+@@ -340,7 +342,7 @@ void at_sequence_resume(struct EG25Manager *manager)
+ {
+     for (guint i = 0; i < resume_commands->len; i++) {
+         struct AtCommand *cmd = &g_array_index(resume_commands, struct AtCommand, i);
+-        at_append_command(manager, cmd->cmd, cmd->subcmd, cmd->value, cmd->expected);
++        at_append_command(manager, cmd->cmd, cmd->subcmd, cmd->value, cmd->expected, at_process_result);
+     }
+     at_send_command(manager);
+ }
+@@ -349,7 +351,7 @@ void at_sequence_reset(struct EG25Manager *manager)
+ {
+     for (guint i = 0; i < reset_commands->len; i++) {
+         struct AtCommand *cmd = &g_array_index(reset_commands, struct AtCommand, i);
+-        at_append_command(manager, cmd->cmd, cmd->subcmd, cmd->value, cmd->expected);
++        at_append_command(manager, cmd->cmd, cmd->subcmd, cmd->value, cmd->expected, at_process_result);
+     }
+     at_send_command(manager);
+ }
+diff --git a/src/at.h b/src/at.h
+index e0445af..0364e2c 100644
+--- a/src/at.h
++++ b/src/at.h
+@@ -8,6 +8,15 @@
+ 
+ #include "manager.h"
+ 
++typedef struct AtCommand {
++    char *cmd;
++    char *subcmd;
++    char *value;
++    char *expected;
++    void (*callback)(struct EG25Manager *manager, const char *response);
++    int retries;
++} AtCommand;
++
+ int at_init(struct EG25Manager *manager, toml_table_t *config);
+ void at_destroy(struct EG25Manager *manager);
+ 
+@@ -19,7 +28,10 @@ int at_append_command(struct EG25Manager *manager,
+                       const char         *cmd,
+                       const char         *subcmd,
+                       const char         *value,
+-                      const char         *expected);
++                      const char         *expected,
++                      void              (*callback)
++                                        (struct EG25Manager *manager,
++                                         const char *response));
+ 
+ void at_sequence_configure(struct EG25Manager *manager);
+ void at_sequence_suspend(struct EG25Manager *manager);
+diff --git a/src/manager.h b/src/manager.h
+index 30028e6..3cc0118 100644
+--- a/src/manager.h
++++ b/src/manager.h
+@@ -47,6 +47,7 @@ struct EG25Manager {
+     int at_fd;
+     guint at_source;
+     GList *at_cmds;
++    void (*at_callback)(struct EG25Manager *manager, const char *response);
+ 
+     enum EG25State modem_state;
+     gchar *modem_usb_id;
+-- 
+GitLab
+
+
+From 6ebf4b78c0cb026c4b3c8429c122425bfbc437c6 Mon Sep 17 00:00:00 2001
+From: Dylan Van Assche <me@dylanvanassche.be>
+Date: Wed, 12 May 2021 19:37:21 +0200
+Subject: [PATCH 5/5] gnss: add GNSS assistance support
+
+Automatically fetch the GNSS assistance data from the Web
+to heavily reduce the time to acquire a GNSS lock by uploading
+the assistance data to the modem.
+This feature is optional and can be disabled in the configuration
+as people may prefer to not download the assistance data from
+the Quectel/Qualcomm servers.
+Also configure the GNSS engine to optimize the performance
+and power consumption.
+---
+ data/pine64,pinephone-1.0.toml |  26 +-
+ data/pine64,pinephone-1.1.toml |  26 +-
+ data/pine64,pinephone-1.2.toml |  26 +-
+ meson.build                    |   1 +
+ src/at.c                       |  22 +-
+ src/gnss.c                     | 478 +++++++++++++++++++++++++++++++++
+ src/gnss.h                     |  16 ++
+ src/manager.c                  |   2 +
+ src/manager.h                  |  34 +++
+ src/meson.build                |   1 +
+ src/mm-iface.c                 |   5 +-
+ 11 files changed, 625 insertions(+), 12 deletions(-)
+ create mode 100644 src/gnss.c
+ create mode 100644 src/gnss.h
+
+diff --git a/data/pine64,pinephone-1.0.toml b/data/pine64,pinephone-1.0.toml
+index e1f5b24..e127f1a 100644
+--- a/data/pine64,pinephone-1.0.toml
++++ b/data/pine64,pinephone-1.0.toml
+@@ -43,7 +43,6 @@ configure = [
+     { cmd = "QCFG", subcmd = "urc/ri/other", expect = "\"off\",1,1" },
+     { cmd = "QCFG", subcmd = "urc/delay", expect = "1" },
+     { cmd = "QURCCFG", subcmd = "urcport", expect = "\"all\"" },
+-    { cmd = "QGPS", value = "1" },
+     { cmd = "QSCLK", value = "1" },
+ # Reset modem-power configurations to what we expect
+     { cmd = "QCFG", subcmd = "urc/cache", expect = "0" },
+@@ -54,11 +53,32 @@ configure = [
+     { cmd = "QCFG", subcmd = "ApRstLevel", expect = "0" },
+     { cmd = "QCFG", subcmd = "ModemRstLevel", expect = "0" },
+     { cmd = "QCFG", subcmd = "urc/ri/pin", expect = "uart_ri" },
++# GNSS configuration:
++#   * Enable A-GPS data upload support (XTRA)
++#   * Disable On-Demand-Positioning (ODP) mode 
++#     to avoid running the GNSS system in the background, even when not enabled.
++#   * Enable Dynamic Power Optimizations (DPO) mode to turn off GNSS RF radios 
++#     when they are not in use.
++#   * Only enable GPS and GLONASS, disable other GNSS systems.
++#     A-GPS data upload doesn't work for Galileo anyway.
++#   * Avoid turning on GNSS support automatically when the modem boots.
++    { cmd = "QGPSXTRA", expect = "1" },
++    { cmd = "QGPSCFG", subcmd = "gnssconfig", expect = "4" },
++    { cmd = "QGPSCFG", subcmd = "odpcontrol", expect = "0" },
++    { cmd = "QGPSCFG", subcmd = "dpoenable", expect = "1" },
++    { cmd = "QGPSCFG", subcmd = "gpsnmeatype", expect = "31" },
++    { cmd = "QGPSCFG", subcmd = "glonassnmeatype", expect = "7" },
++    { cmd = "QGPSCFG", subcmd = "galileonmeatype", expect = "0" },
++    { cmd = "QGPSCFG", subcmd = "beidounmeatype", expect = "0" },
++    { cmd = "QGPSCFG", subcmd = "autogps", expect = "0" },    
+ ]
+ suspend = [
+-    { cmd = "QGPSEND" },
+ ]
+ resume = [
+-    { cmd = "QGPS", value = "1" }
+ ]
+ reset = [ { cmd = "CFUN", value = "1,1" } ]
++
++[gnss]
++enabled = true
++url = "https://xtrapath4.izatcloud.net"
++file = "xtra2.bin"
+diff --git a/data/pine64,pinephone-1.1.toml b/data/pine64,pinephone-1.1.toml
+index e1f5b24..e127f1a 100644
+--- a/data/pine64,pinephone-1.1.toml
++++ b/data/pine64,pinephone-1.1.toml
+@@ -43,7 +43,6 @@ configure = [
+     { cmd = "QCFG", subcmd = "urc/ri/other", expect = "\"off\",1,1" },
+     { cmd = "QCFG", subcmd = "urc/delay", expect = "1" },
+     { cmd = "QURCCFG", subcmd = "urcport", expect = "\"all\"" },
+-    { cmd = "QGPS", value = "1" },
+     { cmd = "QSCLK", value = "1" },
+ # Reset modem-power configurations to what we expect
+     { cmd = "QCFG", subcmd = "urc/cache", expect = "0" },
+@@ -54,11 +53,32 @@ configure = [
+     { cmd = "QCFG", subcmd = "ApRstLevel", expect = "0" },
+     { cmd = "QCFG", subcmd = "ModemRstLevel", expect = "0" },
+     { cmd = "QCFG", subcmd = "urc/ri/pin", expect = "uart_ri" },
++# GNSS configuration:
++#   * Enable A-GPS data upload support (XTRA)
++#   * Disable On-Demand-Positioning (ODP) mode 
++#     to avoid running the GNSS system in the background, even when not enabled.
++#   * Enable Dynamic Power Optimizations (DPO) mode to turn off GNSS RF radios 
++#     when they are not in use.
++#   * Only enable GPS and GLONASS, disable other GNSS systems.
++#     A-GPS data upload doesn't work for Galileo anyway.
++#   * Avoid turning on GNSS support automatically when the modem boots.
++    { cmd = "QGPSXTRA", expect = "1" },
++    { cmd = "QGPSCFG", subcmd = "gnssconfig", expect = "4" },
++    { cmd = "QGPSCFG", subcmd = "odpcontrol", expect = "0" },
++    { cmd = "QGPSCFG", subcmd = "dpoenable", expect = "1" },
++    { cmd = "QGPSCFG", subcmd = "gpsnmeatype", expect = "31" },
++    { cmd = "QGPSCFG", subcmd = "glonassnmeatype", expect = "7" },
++    { cmd = "QGPSCFG", subcmd = "galileonmeatype", expect = "0" },
++    { cmd = "QGPSCFG", subcmd = "beidounmeatype", expect = "0" },
++    { cmd = "QGPSCFG", subcmd = "autogps", expect = "0" },    
+ ]
+ suspend = [
+-    { cmd = "QGPSEND" },
+ ]
+ resume = [
+-    { cmd = "QGPS", value = "1" }
+ ]
+ reset = [ { cmd = "CFUN", value = "1,1" } ]
++
++[gnss]
++enabled = true
++url = "https://xtrapath4.izatcloud.net"
++file = "xtra2.bin"
+diff --git a/data/pine64,pinephone-1.2.toml b/data/pine64,pinephone-1.2.toml
+index 4ca1274..e16f4f5 100644
+--- a/data/pine64,pinephone-1.2.toml
++++ b/data/pine64,pinephone-1.2.toml
+@@ -41,7 +41,6 @@ configure = [
+     { cmd = "QCFG", subcmd = "urc/ri/other", expect = "\"off\",1,1" },
+     { cmd = "QCFG", subcmd = "urc/delay", expect = "0" },
+     { cmd = "QURCCFG", subcmd = "urcport", expect = "\"all\"" },
+-    { cmd = "QGPS", value = "1" },
+     { cmd = "QSCLK", value = "1" },
+ # Reset modem-power configurations to what we expect
+     { cmd = "QCFG", subcmd = "urc/cache", expect = "0" },
+@@ -51,11 +50,32 @@ configure = [
+     { cmd = "QCFG", subcmd = "ApRstLevel", expect = "0" },
+     { cmd = "QCFG", subcmd = "ModemRstLevel", expect = "0" },
+     { cmd = "QCFG", subcmd = "urc/ri/pin", expect = "uart_ri" },
++# GNSS configuration:
++#   * Enable A-GPS data upload support (XTRA)
++#   * Disable On-Demand-Positioning (ODP) mode 
++#     to avoid running the GNSS system in the background, even when not enabled.
++#   * Enable Dynamic Power Optimizations (DPO) mode to turn off GNSS RF radios 
++#     when they are not in use.
++#   * Only enable GPS and GLONASS, disable other GNSS systems.
++#     A-GPS data upload doesn't work for Galileo anyway.
++#   * Avoid turning on GNSS support automatically when the modem boots.
++    { cmd = "QGPSXTRA", expect = "1" },
++    { cmd = "QGPSCFG", subcmd = "gnssconfig", expect = "4" },
++    { cmd = "QGPSCFG", subcmd = "odpcontrol", expect = "0" },
++    { cmd = "QGPSCFG", subcmd = "dpoenable", expect = "1" },
++    { cmd = "QGPSCFG", subcmd = "gpsnmeatype", expect = "31" },
++    { cmd = "QGPSCFG", subcmd = "glonassnmeatype", expect = "7" },
++    { cmd = "QGPSCFG", subcmd = "galileonmeatype", expect = "0" },
++    { cmd = "QGPSCFG", subcmd = "beidounmeatype", expect = "0" },
++    { cmd = "QGPSCFG", subcmd = "autogps", expect = "0" },    
+ ]
+ suspend = [
+-    { cmd = "QGPSEND" },
+ ]
+ resume = [
+-    { cmd = "QGPS", value = "1" }
+ ]
+ reset = [ { cmd = "CFUN", value = "1,1" } ]
++
++[gnss]
++enabled = true
++url = "https://xtrapath4.izatcloud.net"
++file = "xtra2.bin"
+index d57d2cb..2852778 100644
+--- a/meson.build
++++ b/meson.build
+@@ -58,6 +58,7 @@ mgr_deps = [
+     dependency('gudev-1.0'),
+     dependency('libgpiod'),
+     dependency('libusb-1.0'),
++    dependency('libcurl'),
+     mmglib_dep,
+ ]
+ 
+diff --git a/src/at.c b/src/at.c
+index 1f3ad8c..49cf213 100644
+--- a/src/at.c
++++ b/src/at.c
+@@ -7,6 +7,7 @@
+ #include "at.h"
+ #include "suspend.h"
+ #include "gpio.h"
++#include "gnss.h"
+ 
+ #include <fcntl.h>
+ #include <stdio.h>
+@@ -216,24 +216,40 @@ static gboolean modem_response(gint fd,
+ 
+         g_message("Response: [%s]", response);
+ 
++        /*
++         * When the modem is started, it outputs 'RDY' to indicate that
++         * it is ready to receive AT commands.
++         */
+         if (strcmp(response, "RDY") == 0) {
+             suspend_inhibit(manager, TRUE, TRUE);
+             manager->modem_state = EG25_STATE_STARTED;
+         }
+         /*
++         * Search for 'QGPSURC: "xtradataexpire"' in response to detect
++         * if GNSS assistance data must be re-uploaded.
++         * If that's the case, check if no AT commands are being processed
++         * to avoid deadlocks and start upload.
++         */
++        else if (strstr(response, "QGPSURC: \"xtradataexpire\"") && manager->at_cmds == NULL)
++            gnss_upload_assistance_data(manager);
++        /*        
+          * QCFG="fast/poweroff" configuration is only available in
+          * newer firmware versions
+          */
+         else if (strstr(response, "ERROR") && !strstr(response, "fast/poweroff"))
+             retry_at_command(manager);
++        /*
++         * Successfull AT responses contain 'OK', except for AT+QFUPL which also
++         * returns 'CONNECT' when the modem is ready to receive data over serial
++         */
+         else if (strstr(response, "OK")) {
+             if (manager->at_callback != NULL)
+                 manager->at_callback(manager, response);
+             else
+                 g_warning("AT command succesfull but no callback registered");
+         }
++        /* Not a recognized response, try running next command, just in case */            
+         else
+-            // Not a recognized response, try running next command, just in case
+             at_next_command(manager);
+     }
+ 
+diff --git a/src/gnss.c b/src/gnss.c
+new file mode 100644
+index 0000000..d986be0
+--- /dev/null
++++ b/src/gnss.c
+@@ -0,0 +1,478 @@
++/*
++ * Copyright (C) 2021 Dylan Van Assche <me@dylanvanassche.be>
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++#include "gnss.h"
++#include "manager.h"
++#include "at.h"
++
++#define BUFFER_SIZE 256
++#define UPLOAD_DELAY 100000
++#define RESCHEDULE_IN_SECS 30
++
++static void gnss_step(struct EG25Manager *manager);
++
++void gnss_upload_assistance_data(struct EG25Manager *manager)
++{
++    if (!manager->gnss_assistance_enabled) {
++        g_message("GNSS assistance is disabled!");
++        return;
++    }
++
++    if (manager->gnss_assistance_step < EG25_GNSS_STEP_LAST) {
++        g_warning("GNSS assistance data upload already in process (%d/%d)",
++                  manager->gnss_assistance_step, EG25_GNSS_STEP_LAST);
++        return;
++    }
++    manager->gnss_assistance_step = EG25_GNSS_STEP_FIRST;
++    gnss_step(manager);
++}
++
++void gnss_init(struct EG25Manager *manager, toml_table_t *config)
++{
++    toml_datum_t enabled;
++    toml_datum_t url;
++    toml_datum_t file;
++    g_autoptr (GError) error = NULL;
++
++    /*
++     * GNSS assistance is an optional feature, you can disable it
++     * if you want in the configuration file.
++     * In case the configuration is missing, we assume GNSS assistance
++     * to be disabled.
++     */
++    enabled = toml_bool_in(config, "enabled");
++    manager->gnss_assistance_enabled = FALSE;
++    if (enabled.ok)
++        manager->gnss_assistance_enabled = enabled.u.b;
++
++    if (!manager->gnss_assistance_enabled) {
++        g_message("GNSS assistance is disabled!");
++        return;
++    }
++
++    url = toml_string_in(config, "url");
++    if (url.ok)
++        manager->gnss_assistance_url = url.u.s;
++    else
++        g_error("GNSS assistance server URL is missing from config file");
++    file = toml_string_in(config, "file");
++    if (file.ok)
++        manager->gnss_assistance_file = file.u.s;
++    else
++        g_error("GNSS assistance file name is missing from config file");
++
++    /* Create temporary file to store assistance data */
++    manager->gnss_assistance_fd = g_file_open_tmp(NULL, NULL, &error);
++    if (error != NULL)
++        g_error ("Unable to create temporary file: %s", error->message);
++
++    /* Initialize state and schedule upload */
++    manager->gnss_assistance_step = EG25_GNSS_STEP_LAST;
++    g_timeout_add_seconds(RESCHEDULE_IN_SECS,
++                          G_SOURCE_FUNC(gnss_upload_assistance_data), manager);
++}
++
++void gnss_destroy(struct EG25Manager *manager)
++{
++    close(manager->gnss_assistance_fd);
++}
++
++/******************************************************************************/
++
++#ifdef HAVE_MMGLIB
++static void disable_mm_gnss(struct EG25Manager *manager)
++{
++    MMModemLocationSource sources;
++    gboolean signals_location;
++    g_autoptr (GError) error = NULL;
++
++    sources = mm_modem_location_get_enabled(manager->mm_location);
++    signals_location = mm_modem_location_signals_location(manager->mm_location);
++    manager->gnss_sources = EG25_GNSS_SOURCE_NONE;
++
++    /* Save GNSS engine state */
++    if (sources & MM_MODEM_LOCATION_SOURCE_GPS_NMEA)
++        manager->gnss_sources |= EG25_GNSS_SOURCE_NMEA;
++    else
++        manager->gnss_sources &= ~EG25_GNSS_SOURCE_NMEA;
++
++    if (sources & MM_MODEM_LOCATION_SOURCE_GPS_RAW)
++        manager->gnss_sources |= EG25_GNSS_SOURCE_RAW;
++    else
++        manager->gnss_sources &= ~EG25_GNSS_SOURCE_RAW;
++
++    if (sources & MM_MODEM_LOCATION_SOURCE_GPS_UNMANAGED)
++        manager->gnss_sources |= EG25_GNSS_SOURCE_UNMANAGED;
++    else
++        manager->gnss_sources &= ~EG25_GNSS_SOURCE_UNMANAGED;
++
++    /* Disable GNSS engine */
++    sources &= ~MM_MODEM_LOCATION_SOURCE_GPS_RAW;
++    sources &= ~MM_MODEM_LOCATION_SOURCE_GPS_NMEA;
++    sources &= ~MM_MODEM_LOCATION_SOURCE_GPS_UNMANAGED;
++    mm_modem_location_setup_sync(manager->mm_location, sources,
++                                 signals_location, NULL, &error);
++    if (error != NULL) {
++        g_warning("Unable to disable GNSS engine through ModemManager: %s",
++                  error->message);
++    }
++}
++#endif
++
++static void disable_at_gnss_cb(struct EG25Manager *manager,
++                               const char *response)
++{
++    /* Clear QGPSEND AT command and process next */
++    at_next_command(manager);
++
++    /* Go to the next step */
++    manager->gnss_assistance_step++;
++    gnss_step(manager);
++}
++
++static void state_at_gnss_cb(struct EG25Manager *manager, const char *response)
++{
++    struct AtCommand *at_cmd = manager->at_cmds ? g_list_nth_data(manager->at_cmds, 0) : NULL;
++
++    if (!at_cmd)
++        return;
++
++    /* Parse GNSS engine status and disable it if needed */
++    if (strstr(response, "QGPS: 1")) {
++        manager->gnss_sources |= EG25_GNSS_SOURCE_QGPS;
++        g_free(at_cmd->value);
++        g_free(at_cmd->cmd);
++        at_cmd->expected = NULL;
++        at_cmd->subcmd = NULL;
++        at_cmd->value = NULL;
++        at_cmd->cmd = g_strdup("QGPSEND");
++        at_cmd->callback = disable_at_gnss_cb;
++        at_send_command(manager);
++    }
++    /* QGPS is already disabled, move on to next step */
++    else {
++        at_next_command(manager);
++        manager->gnss_sources &= ~EG25_GNSS_SOURCE_QGPS;
++        manager->gnss_assistance_step++;
++        gnss_step(manager);
++    }
++}
++
++static void state_at_gnss(struct EG25Manager *manager)
++{
++    /* Asynchronously send AT command to query status of GNSS engine */
++    at_append_command(manager, "QGPS?", NULL, NULL, NULL, state_at_gnss_cb);
++    at_send_command(manager);
++}
++
++/******************************************************************************/
++
++static void fetch_assistance_data(struct EG25Manager *manager)
++{
++    CURL *curl;
++    CURLcode response;
++    long status_code;
++    gchar *url = NULL;
++    FILE *tmp_file = NULL;
++    long int size;
++
++    /* Fetch assistance data with curl */
++    tmp_file = fdopen(manager->gnss_assistance_fd, "wb");
++    url = g_strconcat(manager->gnss_assistance_url, "/",
++                      manager->gnss_assistance_file, NULL);
++    curl = curl_easy_init();
++    if (!curl)
++        g_error ("Unable to initialize curl");
++    curl_easy_setopt(curl, CURLOPT_URL, url);
++    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, NULL);
++    curl_easy_setopt(curl, CURLOPT_WRITEDATA, tmp_file);
++    curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
++    curl_easy_setopt(curl, CURLOPT_FAILONERROR, 1L);
++    response = curl_easy_perform(curl);
++    if (response == CURLE_HTTP_RETURNED_ERROR) {
++        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &status_code);
++        curl_easy_cleanup(curl);
++        g_warning ("Unable to fetch GNSS assistance data from %s (HTTP %ld)",
++                   url, status_code);
++
++        /* Restart upload on HTTP error status code */
++        g_message ("Rescheduling upload because of failure in %ds",
++                   RESCHEDULE_IN_SECS);
++        manager->gnss_assistance_step = EG25_GNSS_STEP_LAST;
++        g_timeout_add_seconds(RESCHEDULE_IN_SECS,
++                              G_SOURCE_FUNC(gnss_upload_assistance_data),
++                              manager);
++        return;
++    }
++
++    /* Get file size in bytes */
++    size = (long int)lseek(manager->gnss_assistance_fd, 0, SEEK_END);
++    lseek(manager->gnss_assistance_fd, 0, SEEK_SET);
++
++    if (size <= 0) {
++        g_warning ("GNSS assistance data contains 0 bytes,"
++                   "check network connection.");
++        /*
++         * Restart upload when file does not contain any data,
++         * mostly because of no network connection.
++         */
++        g_message ("Rescheduling upload because of failure in %ds",
++                   RESCHEDULE_IN_SECS);
++        manager->gnss_assistance_step = EG25_GNSS_STEP_LAST;
++        g_timeout_add_seconds(RESCHEDULE_IN_SECS,
++                              G_SOURCE_FUNC(gnss_upload_assistance_data),
++                              manager);
++        return;
++    }
++
++    g_message("Fetching GNSS assistance data from %s was successfull", url);
++    curl_easy_cleanup(curl);
++    g_free(url);
++
++    /* Go to the next step */
++    manager->gnss_assistance_step++;
++    gnss_step(manager);
++}
++
++/******************************************************************************/
++
++static void init_assistance_data_upload_ready(struct EG25Manager *manager,
++                                              const char *response)
++{
++    /* Search for 'CONNECT' in response to start upload */
++    if (strstr(response, "CONNECT")) {
++        g_message("Modem ready for GNSS assistance data upload");
++        manager->gnss_assistance_step++;
++        gnss_step(manager);
++    }
++}
++
++static void init_assistance_data_upload_start(struct EG25Manager *manager,
++                                              const char *response)
++{
++    gchar value[BUFFER_SIZE];
++    long int size;
++
++    /* Process AT response */
++    at_process_result(manager, response);
++
++    /* Get file size in bytes */
++    size = (long int)lseek(manager->gnss_assistance_fd, 0, SEEK_END);
++    lseek(manager->gnss_assistance_fd, 0, SEEK_SET);
++
++    /* Start upload */
++    g_snprintf(value, BUFFER_SIZE, "\"RAM:%s\",%ld\r\n",
++               manager->gnss_assistance_file, size);
++    g_message("Initiate GNSS assistance data upload: %s", value);
++    at_append_command(manager, "QFUPL", NULL, value, NULL,
++                      init_assistance_data_upload_ready);
++    at_send_command(manager);
++}
++
++static void init_assistance_data_upload(struct EG25Manager *manager)
++{
++    /*
++     * Delete all previous GNSS assistance data files in RAM
++     * and start uploading the latest one to RAM.
++     */
++    at_append_command(manager, "QFDEL", NULL, "\"RAM:*\"\r\n",
++                         NULL, init_assistance_data_upload_start);
++    at_send_command(manager);
++}
++
++static void upload_assistance_data(struct EG25Manager *manager)
++{
++    char buffer[2*BUFFER_SIZE];
++    gint len;
++    gboolean success = TRUE;
++
++    /* Copy downloaded XTRA assistance data to the modem over serial */
++    while((len = read(manager->gnss_assistance_fd, buffer, 2*BUFFER_SIZE)) > 0)
++    {
++        len = write(manager->at_fd, buffer, len);
++        if (len < 0) {
++            success = FALSE;
++            g_error("Writing GNSS assistance data failed: %d", len);
++            break;
++        }
++        usleep(UPLOAD_DELAY);
++        g_message("Uploaded %d bytes", len);
++    }
++
++    /* Clear QFUPL AT command and process next */
++    at_next_command(manager);
++
++    /* Go to the next step if successful */
++    if (success) {
++        manager->gnss_assistance_step++;
++        gnss_step(manager);
++    }
++    /* Restart upload */
++    else {
++        g_message ("Rescheduling upload because of failure in %ds",
++                   RESCHEDULE_IN_SECS);
++        manager->gnss_assistance_step = EG25_GNSS_STEP_LAST;
++        g_timeout_add_seconds(RESCHEDULE_IN_SECS,
++                              G_SOURCE_FUNC(gnss_upload_assistance_data),
++                              manager);
++    }
++}
++
++static void finish_assistance_data_upload_cb(struct EG25Manager *manager,
++                                             const char *response)
++{
++    /* Process response */
++    at_process_result(manager, response);
++    g_message("GNSS assistance data upload finished");
++
++    /* Go to the next step */
++    manager->gnss_assistance_step++;
++    gnss_step(manager);
++}
++
++static void finish_assistance_data_upload(struct EG25Manager *manager)
++{
++    gchar value[BUFFER_SIZE];
++    GDateTime *datetime;
++    gchar *timestring;
++
++    /* Configure GNSS assistance clock to current system time (UTC) */
++    datetime = g_date_time_new_now_utc();
++    timestring = g_date_time_format(datetime, "0,\"%Y/%m/%d,%H:%M:%S\"\r\n");
++    g_message("Setting GNSS assistance UTC clock to: %s", timestring);
++    at_append_command(manager, "QGPSXTRATIME", NULL, timestring, NULL,
++                         at_process_result);
++
++    /* Configure GNSS engine to use uploaded GNSS assistance data */
++    g_snprintf(value, BUFFER_SIZE, "\"RAM:%s\"\r\n",
++               manager->gnss_assistance_file);
++    g_message("Setting GNSS assistance file to: %s", value);
++    at_append_command(manager, "QGPSXTRADATA", NULL, value, NULL,
++                         finish_assistance_data_upload_cb);
++    at_send_command(manager);
++}
++
++/******************************************************************************/
++
++#ifdef HAVE_MMGLIB
++static void enable_mm_gnss(struct EG25Manager *manager)
++{
++    MMModemLocationSource sources;
++    gboolean signal_location;
++    g_autoptr (GError) error = NULL;
++
++    if (manager->gnss_sources & EG25_GNSS_SOURCE_UNMANAGED)
++        sources |= MM_MODEM_LOCATION_SOURCE_GPS_UNMANAGED;
++    if (manager->gnss_sources & EG25_GNSS_SOURCE_NMEA)
++        sources |= MM_MODEM_LOCATION_SOURCE_GPS_NMEA;
++    if (manager->gnss_sources & EG25_GNSS_SOURCE_RAW)
++        sources |= MM_MODEM_LOCATION_SOURCE_GPS_RAW;
++
++    sources = mm_modem_location_get_enabled(manager->mm_location);
++    signal_location = mm_modem_location_signals_location(manager->mm_location);
++    mm_modem_location_setup_sync(manager->mm_location, sources,
++                                 signal_location, NULL, &error);
++    if (error != NULL)
++        g_warning("Unable to enable GNSS engine through ModemManager: %s",
++                  error->message);
++}
++#endif
++
++static void enable_at_gnss_cb(struct EG25Manager *manager, const char *response)
++{
++    manager->gnss_assistance_step++;
++    gnss_step(manager);
++}
++
++static void enable_at_gnss(struct EG25Manager *manager)
++{
++    if (manager->gnss_sources & EG25_GNSS_SOURCE_QGPS) {
++        at_append_command(manager, "QGPS", NULL, "1", NULL,
++                             enable_at_gnss_cb);
++        at_send_command(manager);
++        return;
++    }
++    manager->gnss_assistance_step++;
++    gnss_step(manager);
++}
++
++/******************************************************************************/
++
++void gnss_step(struct EG25Manager *manager)
++{
++    switch(manager->gnss_assistance_step) {
++    case EG25_GNSS_STEP_FIRST:
++        manager->gnss_assistance_step++;
++        g_message("GNSS assistance upload started...");
++        /* fall-through */
++
++#ifdef HAVE_MMGLIB
++    case EG25_GNSS_STEP_MM_GNSS_DISABLE:
++        g_message("GNSS assistance upload step (%d/%d): "
++                  "disabling GNSS engine through ModemManager",
++                  manager->gnss_assistance_step, EG25_GNSS_STEP_LAST);
++        disable_mm_gnss(manager);
++        manager->gnss_assistance_step++;
++        /* fall-through */
++#endif
++
++    case EG25_GNSS_STEP_AT_GNSS_DISABLE:
++        g_message("GNSS assistance upload step (%d/%d): "
++                  "disabling GNSS engine through AT+QGPS",
++                  manager->gnss_assistance_step, EG25_GNSS_STEP_LAST);
++        state_at_gnss(manager);
++        break;
++
++    case EG25_GNSS_STEP_FETCH_ASSISTANCE_DATA:
++        g_message("GNSS assistance upload step (%d/%d): "
++                  "fetching assistance data",
++                  manager->gnss_assistance_step, EG25_GNSS_STEP_LAST);
++        fetch_assistance_data(manager);
++        break;
++
++    case EG25_GNSS_STEP_INIT_UPLOAD:
++        g_message("GNSS assistance upload step (%d/%d): initiating upload",
++                  manager->gnss_assistance_step, EG25_GNSS_STEP_LAST);
++        init_assistance_data_upload(manager);
++        break;
++
++    case EG25_GNSS_STEP_UPLOAD:
++        g_message("GNSS assistance upload step (%d/%d): "
++                  "uploading assistance data",
++                  manager->gnss_assistance_step, EG25_GNSS_STEP_LAST);
++        upload_assistance_data(manager);
++        break;
++
++    case EG25_GNSS_STEP_FINISH_UPLOAD:
++        g_message("GNSS assistance upload step (%d/%d): finishing upload",
++                  manager->gnss_assistance_step, EG25_GNSS_STEP_LAST);
++        finish_assistance_data_upload(manager);
++        break;
++
++#ifdef HAVE_MMGLIB
++    case EG25_GNSS_STEP_MM_GNSS_ENABLE:
++        g_message("GNSS assistance upload step (%d/%d): "
++                  "re-enabling GNSS through ModemManager",
++                  manager->gnss_assistance_step, EG25_GNSS_STEP_LAST);
++        enable_mm_gnss(manager);
++        manager->gnss_assistance_step++;
++        /* fall-through */
++#endif
++
++    case EG25_GNSS_STEP_AT_QGPS_ENABLE:
++        g_message("GNSS assistance upload step (%d/%d): "
++                  "re-enabling GNSS through AT+QGPS",
++                  manager->gnss_assistance_step, EG25_GNSS_STEP_LAST);
++        enable_at_gnss(manager);
++        break;
++
++    case EG25_GNSS_STEP_LAST:
++        g_message("GNSS assistance upload step (%d/%d): finished",
++                  manager->gnss_assistance_step, EG25_GNSS_STEP_LAST);
++        break;
++    }
++}
++
+diff --git a/src/gnss.h b/src/gnss.h
+new file mode 100644
+index 0000000..931ab8b
+--- /dev/null
++++ b/src/gnss.h
+@@ -0,0 +1,16 @@
++/*
++ * Copyright (C) 2021 Dylan Van Assche <me@dylanvanassche.be>
++ *
++ * SPDX-License-Identifier: GPL-3.0-or-later
++ */
++
++#pragma once
++
++#include <time.h>
++#include <curl/curl.h>
++
++#include "manager.h"
++
++void gnss_init(struct EG25Manager *manager, toml_table_t *config);
++void gnss_destroy(struct EG25Manager *manager);
++void gnss_upload_assistance_data(struct EG25Manager *manager);
+diff --git a/src/manager.c b/src/manager.c
+index c0b8a43..d13a2a0 100644
+--- a/src/manager.c
++++ b/src/manager.c
+@@ -15,6 +15,7 @@
+ #include "ofono-iface.h"
+ #include "suspend.h"
+ #include "udev.h"
++#include "gnss.h"
+ 
+ #include <fcntl.h>
+ #include <signal.h>
+@@ -342,6 +343,7 @@ int main(int argc, char *argv[])
+     ofono_iface_init(&manager);
+     suspend_init(&manager, toml_table_in(toml_config, "suspend"));
+     udev_init(&manager, toml_table_in(toml_config, "udev"));
++    gnss_init(&manager, toml_table_in(toml_config, "gnss"));
+ 
+     g_idle_add(G_SOURCE_FUNC(modem_start), &manager);
+ 
+diff --git a/src/manager.h b/src/manager.h
+index 3cc0118..3e097b3 100644
+--- a/src/manager.h
++++ b/src/manager.h
+@@ -16,6 +16,32 @@
+ 
+ #include "toml.h"
+ 
++typedef enum {
++    EG25_GNSS_STEP_FIRST = 0,
++#ifdef HAVE_MMGLIB
++    EG25_GNSS_STEP_MM_GNSS_DISABLE,
++#endif
++    EG25_GNSS_STEP_AT_GNSS_DISABLE,
++    EG25_GNSS_STEP_FETCH_ASSISTANCE_DATA,
++    EG25_GNSS_STEP_INIT_UPLOAD,
++    EG25_GNSS_STEP_UPLOAD,
++    EG25_GNSS_STEP_FINISH_UPLOAD,
++#ifdef HAVE_MMGLIB
++    EG25_GNSS_STEP_MM_GNSS_ENABLE,
++#endif
++    EG25_GNSS_STEP_AT_QGPS_ENABLE,
++    EG25_GNSS_STEP_LAST,
++} EG25GNSSStep;
++
++typedef enum {
++    EG25_GNSS_SOURCE_NONE = 0,
++    EG25_GNSS_SOURCE_NMEA = 1 << 0,
++    EG25_GNSS_SOURCE_RAW = 1 << 1,
++    EG25_GNSS_SOURCE_UNMANAGED = 1 << 2,
++    EG25_GNSS_SOURCE_QGPS = 1 << 3,
++} EG25GNSSSource;
++
++
+ enum EG25State {
+     EG25_STATE_INIT = 0,
+     EG25_STATE_POWERED, // Power-on sequence has been executed, but the modem isn't on yet
+@@ -52,11 +78,19 @@ struct EG25Manager {
+     enum EG25State modem_state;
+     gchar *modem_usb_id;
+ 
++    gboolean gnss_assistance_enabled;
++    EG25GNSSSource gnss_sources;
++    EG25GNSSStep gnss_assistance_step;
++    gint gnss_assistance_fd;
++    gchar *gnss_assistance_url;
++    gchar *gnss_assistance_file;
++
+     enum ModemIface modem_iface;
+     guint mm_watch;
+ #ifdef HAVE_MMGLIB
+     MMManager *mm_manager;
+     MMModem *mm_modem;
++    MMModemLocation *mm_location;
+ #endif
+     guint ofono_watch;
+     GDBOManager *ofono_manager;
+diff --git a/src/meson.build b/src/meson.build
+index f9eb27f..d1127dc 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -15,6 +15,7 @@ src = [
+         'suspend.c', 'suspend.h',
+         'toml.c', 'toml.h',
+         'udev.c', 'udev.h',
++        'gnss.c', 'gnss.h',
+         gdbofono_headers,
+ ]
+ 
+diff --git a/src/mm-iface.c b/src/mm-iface.c
+index 0409236..2bbdfe5 100644
+--- a/src/mm-iface.c
++++ b/src/mm-iface.c
+@@ -32,7 +32,10 @@ static void add_modem(struct EG25Manager *manager, GDBusObject *object)
+ 
+     g_assert(MM_IS_OBJECT (object));
+     manager->mm_modem = mm_object_get_modem(MM_OBJECT(object));
+-    g_assert(manager->mm_modem != NULL);
++    manager->mm_location = mm_object_get_modem_location(MM_OBJECT(object));
++    g_assert_nonnull(manager->mm_modem);
++    g_assert_nonnull(manager->mm_location);
++
+ 
+     if (manager->modem_state == EG25_STATE_RESUMING) {
+         if (manager->modem_recovery_timer) {
+-- 
+GitLab
+

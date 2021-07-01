@@ -1,0 +1,28 @@
+From 705950bb399781a291a3998014f916fc1effce16 Mon Sep 17 00:00:00 2001
+From: Bhushan Shah <bhush94@gmail.com>
+Date: Thu, 15 Apr 2021 09:29:36 +0530
+Subject: [PATCH] mm-iface: clean out modem_iface if mm disappears
+
+otherwise we will be stuck in state where restarting of mm will not
+reset the modem_iface and it will loop through hard resetting modem
+---
+ src/mm-iface.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/mm-iface.c b/src/mm-iface.c
+index d6a74f8..0409236 100644
+--- a/src/mm-iface.c
++++ b/src/mm-iface.c
+@@ -183,6 +183,9 @@ static void mm_iface_clean(struct EG25Manager *manager)
+         g_free(manager->modem_usb_id);
+         manager->modem_usb_id = NULL;
+     }
++    if (manager->modem_iface == MODEM_IFACE_MODEMMANAGER) {
++        manager->modem_iface = MODEM_IFACE_NONE;
++    }
+ }
+ 
+ static void mm_vanished_cb(GDBusConnection    *connection,
+-- 
+GitLab
+
