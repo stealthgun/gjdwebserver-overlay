@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <maintainer type="person">
+    <email>vincent.hardy@linuxunderground.be</email>
+    <name>Vincent Hardy</name>
+  </maintainer>
+  <upstream>
+    <remote-id type="pypi">azure-cli</remote-id>
+  </upstream>
+  <use>
+    <flag name="acr">Install the Azure Container Registries module. i.e. 'az acr'</flag>
+    <flag name="acs">Install the container module. i.e. 'az acs' and 'az aks'</flag>
+    <flag name="advisor">Install the advisor module. i.e. 'az advisor'</flag>
+    <flag name="ams">Install the ams module. i.e. 'az ams'</flag>
+    <flag name="apim">Install the API management services module. i.e. 'az apim'</flag>
+    <flag name="appconfig">Install the App Configuration Management module. i.e. 'az appconfig'</flag>
+    <flag name="appservice">Install the appservice module. i.e. 'az appservice', 'az webapp' and 'az functionapp'</flag>
+    <flag name="aro">Install the Red Hat Openshift module. i.e. 'az aro'</flag>
+    <flag name="backup">Install the backup module. i.e. 'az backup'</flag>
+    <flag name="batch">Install the batch module. i.e. 'az batch'</flag>
+    <flag name="billing">Install the billing module. i.e. 'az billing'</flag>
+    <flag name="bot">Install the bot service module. i.e. 'az bot'</flag>
+    <flag name="cdn">Install the Content Delivery Network module. i.e. 'az cdn'</flag>
+    <flag name="cloud">Install the cloud module. i.e. 'az cloud'</flag>
+    <flag name="cognitiveservices">Install the cognitive services module. i.e. 'az cognitiveservices'</flag>
+    <flag name="consumption">Install the consumption module. i.e. 'az consumption'</flag>
+    <flag name="container">Install the tools container module. i.e. 'az container'</flag>
+    <flag name="cosmosdb">Install the cosmosdb module. i.e. 'az cosmosdb'</flag>
+    <flag name="databoxedge">Install the databoxedge module. i.e. 'az databoxedge'</flag>
+    <flag name="deploymentmanager">Install the deploymentmanager module. i.e. 'az deploymentmanager'</flag>
+    <flag name="dla">Install the dla module. i.e. 'az dla'</flag>
+    <flag name="dls">Install the dls module. i.e. 'az dls'</flag>
+    <flag name="dms">Install the 'Database Migration Service' module. i.e. 'az dms'</flag>
+    <flag name="eventgrid">Install the eventgrid module. i.e. 'az eventgrid'</flag>
+    <flag name="eventhubs">Install the eventhubs module. i.e. 'az eventhubs'</flag>
+    <flag name="extension">Install the extension module. i.e. 'az extension'</flag>
+    <flag name="feedback">Install the feedback module. i.e. 'az feedback'</flag>
+    <flag name="find">Install the find module. i.e. 'az find'</flag>
+    <flag name="hdinsight">Install the hdinsight module. i.e. 'az hdinsight'</flag>
+    <flag name="interactive">Install the shell module. i.e. 'az interactive'</flag>
+    <flag name="iot">Install the iot module. i.e. 'az iot'</flag>
+    <flag name="keyvault">Install the keyvault module. i.e. 'az keyvault'</flag>
+    <flag name="kusto">Install the KUSTO module. i.e. 'az kusto'</flag>
+    <flag name="lab">Install the lab module. i.e. 'az lab'</flag>
+    <flag name="managedservices">Install the managedservices module. i.e. 'az managedservices'</flag>
+    <flag name="maps">Install the maps module. i.e. 'az maps'</flag>
+    <flag name="monitor">Install the monitor module. i.e. 'az monitor'</flag>
+    <flag name="netappfiles">Install the Azure NetApp Files module. i.e. 'az netappfiles'</flag>
+    <flag name="network">Install the network module. i.e. 'az network'</flag>
+    <flag name="policyinsights">Install the policyinsights module. i.e. 'az policy event' and 'az policy state'</flag>
+    <flag name="rdbms">Install the rdbms module. i.e. 'az mariadb', 'az mysql' and 'az postgres'</flag>
+    <flag name="redis">Install the redis module. i.e. 'az redis'</flag>
+    <flag name="relay">Install the relay module. i.e. 'az relay'</flag>
+    <flag name="reservations">Install the reservations module. i.e. 'az reservations'</flag>
+    <flag name="resource">Install the resource module. i.e. 'az resource'</flag>
+    <flag name="role">Install the role module. i.e. 'az role', 'az identity' and 'az ad'</flag>
+    <flag name="search">Install the search module. i.e. 'az search'</flag>
+    <flag name="security">Install the security module. i.e. 'az security task' and 'az security alert'</flag>
+    <flag name="servicebus">Install the service bus module. i.e. 'az servicebus'</flag>
+    <flag name="sf">Install the service fabric module. i.e. 'az sf'</flag>
+    <flag name="sql">Install the sql module. i.e. 'az sql'</flag>
+    <flag name="sqlvm">Install the sql vm module. i.e. 'az sql vm'</flag>
+    <flag name="signalr">Install the signalr module. i.e. 'az signalr'</flag>
+    <flag name="storage">Install the storage module. i.e. 'az storage'</flag>
+    <flag name="synapse">Install the synapse module. i.e. 'az synapse'</flag>
+    <flag name="util">Install utility to invoke a custom request i.e. 'az rest'</flag>
+    <flag name="vm">Install the VM module. i.e. 'az vm', 'az vmss', 'az ppg', 'az disk', 'az sig', 'az snapshot' and 'az image'</flag>
+  </use>
+</pkgmetadata>
