@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <maintainer type="person">
+    <email>vincent.hardy@linuxunderground.be</email>
+    <name>Vincent Hardy</name>
+  </maintainer>
+  <upstream>
+    <remote-id type="github">LudovicRousseau/PyKCS11</remote-id>
+  </upstream>
+  <longdescription>
+A complete PKCS#11 wrapper for Python.
+You can use any PKCS#11 (aka CryptoKi) module such as the PSM which
+comes as part of mozilla or the various modules supplied by vendors of
+hardware crypto tokens, and almost all PKCS#11 functions and data types.
+The wrapper has been generated with the help of the SWIG compiler.
+  </longdescription>
+</pkgmetadata>
