@@ -9,19 +9,13 @@ inherit vala meson gnome2-utils git-r3 xdg
 DESCRIPTION="Phone dialer and call handler"
 HOMEPAGE="https://gitlab.gnome.org/GNOME/calls"
 SRC_URI="https://gitlab.gnome.org/GNOME/calls/-/archive/v${PV}/calls-v${PV}.tar.gz"
+EGIT_REPO_URI="https://gitlab.gnome.org//GNOME/calls.git"
 
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 IUSE="+introspection +vala"
 REQUIRED_USE="vala? ( introspection )"
-
-if [[ ${PV} != 9999 ]]; then
-	EGIT_REPO_BRANCH="tags/v${PV}"
-else
-        KEYWORDS=""
-fi
-
 
 DEPEND="
 		dev-libs/feedbackd
