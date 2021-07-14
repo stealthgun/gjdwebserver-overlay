@@ -16,6 +16,13 @@ KEYWORDS="~amd64 ~arm64"
 IUSE="+introspection +vala"
 REQUIRED_USE="vala? ( introspection )"
 
+if [[ ${PV} != 9999 ]]; then
+	EGIT_REPO_BRANCH="tags/v${PV}"
+else
+        KEYWORDS=""
+fi
+
+
 DEPEND="
 		dev-libs/feedbackd
 		>=gui-libs/libhandy-1.0.0
