@@ -40,7 +40,7 @@ PATCHES=(
 	"${FILESDIR}/0001-use-at-cmds-to-mute.patch"
 )
 
-S="${WORKDIR}/${PN}-v${PV}"
+S="${WORKDIR}/calls-v${PV}"
 
 src_prepare() {
 	default
