@@ -23,7 +23,8 @@ DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 
 src_configure() {
-	econf \
+	sh autogen.sh \
+	./configure \
 		--disable-static \
 		$(use_with ssl openssl)
 }
