@@ -14,7 +14,7 @@ IUSE=""
 
 DEPEND="
 		gui-wm/phosh
-		net-voip/calls
+		net-voip/gnome-calls
 		net-im/chatty
 		net-dns/dnsmasq
 		app-editors/gedit
