@@ -6,7 +6,6 @@ VALA_USE_DEPEND="vapigen"
 
 inherit vala meson gnome2-utils git-r3 xdg
 
-MY_PN="calls"
 DESCRIPTION="Phone dialer and call handler"
 HOMEPAGE="https://gitlab.gnome.org/GNOME/calls"
 SRC_URI="https://gitlab.gnome.org/GNOME/calls/-/archive/v${PV}/calls-v${PV}.tar.gz"
@@ -15,7 +14,6 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 IUSE="+introspection +vala"
-
 REQUIRED_USE="vala? ( introspection )"
 
 DEPEND="
@@ -41,7 +39,7 @@ PATCHES=(
 	"${FILESDIR}/0001-use-at-cmds-to-mute.patch"
 )
 
-S=${WORKDIR}/${MY_PN}-${PV}
+S="${WORKDIR}/${PN}-v${PV}"
 
 src_prepare() {
 	default
