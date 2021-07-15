@@ -27,6 +27,7 @@ DEPEND="
 		>=media-sound/callaudiod-0.0.5
 		gnome-extra/evolution-data-server
 		net-libs/sofia-sip
+		dev-libs/protobuf
 		"
 RDEPEND="${DEPEND}"
 BDEPEND="
@@ -36,9 +37,9 @@ BDEPEND="
 		dev-util/wayland-scanner
 "
 
-PATCHES=(
-	"${FILESDIR}/0001-use-at-cmds-to-mute.patch"
-)
+#PATCHES=(
+#	"${FILESDIR}/0001-use-at-cmds-to-mute.patch"
+#)
 
 S="${WORKDIR}/$PN-${PV}"
 
