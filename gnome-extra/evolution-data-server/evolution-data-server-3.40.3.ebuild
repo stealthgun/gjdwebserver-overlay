@@ -13,7 +13,7 @@ HOMEPAGE="https://wiki.gnome.org/Apps/Evolution"
 LICENSE="|| ( LGPL-2 LGPL-3 ) BSD Sleepycat"
 SLOT="0/62-26-20" # subslot = libcamel-1.2/libedataserver-1.2/libebook-1.2.so soname version
 
-IUSE="berkdb +gnome-online-accounts +gtk gtk-doc +introspection ipv6 ldap kerberos oauth vala +weather"
+IUSE="berkdb +gnome-online-accounts +gtk gtk-doc +introspection ipv6 ldap kerberos oauth vala +weather +phonenumber"
 REQUIRED_USE="vala? ( introspection )"
 
 KEYWORDS="~alpha amd64 ~arm arm64 ~ia64 ~ppc ~ppc64 ~sparc x86 ~amd64-linux ~x86-linux ~x86-solaris"
@@ -46,6 +46,9 @@ RDEPEND="
 		>=dev-libs/json-glib-1.0.4
 		>=net-libs/webkit-gtk-2.28.0:4
 		${gdata_depend}
+	)
+	phonenumber? (
+		>=dev-libs/libphonenumber-8.12.24
 	)
 	gnome-online-accounts? (
 		>=net-libs/gnome-online-accounts-3.8:=
@@ -114,7 +117,7 @@ src_configure() {
 		-DWITH_KRB5_INCLUDES=$(usex kerberos "${EPREFIX}"/usr "")
 		-DWITH_KRB5_LIBS=$(usex kerberos "${EPREFIX}"/usr/$(get_libdir) "")
 		-DWITH_OPENLDAP=$(usex ldap)
-		-DWITH_PHONENUMBER=OFF
+		-DWITH_PHONENUMBER=$(usex phonenumber)
 		-DENABLE_SMIME=ON
 		-DENABLE_GTK=$(usex gtk)
 		-DENABLE_CANBERRA=$(usex gtk)
