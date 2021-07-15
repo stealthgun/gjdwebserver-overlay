@@ -25,6 +25,7 @@ BDEPEND="virtual/pkgconfig"
 src_configure() {
 	sh autogen.sh
 	./configure \
+		--prefix=/usr \
 		--disable-static \
 		$(use_with ssl openssl)
 }
