@@ -23,10 +23,15 @@ DEPEND="${RDEPEND}"
 BDEPEND="virtual/pkgconfig"
 
 src_configure() {
-	sh autogen.sh \
+	sh autogen.sh
 	./configure \
+		--prefix=/usr \
 		--disable-static \
 		$(use_with ssl openssl)
+}
+
+src_compile() {
+	emake
 }
 
 src_install() {
