@@ -8,7 +8,7 @@ inherit vala meson gnome2-utils git-r3 xdg
 
 DESCRIPTION="Simple application for generating Two-Factor Authentication Codes."
 HOMEPAGE="https://gitlab.gnome.org/World/Authenticator"
-SRC_URI="hhttps://gitlab.gnome.org/World/Authenticator/-/archive/v${PV}/${PN}-${PV}.tar.gz"
+SRC_URI="https://gitlab.gnome.org/World/Authenticator/-/archive/${PV}/${PN}-${PV}.tar.gz"
 EGIT_REPO_URI="https://gitlab.gnome.org/World/Authenticator.git"
 
 LICENSE="GPL-3"
