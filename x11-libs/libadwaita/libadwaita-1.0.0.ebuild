@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
+VALA_USE_DEPEND="vapigen"
 
 inherit vala meson gnome2-utils git-r3 xdg
 
@@ -13,12 +14,15 @@ EGIT_REPO_URI="https://gitlab.gnome.org/GNOME/libadwaita.git"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
-IUSE=""
+IUSE="+vala"
 REQUIRED_USE=""
 
 DEPEND=""
 RDEPEND="${DEPEND}"
-BDEPEND=""
+BDEPEND="
+		vala? ( $(vala_depend) )
+		dev-util/meson
+"
 
 S="${WORKDIR}/$PN-${PV}"
 

@@ -20,6 +20,7 @@ DEPEND="
 	gnome-base/gnome-common
 	x11-libs/gtk+:3
 	x11-libs/libadwaita
+	x11-libs/gdk-pixbuf
 	"
 RDEPEND="${DEPEND}"
 BDEPEND=""
