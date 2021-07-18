@@ -14,14 +14,19 @@ EGIT_REPO_URI="https://gitlab.gnome.org/GNOME/libadwaita.git"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
-IUSE="+vala"
-REQUIRED_USE=""
+IUSE="+introspection +vala"
+REQUIRED_USE="vala? ( introspection )"
 
-DEPEND=""
+DEPEND="
+	gnome-base/gnome-common
+	gui-libs/gtk
+	dev-libs/fribidi
+"
 RDEPEND="${DEPEND}"
 BDEPEND="
 		vala? ( $(vala_depend) )
 		dev-util/meson
+		dev-libs/gobject-introspection
 "
 
 S="${WORKDIR}/$PN-${PV}"

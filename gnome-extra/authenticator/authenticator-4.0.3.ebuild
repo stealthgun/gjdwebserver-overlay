@@ -2,6 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
+VALA_USE_DEPEND="vapigen"
 
 inherit vala meson gnome2-utils git-r3 xdg
 
@@ -13,17 +14,21 @@ EGIT_REPO_URI="https://gitlab.gnome.org/World/Authenticator.git"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
-IUSE=""
-REQUIRED_USE=""
+IUSE="+introspection +vala"
+REQUIRED_USE="vala? ( introspection )"
 
 DEPEND="
 	gnome-base/gnome-common
-	x11-libs/gtk+:3
+	gui-libs/gtk
 	x11-libs/libadwaita
 	x11-libs/gdk-pixbuf
 	"
 RDEPEND="${DEPEND}"
-BDEPEND=""
+BDEPEND="
+		vala? ( $(vala_depend) )
+		dev-util/meson
+		dev-libs/gobject-introspection
+		"
 
 S="${WORKDIR}/$PN-${PV}"
 
