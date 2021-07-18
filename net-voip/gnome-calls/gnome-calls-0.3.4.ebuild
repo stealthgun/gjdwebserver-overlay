@@ -37,10 +37,6 @@ BDEPEND="
 		dev-util/wayland-scanner
 "
 
-#PATCHES=(
-#	"${FILESDIR}/0001-use-at-cmds-to-mute.patch"
-#)
-
 S="${WORKDIR}/$PN-${PV}"
 
 src_prepare() {
