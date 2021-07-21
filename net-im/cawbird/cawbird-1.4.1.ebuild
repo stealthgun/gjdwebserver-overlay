@@ -19,6 +19,17 @@ REQUIRED_USE="vala? ( introspection )"
 
 DEPEND="
 	gui-libs/gtk
+	>=x11-libs/gtk+-3.22
+	>=dev-libs/glib-2.44
+	>=dev-libs/json-glib-1.0
+	>=dev-db/sqlite-3.0
+	>=net-libs/libsoup-2.4
+	net-libs/liboauth
+	>=sys-devel/gettext-0.19
+	media-libs/gst-plugins-base
+	media-libs/gst-plugins-bad
+	media-plugins/gst-plugins-libav
+	>=app-text/gspell-1.0
 "
 RDEPEND="${DEPEND}"
 BDEPEND="
