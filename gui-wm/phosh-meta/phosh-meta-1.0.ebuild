@@ -10,7 +10,7 @@ SRC_URI=""
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm64 ~arm"
-IUSE=""
+IUSE="cawbird squeekboard chromium authenticator"
 
 DEPEND="
 		gui-wm/phosh
@@ -18,6 +18,7 @@ DEPEND="
 		net-im/chatty
 		net-dns/dnsmasq
 		app-editors/gedit
+		app-misc/gnote
 		media-video/megapixels
 		gnome-base/gnome-control-center
 		gnome-extra/gnome-contacts
@@ -33,7 +34,22 @@ DEPEND="
 		app-text/evince
 		sys-power/gtherm
 		sys-auth/rtkit
-
+		
+		cawbird? (
+			net-im/cawbird
+		)
+		
+		squeekboard? (
+			x11-misc/squeekboard
+		)
+		
+		chromium? (
+			www-client/chromium-bin
+		)	
+		
+		authenticator? (
+			gnome-extra/authenticator
+		)					
 "
 
 RDEPEND="${DEPEND}"
