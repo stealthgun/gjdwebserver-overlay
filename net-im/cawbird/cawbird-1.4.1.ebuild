@@ -41,7 +41,10 @@ BDEPEND="
 S="${WORKDIR}/$PN-${PV}"
 
 src_install() {
-	meson_src_install
+	meson_src_install \
+	-Dconsumer_key_base64=VmY5dG9yRFcyWk93MzJEZmhVdEk5Y3NMOA== \
+	-Dconsumer_secret_base64=MThCRXIxbWRESDQ2Y0podzVtVU13SGUyVGlCRXhPb3BFRHhGYlB6ZkpybG5GdXZaSjI=
+
 }
 
 pkg_postinst() {

@@ -10,7 +10,7 @@ SRC_URI=""
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm64 ~arm"
-IUSE="cawbird squeekboard chromium authenticator"
+IUSE="cawbird squeekboard chromium authenticator geary lollypop"
 
 DEPEND="
 		gui-wm/phosh
@@ -49,7 +49,16 @@ DEPEND="
 		
 		authenticator? (
 			gnome-extra/authenticator
-		)					
+		)			
+		
+		geary? (	
+			mail-client/geary
+		)		
+		
+		lollypop? (	
+			media-sound/lollypop
+		)		
+		
 "
 
 RDEPEND="${DEPEND}"
