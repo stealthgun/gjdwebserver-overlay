@@ -43,8 +43,8 @@ S="${WORKDIR}/$PN-${PV}"
 src_configure() {
 
         local emesonargs=(
-                $(Dconsumer_key_base64 VmY5dG9yRFcyWk93MzJEZmhVdEk5Y3NMOA==)
-                $(Dconsumer_secret_base64 MThCRXIxbWRESDQ2Y0podzVtVU13SGUyVGlCRXhPb3BFRHhGYlB6ZkpybG5GdXZaSjI=)                
+                -Dconsumer_key_base64=VmY5dG9yRFcyWk93MzJEZmhVdEk5Y3NMOA==
+		-Dconsumer_secret_base64=MThCRXIxbWRESDQ2Y0podzVtVU13SGUyVGlCRXhPb3BFRHhGYlB6ZkpybG5GdXZaSjI=                
         )        
         meson_src_configure
         
