@@ -6,6 +6,7 @@
 		<name>Gerben Jan Dijkman</name>
 	</maintainer>
 	<upstream>
-		<doc>https://github.com/google/libphonenumber</doc>
+		<doc>https://source.puri.sm/Librem5/feedbackd/</doc>
+		<bugs-to>https://source.puri.sm/Librem5/feedbackd/-/issues</bugs-to>
 	</upstream>
 </pkgmetadata>

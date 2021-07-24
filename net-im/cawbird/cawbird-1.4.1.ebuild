@@ -4,16 +4,15 @@
 EAPI=7
 VALA_USE_DEPEND="vapigen"
 
-inherit vala meson gnome2-utils git-r3 xdg
+inherit vala meson gnome2-utils xdg
 
 DESCRIPTION="Cawbird is a fork of the Corebird Twitter client from Baedert."
 HOMEPAGE="https://github.com/IBBoard/cawbird"
-SRC_URI="https://github.com/IBBoard/cawbird/archive/refs/tags/v${PV}.tar.gz"
-EGIT_REPO_URI="https://github.com/IBBoard/cawbird.git"
+SRC_URI="https://github.com/IBBoard/cawbird/archive/refs/tags/v${PV}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
-KEYWORDS="~amd64 ~x86 ~amd64 ~arm64"
+KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 IUSE="+introspection +vala"
 REQUIRED_USE="vala? ( introspection )"
 
@@ -41,21 +40,13 @@ BDEPEND="
 S="${WORKDIR}/$PN-${PV}"
 
 src_configure() {
-        local emesonargs=(
-                -Dconsumer_key_base64=VmY5dG9yRFcyWk93MzJEZmhVdEk5Y3NMOA==
-		-Dconsumer_secret_base64=MThCRXIxbWRESDQ2Y0podzVtVU13SGUyVGlCRXhPb3BFRHhGYlB6ZkpybG5GdXZaSjI=                
-        )        
-        meson_src_configure
+	local emesonargs=(
+		-Dconsumer_key_base64=VmY5dG9yRFcyWk93MzJEZmhVdEk5Y3NMOA==
+		-Dconsumer_secret_base64=MThCRXIxbWRESDQ2Y0podzVtVU13SGUyVGlCRXhPb3BFRHhGYlB6ZkpybG5GdXZaSjI=
+	)
+	meson_src_configure
 }
 
 src_install() {
 	meson_src_install
-}
-
-pkg_postinst() {
-	xdg_icon_cache_update
-}
-
-pkg_postrm() {
-	xdg_icon_cache_update
 }
