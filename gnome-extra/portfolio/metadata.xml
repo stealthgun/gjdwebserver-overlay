@@ -6,10 +6,10 @@
 		<name>Gerben Jan Dijkman</name>
 	</maintainer>
 	<longdescription lang="en">
-	The final Librem5 keyboard.
+	A minimalist file manager for those who want to use Linux mobile devices.
 	</longdescription>
 	<upstream>
-		<doc>https://source.puri.sm/Librem5/squeekboard</doc>
-		<bugs-to>https://source.puri.sm/Librem5/squeekboard/-/issues</bugs-to>
+		<doc>https://github.com/tchx84/Portfolio</doc>
+		<bugs-to>https://github.com/tchx84/Portfolio/issues</bugs-to>
 	</upstream>
 </pkgmetadata>

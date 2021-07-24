@@ -3,23 +3,19 @@
 
 EAPI=7
 
-inherit meson gnome2-utils xdg git-r3
+inherit meson gnome2-utils xdg
+
+COMMIT="501805ee4e013470c1c9eb17e930f9fe914e3671"
 
 DESCRIPTION="Messaging client"
 HOMEPAGE="https://source.puri.sm/Librem5/chatty"
-EGIT_REPO_URI="https://source.puri.sm/Librem5/${PN}.git"
+SRC_URI="https://source.puri.sm/Librem5/chatty/-/archive//${COMMIT}.tar.gz -> ${P}.tar.gz"
+
 
 LICENSE="GPL-3"
 SLOT="0"
 IUSE=""
 KEYWORDS="~amd64 ~arm64 ~arm ~x86"
-
-if [[ ${PV} != 9999 ]]; then
-        EGIT_COMMIT="tags/v${PV}"
-else
-        KEYWORDS=""
-fi
-
 
 DEPEND="gnome-extra/evolution-data-server[phonenumber]
 		dev-libs/feedbackd

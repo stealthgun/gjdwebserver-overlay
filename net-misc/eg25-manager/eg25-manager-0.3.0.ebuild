@@ -3,36 +3,25 @@
 
 EAPI=7
 
-inherit meson git-r3 systemd
+inherit meson systemd
+
+COMMIT="73e16f76994b1d3c587796a35766cc668e30c0cd"
 
 DESCRIPTION="Daemon for managing the Quectel EG25 modem"
 HOMEPAGE="https://gitlab.com/mobian1/devices/eg25-manager"
-
+SRC_URI="https://gitlab.com/mobian1/devices/eg25-manager/-/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
 
 KEYWORDS="~arm64"
-
-EGIT_REPO_URI="${HOMEPAGE}.git"
-
-if [[ ${PV} != 9999 ]]; then
-	EGIT_COMMIT="73e16f76994b1d3c587796a35766cc668e30c0cd"
-else
-	KEYWORDS=""
-fi
-
 LICENSE="GPL-3"
 SLOT="0"
 
-DEPEND="
-		dev-libs/libgpiod
-		virtual/libusb:1
-		net-misc/modemmanager
-		"
-RDEPEND="${DEPEND}"
+RDEPEND="
+	dev-libs/libgpiod
+	virtual/libusb:1
+	net-misc/modemmanager
+"
 
-PATCHES=(
-	#	${FILESDIR}/11.patch
-	#	${FILESDIR}/12.patch
-)
+S="${WORKDIR}/${PN}-${COMMIT}"
 
 src_install() {
 	meson_src_install

@@ -6,10 +6,10 @@
 		<name>Gerben Jan Dijkman</name>
 	</maintainer>
 	<longdescription lang="en">
-	The final Librem5 keyboard.
+	Sound theme for the librem 5.
 	</longdescription>
 	<upstream>
-		<doc>https://source.puri.sm/Librem5/squeekboard</doc>
-		<bugs-to>https://source.puri.sm/Librem5/squeekboard/-/issues</bugs-to>
+		<doc>https://source.puri.sm/Librem5/sound-theme-librem5</doc>
+		<bugs-to>https://source.puri.sm/Librem5/sound-theme-librem5/-/issues</bugs-to>
 	</upstream>
 </pkgmetadata>

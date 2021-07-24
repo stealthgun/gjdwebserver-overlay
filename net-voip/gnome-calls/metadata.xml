@@ -6,10 +6,10 @@
 		<name>Gerben Jan Dijkman</name>
 	</maintainer>
 	<longdescription lang="en">
-	The final Librem5 keyboard.
+	A phone dialer and call handler.
 	</longdescription>
 	<upstream>
-		<doc>https://source.puri.sm/Librem5/squeekboard</doc>
-		<bugs-to>https://source.puri.sm/Librem5/squeekboard/-/issues</bugs-to>
+		<doc>https://gitlab.gnome.org/GNOME/calls</doc>
+		<bugs-to>https://gitlab.gnome.org/GNOME/calls/-/issues</bugs-to>
 	</upstream>
 </pkgmetadata>

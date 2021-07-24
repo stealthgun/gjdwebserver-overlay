@@ -6,10 +6,9 @@
 		<name>Gerben Jan Dijkman</name>
 	</maintainer>
 	<longdescription lang="en">
-	The final Librem5 keyboard.
+	Google's common Java, C++ and JavaScript library for parsing, formatting, and validating international phone numbers.
 	</longdescription>
 	<upstream>
-		<doc>https://source.puri.sm/Librem5/squeekboard</doc>
-		<bugs-to>https://source.puri.sm/Librem5/squeekboard/-/issues</bugs-to>
+		<doc>https://github.com/google/libphonenumber</doc>
 	</upstream>
 </pkgmetadata>

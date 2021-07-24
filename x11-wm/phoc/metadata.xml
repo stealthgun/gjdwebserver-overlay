@@ -6,10 +6,10 @@
 		<name>Gerben Jan Dijkman</name>
 	</maintainer>
 	<longdescription lang="en">
-	The final Librem5 keyboard.
+	Wayland compositor for mobile phones like the Librem 5.
 	</longdescription>
 	<upstream>
-		<doc>https://source.puri.sm/Librem5/squeekboard</doc>
-		<bugs-to>https://source.puri.sm/Librem5/squeekboard/-/issues</bugs-to>
+		<doc>https://source.puri.sm/Librem5/phoc</doc>
+		<bugs-to>https://source.puri.sm/Librem5/phoc/-/issues</bugs-to>
 	</upstream>
 </pkgmetadata>

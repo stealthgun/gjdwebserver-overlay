@@ -6,10 +6,10 @@
 		<name>Gerben Jan Dijkman</name>
 	</maintainer>
 	<longdescription lang="en">
-	The final Librem5 keyboard.
+	Manager daemon for the Quectel EG25 mobile broadband modem.
 	</longdescription>
 	<upstream>
-		<doc>https://source.puri.sm/Librem5/squeekboard</doc>
-		<bugs-to>https://source.puri.sm/Librem5/squeekboard/-/issues</bugs-to>
+		<doc>https://gitlab.com/mobian1/devices/eg25-manager</doc>
+		<bugs-to>https://gitlab.com/mobian1/devices/eg25-manager/-/issues</bugs-to>
 	</upstream>
 </pkgmetadata>

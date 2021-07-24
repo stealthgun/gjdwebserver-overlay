@@ -6,10 +6,10 @@
 		<name>Gerben Jan Dijkman</name>
 	</maintainer>
 	<longdescription lang="en">
-	The final Librem5 keyboard.
+	Proxies sensor devices (accelerometers, light sensors, compass) to applications through D-Bus
 	</longdescription>
 	<upstream>
-		<doc>https://source.puri.sm/Librem5/squeekboard</doc>
-		<bugs-to>https://source.puri.sm/Librem5/squeekboard/-/issues</bugs-to>
+		<doc>https://gitlab.freedesktop.org/hadess/iio-sensor-proxy/</doc>
+		<bugs-to>https://gitlab.freedesktop.org/hadess/iio-sensor-proxy/-/issues</bugs-to>
 	</upstream>
 </pkgmetadata>
