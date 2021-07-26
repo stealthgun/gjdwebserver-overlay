@@ -6,7 +6,7 @@ EAPI=7
 inherit desktop gnome2-utils meson pam readme.gentoo-r1 vala systemd xdg
 
 MY_P="${PN}-v${PV}"
-MY_COMMIT="c5ab6037f460406ac9799b1e5765de3ce0097a8b"
+MY_COMMIT="f10df68ebf4c93fa186711f66e36526039d29c03"
 
 DESCRIPTION="A pure Wayland shell prototype for GNOME on mobile devices"
 HOMEPAGE="https://source.puri.sm/Librem5/phosh"
@@ -40,25 +40,29 @@ BDEPEND="
 	dev-util/meson
 "
 
+PATCHES=(
+	${FILESDIR}/0001-system-prompt-allow-blank-passwords.patch
+	${FILESDIR}/0002-fix-locale-issue.patch
+	${FILESDIR}/0003-fix-locale-issue-in-service-file-1.patch
+)
+
 src_prepare() {
 	default
 	eapply_user
-	rm -r "${S}"/subprojects/gvc || die
-	mv "${WORKDIR}"/libgnome-volume-control-"${MY_COMMIT}" "${S}"/subprojects/gvc || die
 }
+
 
 src_install() {
 	default
 	meson_src_install
 	newpamd "${FILESDIR}"/pam_phosh 'phosh'
 	systemd_newunit "${FILESDIR}"/phosh.service 'phosh.service'
-	domenu "${FILESDIR}"/sm.puri.OSK0.desktop
+	insinto /usr/share/applications/
+	doins "${FILESDIR}"/sm.puri.OSK0.desktop
 
-	DOC_CONTENTS="
-	To amend the existing password policy please see the man 5 passwdqc.conf
-	page and then edit the /etc/security/passwdqc.conf file to change enforce=none
-	to allow use digit only password as phosh only support passcode for now
-	"
+	DOC_CONTENTS="To amend the existing password policy please see the man 5 passwdqc.conf
+				page and then edit the /etc/security/passwdqc.conf file to change enforce=none
+				to allow use digit only password as phosh only support passcode for now"
 	readme.gentoo_create_doc
 }
 
