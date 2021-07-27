@@ -226,8 +226,7 @@ pkg_postinst() {
 	elog "For VA-API support you need to install x11-libs/libva with"
 	elog "USE=X and USE=drm enabled."
 	elog
-	elog "VA-API is disabled by default at runtime. Either enable it"
-	elog "by navigating to chrome://flags/#enable-accelerated-video-decode"
-	elog "inside Chromium or add --enable-accelerated-video-decode"
-	elog "to CHROMIUM_BIN_FLAGS in /etc/chromium-bin/default."
+	elog "VA-API is disabled by default at runtime. You have to enable it"
+	elog "by adding --enable-features=VaapiVideoDecoder to CHROMIUM_FLAGS"
+	elog "in /etc/chromium/default."
 }
