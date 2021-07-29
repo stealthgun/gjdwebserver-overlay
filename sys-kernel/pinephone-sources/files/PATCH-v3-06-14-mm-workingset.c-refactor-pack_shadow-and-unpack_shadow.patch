@@ -1,0 +1,233 @@
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Return-Path: <linux-kernel-owner@kernel.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+	aws-us-west-2-korg-lkml-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-26.3 required=3.0 tests=BAYES_00,DKIMWL_WL_MED,
+	DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+	INCLUDES_CR_TRAILER,INCLUDES_PATCH,MAILING_LIST_MULTI,SPF_HELO_NONE,SPF_PASS,
+	USER_AGENT_GIT,USER_IN_DEF_DKIM_WL autolearn=unavailable autolearn_force=no
+	version=3.4.0
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 173FBC433B4
+	for <linux-kernel@archiver.kernel.org>; Thu, 20 May 2021 06:54:22 +0000 (UTC)
+Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
+	by mail.kernel.org (Postfix) with ESMTP id EA57F61261
+	for <linux-kernel@archiver.kernel.org>; Thu, 20 May 2021 06:54:21 +0000 (UTC)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S230452AbhETGzl (ORCPT <rfc822;linux-kernel@archiver.kernel.org>);
+        Thu, 20 May 2021 02:55:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37912 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230466AbhETGzc (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Thu, 20 May 2021 02:55:32 -0400
+Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C46CEC061574
+        for <linux-kernel@vger.kernel.org>; Wed, 19 May 2021 23:54:10 -0700 (PDT)
+Received: by mail-qk1-x749.google.com with SMTP id d201-20020ae9efd20000b02902e9e9d8d9dcso11687575qkg.10
+        for <linux-kernel@vger.kernel.org>; Wed, 19 May 2021 23:54:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
+         :cc;
+        bh=Yl+DjwsBODMfyiL17kQw/9BLrEC9zXFz8Mxu59WzP4Y=;
+        b=Mrzy2M2k9QAzqf4Qlq2wFgC1uycH9/GSOy89uVYR+gUD3oaKMWpOn95M8hs2EzT1FG
+         /N40V1/URD7mP48ZsP72lzG3rMvI0SepioQCu+0asiEBUJUrtY6kEz2CKTJEB4MwAGRU
+         xnH/e/C5szSot199E2rMI+ZUJo/y8pBDfNIzZ7XzQ811Wxr6oM1C4DVA6DHQSWtdqS5J
+         VMMjdjvsXW8hHCzs+5W06EYb73kJeqPHOFZ+XFMWXFrm8l/F2qujro4FMOgux0JB/XLW
+         32qxH7ovQyCHL8Gg6vGigkolgFZhe6oag4JfCx0cj6eFlP+2j2w5ryU0kRvvHVILA9Xq
+         e6Hg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
+         :references:subject:from:to:cc;
+        bh=Yl+DjwsBODMfyiL17kQw/9BLrEC9zXFz8Mxu59WzP4Y=;
+        b=Nel79d/ExWs1HdZZs12GqadGHxgI3W8FnqvRED1IBxJnCtiluti6ndyhp/JXtjDIct
+         YtIRkMNVwmwMk6EFx5QOv0Br5VYQ/72hZsMd8kNj9z/m8CUtpMnJluKVNeyNT+Livkww
+         y2hwgGJiuvWxBIy+ja/GH64SkCJTuttiOxpNFaRxB1STfhM2PjwwwiQG5GTxbqkkn3Dg
+         fKBlHYI17sQ05tZRovJETs0f+1wBQPftjwjm6PJzpZ3ooNcBXdB6hRUrGZ6Pmyf2bRBR
+         BptRYxbaQdSprCABGMW/2ySltaJaFitv6fShejQMxDX8xe+JDYJ0kEn9/3aMVEt+Vy+X
+         rTAw==
+X-Gm-Message-State: AOAM532IBC74aEi91Xqgl2rYw1QINB7mrdZT3v/EvERcHHCbI6v9/2cU
+        Qe2UGq6f4OIKykMrwADvTCo5whMI+DQ=
+X-Google-Smtp-Source: ABdhPJyyAX33aocRYynTtALpNyjv0w+Wa7lDS9awJiNK6me024wMLg+4FL2RHzwNDLwZg9DFBZ+B1LiDSsc=
+X-Received: from yuzhao.bld.corp.google.com ([2620:15c:183:200:595d:62ee:f08:8e83])
+ (user=yuzhao job=sendgmr) by 2002:a05:6214:18d:: with SMTP id
+ q13mr3804726qvr.60.1621493649877; Wed, 19 May 2021 23:54:09 -0700 (PDT)
+Date:   Thu, 20 May 2021 00:53:47 -0600
+In-Reply-To: <20210520065355.2736558-1-yuzhao@google.com>
+Message-Id: <20210520065355.2736558-7-yuzhao@google.com>
+Mime-Version: 1.0
+References: <20210520065355.2736558-1-yuzhao@google.com>
+X-Mailer: git-send-email 2.31.1.751.gd2f1c929bd-goog
+Subject: [PATCH v3 06/14] mm/workingset.c: refactor pack_shadow() and unpack_shadow()
+From:   Yu Zhao <yuzhao@google.com>
+To:     linux-mm@kvack.org
+Cc:     Alex Shi <alexs@kernel.org>, Andi Kleen <ak@linux.intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Dave Chinner <david@fromorbit.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Donald Carr <sirspudd@gmail.com>,
+        Hillf Danton <hdanton@sina.com>, Jens Axboe <axboe@kernel.dk>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Konstantin Kharlamov <hi-angel@yandex.ru>,
+        Marcus Seyfarth <m.seyfarth@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Mel Gorman <mgorman@suse.de>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Michael Larabel <michael@michaellarabel.com>,
+        Michal Hocko <mhocko@suse.com>,
+        Michel Lespinasse <michel@lespinasse.org>,
+        Rik van Riel <riel@surriel.com>,
+        Roman Gushchin <guro@fb.com>,
+        Tim Chen <tim.c.chen@linux.intel.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Yang Shi <shy828301@gmail.com>,
+        Ying Huang <ying.huang@intel.com>, Zi Yan <ziy@nvidia.com>,
+        linux-kernel@vger.kernel.org, lkp@lists.01.org,
+        page-reclaim@google.com, Yu Zhao <yuzhao@google.com>,
+        Konstantin Kharlamov <Hi-Angel@yandex.ru>
+Content-Type: text/plain; charset="UTF-8"
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+List-Archive: <https://lore.kernel.org/lkml/>
+
+This patches moves the bucket order and PageWorkingset() out of
+pack_shadow() and unpack_shadow(). It has no merits on its own but
+makes the upcoming changes to mm/workingset.c less diffy.
+
+Signed-off-by: Yu Zhao <yuzhao@google.com>
+Tested-by: Konstantin Kharlamov <Hi-Angel@yandex.ru>
+---
+ mm/workingset.c | 53 ++++++++++++++++++++-----------------------------
+ 1 file changed, 22 insertions(+), 31 deletions(-)
+
+diff --git a/mm/workingset.c b/mm/workingset.c
+index b7cdeca5a76d..edb8aed2587e 100644
+--- a/mm/workingset.c
++++ b/mm/workingset.c
+@@ -168,9 +168,9 @@
+  * refault distance will immediately activate the refaulting page.
+  */
+ 
+-#define EVICTION_SHIFT	((BITS_PER_LONG - BITS_PER_XA_VALUE) +	\
+-			 1 + NODES_SHIFT + MEM_CGROUP_ID_SHIFT)
+-#define EVICTION_MASK	(~0UL >> EVICTION_SHIFT)
++#define EVICTION_SHIFT		(BITS_PER_XA_VALUE - MEM_CGROUP_ID_SHIFT - NODES_SHIFT)
++#define EVICTION_MASK		(BIT(EVICTION_SHIFT) - 1)
++#define WORKINGSET_WIDTH	1
+ 
+ /*
+  * Eviction timestamps need to be able to cover the full range of
+@@ -182,36 +182,23 @@
+  */
+ static unsigned int bucket_order __read_mostly;
+ 
+-static void *pack_shadow(int memcgid, pg_data_t *pgdat, unsigned long eviction,
+-			 bool workingset)
++static void *pack_shadow(int memcg_id, struct pglist_data *pgdat, unsigned long val)
+ {
+-	eviction >>= bucket_order;
+-	eviction &= EVICTION_MASK;
+-	eviction = (eviction << MEM_CGROUP_ID_SHIFT) | memcgid;
+-	eviction = (eviction << NODES_SHIFT) | pgdat->node_id;
+-	eviction = (eviction << 1) | workingset;
++	val = (val << MEM_CGROUP_ID_SHIFT) | memcg_id;
++	val = (val << NODES_SHIFT) | pgdat->node_id;
+ 
+-	return xa_mk_value(eviction);
++	return xa_mk_value(val);
+ }
+ 
+-static void unpack_shadow(void *shadow, int *memcgidp, pg_data_t **pgdat,
+-			  unsigned long *evictionp, bool *workingsetp)
++static unsigned long unpack_shadow(void *shadow, int *memcg_id, struct pglist_data **pgdat)
+ {
+-	unsigned long entry = xa_to_value(shadow);
+-	int memcgid, nid;
+-	bool workingset;
++	unsigned long val = xa_to_value(shadow);
+ 
+-	workingset = entry & 1;
+-	entry >>= 1;
+-	nid = entry & ((1UL << NODES_SHIFT) - 1);
+-	entry >>= NODES_SHIFT;
+-	memcgid = entry & ((1UL << MEM_CGROUP_ID_SHIFT) - 1);
+-	entry >>= MEM_CGROUP_ID_SHIFT;
++	*pgdat = NODE_DATA(val & (BIT(NODES_SHIFT) - 1));
++	val >>= NODES_SHIFT;
++	*memcg_id = val & (BIT(MEM_CGROUP_ID_SHIFT) - 1);
+ 
+-	*memcgidp = memcgid;
+-	*pgdat = NODE_DATA(nid);
+-	*evictionp = entry << bucket_order;
+-	*workingsetp = workingset;
++	return val >> MEM_CGROUP_ID_SHIFT;
+ }
+ 
+ /**
+@@ -266,8 +253,10 @@ void *workingset_eviction(struct page *page, struct mem_cgroup *target_memcg)
+ 	/* XXX: target_memcg can be NULL, go through lruvec */
+ 	memcgid = mem_cgroup_id(lruvec_memcg(lruvec));
+ 	eviction = atomic_long_read(&lruvec->nonresident_age);
++	eviction >>= bucket_order;
++	eviction = (eviction << WORKINGSET_WIDTH) | PageWorkingset(page);
+ 	workingset_age_nonresident(lruvec, thp_nr_pages(page));
+-	return pack_shadow(memcgid, pgdat, eviction, PageWorkingset(page));
++	return pack_shadow(memcgid, pgdat, eviction);
+ }
+ 
+ /**
+@@ -294,7 +283,7 @@ void workingset_refault(struct page *page, void *shadow)
+ 	bool workingset;
+ 	int memcgid;
+ 
+-	unpack_shadow(shadow, &memcgid, &pgdat, &eviction, &workingset);
++	eviction = unpack_shadow(shadow, &memcgid, &pgdat);
+ 
+ 	rcu_read_lock();
+ 	/*
+@@ -318,6 +307,8 @@ void workingset_refault(struct page *page, void *shadow)
+ 		goto out;
+ 	eviction_lruvec = mem_cgroup_lruvec(eviction_memcg, pgdat);
+ 	refault = atomic_long_read(&eviction_lruvec->nonresident_age);
++	workingset = eviction & (BIT(WORKINGSET_WIDTH) - 1);
++	eviction = (eviction >> WORKINGSET_WIDTH) << bucket_order;
+ 
+ 	/*
+ 	 * Calculate the refault distance
+@@ -335,7 +326,7 @@ void workingset_refault(struct page *page, void *shadow)
+ 	 * longest time, so the occasional inappropriate activation
+ 	 * leading to pressure on the active list is not a problem.
+ 	 */
+-	refault_distance = (refault - eviction) & EVICTION_MASK;
++	refault_distance = (refault - eviction) & (EVICTION_MASK >> WORKINGSET_WIDTH);
+ 
+ 	/*
+ 	 * The activation decision for this page is made at the level
+@@ -593,7 +584,7 @@ static int __init workingset_init(void)
+ 	unsigned int max_order;
+ 	int ret;
+ 
+-	BUILD_BUG_ON(BITS_PER_LONG < EVICTION_SHIFT);
++	BUILD_BUG_ON(EVICTION_SHIFT < WORKINGSET_WIDTH);
+ 	/*
+ 	 * Calculate the eviction bucket size to cover the longest
+ 	 * actionable refault distance, which is currently half of
+@@ -601,7 +592,7 @@ static int __init workingset_init(void)
+ 	 * some more pages at runtime, so keep working with up to
+ 	 * double the initial memory by using totalram_pages as-is.
+ 	 */
+-	timestamp_bits = BITS_PER_LONG - EVICTION_SHIFT;
++	timestamp_bits = EVICTION_SHIFT - WORKINGSET_WIDTH;
+ 	max_order = fls_long(totalram_pages() - 1);
+ 	if (max_order > timestamp_bits)
+ 		bucket_order = max_order - timestamp_bits;
+-- 
+2.31.1.751.gd2f1c929bd-goog
+
+
