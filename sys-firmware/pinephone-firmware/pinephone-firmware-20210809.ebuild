@@ -19,7 +19,7 @@ S="${WORKDIR}"
 src_install() {
 	mkdir -p "${D}"/lib/firmware/ || die
 	insinto /lib/firmware/
-	doins anx7688-fw.bin
-	doins ov5640-fw.bin
-	doins rtl8723cs_xx-fw.bin
+	doins "${S}"anx7688-fw.bin
+	doins "${S}"ov5640_af.bin
+	doins "${S}"rtl8723cs_xx-fw.bin
 }
