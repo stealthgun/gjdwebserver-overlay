@@ -16,8 +16,8 @@ SLOT="0"
 IUSE="+gpg +http +omemo +notification-sound"
 
 MY_REPO_URI="https://github.com/dino/dino"
-KEYWORDS="amd64 arm64"
-SRC_URI="${MY_REPO_URI}/archive/${COMMIT}.tar.gz -> ${PN}-${PV}"
+KEYWORDS="~amd64 ~arm64"
+SRC_URI="${MY_REPO_URI}/archive/${COMMIT}.tar.gz -> ${PN}-${PV}.tar.gz"
 
 
 RDEPEND="
