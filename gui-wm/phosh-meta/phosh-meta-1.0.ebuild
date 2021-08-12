@@ -68,7 +68,7 @@ DEPEND="
 			net-im/dino-libhandy
 		)
 		owncloud? (
-			net-misc/owncloud-clien
+			net-misc/owncloud-client
 		)
 		nextcloud? (
 			net-misc/nextcloud-client
