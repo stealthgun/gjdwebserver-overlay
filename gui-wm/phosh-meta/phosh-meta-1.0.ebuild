@@ -10,7 +10,7 @@ SRC_URI=""
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm64 ~arm"
-IUSE="cawbird squeekboard chromium authenticator geary lollypop"
+IUSE="cawbird squeekboard chromium authenticator geary lollypop dino owncloud nextcloud"
 
 DEPEND="
 		gui-wm/phosh
@@ -27,6 +27,12 @@ DEPEND="
 		gnome-extra/gnome-clocks
 		gnome-extra/gnome-weather
 		gnome-extra/portfolio 
+		gnome-base/gnome-session
+		gnome-extra/gnome-system-monitor
+		gnome-extra/gnome-tweaks
+		app-arch/file-roller
+		sys-apps/gnome-disk-utility
+		media-sound/gnome-sound-recorder
 		www-client/epiphany
 		sci-geosciences/gnome-maps
 		x11-terms/gnome-terminal
@@ -44,7 +50,7 @@ DEPEND="
 		)
 		
 		chromium? (
-			www-client/chromium-bin
+			www-client/chromium
 		)	
 		
 		authenticator? (
@@ -58,7 +64,15 @@ DEPEND="
 		lollypop? (	
 			media-sound/lollypop
 		)		
-		
+		dino? (
+			net-im/dino-libhandy
+		)
+		owncloud? (
+			net-misc/owncloud-clien
+		)
+		nextcloud? (
+			net-misc/nextcloud-client
+		)
 "
 
 RDEPEND="${DEPEND}"

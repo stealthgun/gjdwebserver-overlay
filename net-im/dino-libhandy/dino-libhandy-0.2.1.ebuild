@@ -9,7 +9,7 @@ inherit cmake gnome2-utils vala xdg-utils
 
 COMMIT="093491d132bdfbc89794067fbbddfa3ff30c7c0f"
 
-DESCRIPTION="Modern Jabber/XMPP Client using GTK+/Vala with gui-libs/libhandy for mobile device use"
+DESCRIPTION="Modern Jabber/XMPP Client using GTK+/Vala/libhandy"
 HOMEPAGE="https://dino.im"
 LICENSE="GPL-3"
 SLOT="0"
@@ -41,11 +41,13 @@ RDEPEND="
 	)
 	notification-sound? ( media-libs/libcanberra:0[sound] )
 "
+
 DEPEND="
 	$(vala_depend)
 	${RDEPEND}
 	sys-devel/gettext
 "
+
 S="${WORKDIR}/dino-${COMMIT}"
 
 src_prepare() {
