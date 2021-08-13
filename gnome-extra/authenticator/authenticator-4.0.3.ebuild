@@ -5,7 +5,7 @@ EAPI=7
 
 VALA_USE_DEPEND="vapigen"
 
-inherit git vala meson gnome2-utils xdg
+inherit vala meson gnome2-utils xdg git-r3
 
 COMMIT="ba1894159358275be2765bc42ef89782a2d1d45d"
 
@@ -29,6 +29,7 @@ DEPEND="
 	>=media-libs/gst-plugins-base-1.18.0
 	>=media-libs/gst-plugins-bad-1.18.0
 	"
+	
 RDEPEND="${DEPEND}"
 BDEPEND="
 		vala? ( $(vala_depend) )
