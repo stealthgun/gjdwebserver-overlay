@@ -26,6 +26,7 @@ DEPEND="
 	media-gfx/zbar
 	>=media-libs/gstreamer-1.18.0
 	>=media-libs/gst-plugins-base-1.18.0
+	>=media-libs/gst-plugins-bad-1.18.0
 	"
 RDEPEND="${DEPEND}"
 BDEPEND="
