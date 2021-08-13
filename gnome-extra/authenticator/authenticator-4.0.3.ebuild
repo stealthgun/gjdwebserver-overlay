@@ -44,6 +44,9 @@ BDEPEND="
 S="${WORKDIR}/Authenticator-${PV}-${COMMIT}"
 
 src_install() {
+        local emesonargs=(
+		live
+        )
 	meson_src_install
 }
 
