@@ -44,6 +44,7 @@ BDEPEND="
 S="${WORKDIR}/Authenticator-${PV}-${COMMIT}"
 
 src_install() {
+	CC="$(tc-getCC)"
 	meson_src_install
 }
 
