@@ -5,7 +5,7 @@ EAPI=7
 
 VALA_USE_DEPEND="vapigen"
 
-inherit vala meson gnome2-utils xdg cargo
+inherit vala meson gnome2-utils xdg
 
 COMMIT="ba1894159358275be2765bc42ef89782a2d1d45d"
 
@@ -41,7 +41,6 @@ BDEPEND="
 S="${WORKDIR}/Authenticator-${PV}-${COMMIT}"
 
 src_install() {
-	ECARGO_OFFLINE=false
 	meson_src_install
 }
 
