@@ -4,7 +4,7 @@
 EAPI=7
 
 CRATES="
-	libadwaita-0.1.0-alpha
+	libadwaita-0.1.0-alpha-3
 	anyhow-1.0.0
 	ashpd-0.2.0-alpha
 	async-std-1.9.0
@@ -34,7 +34,7 @@ CRATES="
 	surf-2.1.0
 	unicase-2.6.0
 	url-2.2.0
-	zbar-rust-0.0.1
+	zbar-rust-0.0.18
 	svg_metadata-0.4.0
 "
 
