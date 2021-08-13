@@ -6,6 +6,8 @@ VALA_USE_DEPEND="vapigen"
 
 inherit vala meson gnome2-utils xdg
 
+COMMIT="ba1894159358275be2765bc42ef89782a2d1d45d"
+
 DESCRIPTION="Simple application for generating Two-Factor Authentication Codes."
 HOMEPAGE="https://gitlab.gnome.org/World/Authenticator"
 SRC_URI="https://gitlab.gnome.org/World/Authenticator/-/archive/${PV}/${PN}-${PV}.tar.gz"
@@ -30,7 +32,7 @@ BDEPEND="
 		dev-libs/gobject-introspection
 		"
 
-S="${WORKDIR}/$PN-${PV}"
+S="${WORKDIR}/$PN-${PV}-${COMMIT}"
 
 src_install() {
 	meson_src_install
