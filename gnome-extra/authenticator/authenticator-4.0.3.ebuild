@@ -3,15 +3,20 @@
 
 EAPI=7
 
+CRATES="
+	libadwaita-rs
+"
+
 VALA_USE_DEPEND="vapigen"
 
-inherit vala meson gnome2-utils xdg
+inherit cargo vala meson gnome2-utils xdg
 
 COMMIT="ba1894159358275be2765bc42ef89782a2d1d45d"
 
 DESCRIPTION="Simple application for generating Two-Factor Authentication Codes."
 HOMEPAGE="https://gitlab.gnome.org/World/Authenticator"
 SRC_URI="https://gitlab.gnome.org/World/Authenticator/-/archive/${PV}/${PN}-${PV}.tar.gz"
+SRC_URI+=" $(cargo_crate_uris ${CRATES})"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -39,7 +44,6 @@ BDEPEND="
 S="${WORKDIR}/Authenticator-${PV}-${COMMIT}"
 
 src_install() {
-	CC="$(tc-getCC)"
 	meson_src_install
 }
 
