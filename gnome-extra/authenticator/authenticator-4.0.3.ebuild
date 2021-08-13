@@ -5,7 +5,7 @@ EAPI=7
 
 VALA_USE_DEPEND="vapigen"
 
-inherit vala meson gnome2-utils xdg git-r3
+inherit vala meson gnome2-utils xdg fetch
 
 COMMIT="ba1894159358275be2765bc42ef89782a2d1d45d"
 
