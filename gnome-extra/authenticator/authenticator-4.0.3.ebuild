@@ -18,7 +18,7 @@ SLOT="0"
 KEYWORDS="~arm64 ~amd64"
 IUSE="+introspection +vala"
 REQUIRED_USE="vala? ( introspection )"
-ECARGO_OFFLINE="false"
+
 
 DEPEND="
 	gnome-base/gnome-common
@@ -41,6 +41,7 @@ BDEPEND="
 S="${WORKDIR}/Authenticator-${PV}-${COMMIT}"
 
 src_install() {
+	ECARGO_OFFLINE=false
 	meson_src_install
 }
 
