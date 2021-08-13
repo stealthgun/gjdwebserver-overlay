@@ -23,8 +23,9 @@ DEPEND="
 	gui-libs/gtk
 	x11-libs/libadwaita
 	x11-libs/gdk-pixbuf
-	>=media-libs/gstreamer-1.18.0
 	media-gfx/zbar
+	>=media-libs/gstreamer-1.18.0
+	>=media-libs/gst-plugins-base-1.18.0
 	"
 RDEPEND="${DEPEND}"
 BDEPEND="
