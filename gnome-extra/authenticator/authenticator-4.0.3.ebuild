@@ -8,10 +8,13 @@ VALA_USE_DEPEND="vapigen"
 inherit vala meson gnome2-utils xdg
 
 COMMIT="ba1894159358275be2765bc42ef89782a2d1d45d"
+COMMIT_RS="6286be99f9021346ea5208e949d4e7bfe375cdfb"
 
 DESCRIPTION="Simple application for generating Two-Factor Authentication Codes."
 HOMEPAGE="https://gitlab.gnome.org/World/Authenticator"
-SRC_URI="https://gitlab.gnome.org/World/Authenticator/-/archive/${PV}/${PN}-${PV}.tar.gz"
+SRC_URI="https://gitlab.gnome.org/World/Authenticator/-/archive/${PV}/${PN}-${PV}.tar.gz
+https://gitlab.gnome.org/World/Rust/libadwaita-rs/-/archive/${COMMIT_RS}/libadwaita-rs-${COMMIT_RS}.tar.gz
+"
 
 LICENSE="GPL-3"
 SLOT="0"
