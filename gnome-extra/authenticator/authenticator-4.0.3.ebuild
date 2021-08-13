@@ -4,7 +4,7 @@
 EAPI=7
 
 CRATES="
-	libadwaita-rs
+	libadwaita-0.1.0-alpha-3
 "
 
 VALA_USE_DEPEND="vapigen"
