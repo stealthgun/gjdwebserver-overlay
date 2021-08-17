@@ -9,9 +9,9 @@ MY_P="${PN}-v${PV}"
 MY_COMMIT="c5ab6037f460406ac9799b1e5765de3ce0097a8b"
 
 DESCRIPTION="A pure Wayland shell prototype for GNOME on mobile devices"
-HOMEPAGE="https://source.puri.sm/Librem5/phosh"
+HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phosh/"
 SRC_URI="
-	https://source.puri.sm/Librem5/phosh/-/archive/v${PV}/${MY_P}.tar.gz
+	https://gitlab.gnome.org/World/Phosh/phosh/-/archive/v${PV}/${MY_P}.tar.gz
 	https://gitlab.gnome.org/GNOME/libgnome-volume-control/-/archive/${MY_COMMIT}.tar.gz -> libgnome-volume-control-${MY_COMMIT}.tar.gz
 "
 S="${WORKDIR}/${MY_P}"
@@ -46,7 +46,6 @@ src_prepare() {
 	rm -r "${S}"/subprojects/gvc || die
 	mv "${WORKDIR}"/libgnome-volume-control-"${MY_COMMIT}" "${S}"/subprojects/gvc || die
 }
-
 
 src_install() {
 	default
