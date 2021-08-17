@@ -36,7 +36,7 @@ BDEPEND="
 		dev-util/wayland-scanner
 "
 
-S="${WORKDIR}/$PN-${PV}"
+S="${WORKDIR}/calls-v${PV}"
 
 src_prepare() {
 	default
