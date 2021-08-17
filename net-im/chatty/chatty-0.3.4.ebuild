@@ -29,6 +29,8 @@ DEPEND="gnome-extra/evolution-data-server[phonenumber]
 RDEPEND="${DEPEND}"
 BDEPEND="${DEPEND}"
 
+S="${WORKDIR}/${PN}-v${PV}"
+
 pkg_postinst() {
 	xdg_pkg_postinst
 	gnome2_schemas_update
