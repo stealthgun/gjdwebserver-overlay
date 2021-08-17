@@ -9,7 +9,7 @@ COMMIT="501805ee4e013470c1c9eb17e930f9fe914e3671"
 
 DESCRIPTION="Messaging client"
 HOMEPAGE="https://source.puri.sm/Librem5/chatty"
-SRC_URI="https://source.puri.sm/Librem5/chatty/-/archive//${COMMIT}.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://source.puri.sm/Librem5/chatty/-/archive/v${PV}/${PN}-v${PV}.tar.gz"
 
 
 LICENSE="GPL-3"
