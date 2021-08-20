@@ -43,6 +43,7 @@ RDEPEND="
 	x11-libs/xcb-util
 	x11-libs/xcb-util-wm
 	x11-wm/mutter
+	gnome-base/gsettings-desktop-schemas
 "
 
 BDEPEND="
@@ -51,11 +52,6 @@ BDEPEND="
 	virtual/pkgconfig
 	x11-base/xorg-server
 "
-
-PATCHES=(
-	"${FILESDIR}/0001-seat-Don-t-notify-on-key-release.patch"
-	"${FILESDIR}/0002-seat-inhibit-touch-events-when-in-power-save-mode-or.patch"
-)
 
 S="${WORKDIR}/${MY_P}"
 
