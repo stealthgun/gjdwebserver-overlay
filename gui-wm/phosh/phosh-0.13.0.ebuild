@@ -68,6 +68,11 @@ src_install() {
 	systemd_newunit "${FILESDIR}"/phosh.service 'phosh.service'
 	insinto /usr/share/applications/
 	doins "${FILESDIR}"/sm.puri.OSK0.desktop
+	
+	DOC_CONTENTS="To amend the existing password policy please see the man 5 passwdqc.conf
+				page and then edit the /etc/security/passwdqc.conf file to change enforce=none
+				to allow use digit only password as phosh only support passcode for now"
+	readme.gentoo_create_doc
 }
 
 pkg_postinst() {
