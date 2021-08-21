@@ -45,7 +45,6 @@ RDEPEND="
 	x11-libs/xcb-util-wm
 	x11-wm/mutter
 	gnome-base/gsettings-desktop-schemas
-	#=gui-libs/wlroots-0.10.0
 "
 
 BDEPEND="
