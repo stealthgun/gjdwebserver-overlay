@@ -64,13 +64,17 @@ src_prepare() {
 	default
 	rm -r "${S}"/subprojects/wlroots || die "Failed to remove bundled wlroots"
 	cp -r "${WORKDIR}/${WL_P}" "${S}"/subprojects/wlroots || die "Failed to copy right version of wlroots"
+	
+	cd "${S}"/subprojects/wlroots
+	eapply ${FILESDIR}/xcursor-fix-false-positive-stringop-truncation.diff
+	eapply ${FILESDIR}/Revert-layer-shell-error-on-0-dimension-without-anchors.diff
+
 }
 
 src_configure() {
 	local emesonargs=(
 		-Ddefault_library=shared
 		-Dtests=false
-		-Dwlroots:logind-provider=systemd
 	)
 	meson_src_configure
 }
