@@ -32,6 +32,8 @@ DEPEND="
 	gnome-base/gnome-desktop
 	gnome-base/gnome-session
 	x11-themes/gnome-backgrounds
+	gnome-base/gnome-keyring
+	gnome-base/gnome-shell
 	x11-wm/phoc
 	systemd? ( sys-apps/systemd )
 	sys-power/upower
@@ -41,6 +43,12 @@ BDEPEND="
 	dev-util/ctags
 	dev-util/meson
 "
+
+PATCHES=(
+	${FILESDIR}/0001-system-prompt-allow-blank-passwords.patch
+	${FILESDIR}/0002-fix-locale-issue.patch
+	${FILESDIR}/0003-fix-locale-issue-in-service-file-1.patch
+)
 
 src_prepare() {
 	default
@@ -56,11 +64,8 @@ src_install() {
 	meson_src_install
 	newpamd "${FILESDIR}"/pam_phosh 'phosh'
 	systemd_newunit "${FILESDIR}"/phosh.service 'phosh.service'
-
-	DOC_CONTENTS="To amend the existing password policy please see the man 5 passwdqc.conf
-				page and then edit the /etc/security/passwdqc.conf file to change enforce=none
-				to allow use digit only password as phosh only support passcode for now"
-	readme.gentoo_create_doc
+	insinto /usr/share/applications/
+	doins "${FILESDIR}"/sm.puri.OSK0.desktop
 }
 
 pkg_postinst() {
