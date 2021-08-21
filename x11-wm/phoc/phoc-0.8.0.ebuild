@@ -72,6 +72,7 @@ src_configure() {
 		-Dtests=false
 		-Dwlroots:logind-provider=systemd
 		-Dwlroots:libseat=disabled
+		-Dxwayland=disabled
 	)
 	meson_src_configure
 }
