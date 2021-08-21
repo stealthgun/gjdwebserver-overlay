@@ -66,8 +66,7 @@ src_configure() {
 	local emesonargs=(
 		-Ddefault_library=shared
 		-Dtests=false
-		-Dwlroots:logind-provider=systemd
-		-Dwlroots:libseat=disabled
+		-Dembed-wlroots=false
 	)
 	meson_src_configure
 }
