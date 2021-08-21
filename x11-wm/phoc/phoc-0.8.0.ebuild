@@ -7,9 +7,6 @@ inherit meson vala xdg
 
 MY_PV="v${PV}"
 MY_P="${PN}-${MY_PV}"
-# 0.13.0 does not work atm
-WL_PV="0.14.0"
-WL_P="wlroots-${WL_PV}"
 
 DESCRIPTION="Wlroots based Phone compositor"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phoc"
@@ -18,7 +15,6 @@ HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phoc"
 # the phoc installation. we follow method used in archlinuxarm
 SRC_URI="
 	https://gitlab.gnome.org/World/Phosh/phoc/-/archive/${MY_PV}/${MY_P}.tar.gz
-	https://source.puri.sm/Librem5/wlroots/-/archive/${WL_PV}/${WL_P}.tar.gz
 "
 
 LICENSE="GPL-3"
@@ -59,7 +55,6 @@ S="${WORKDIR}/${MY_P}"
 src_prepare() {
 	default
 	rm -r "${S}"/subprojects/wlroots || die "Failed to remove bundled wlroots"
-	cp -r "${WORKDIR}/${WL_P}" "${S}"/subprojects/wlroots || die "Failed to copy right version of wlroots"
 }
 
 src_configure() {
