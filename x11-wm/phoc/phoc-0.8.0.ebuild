@@ -71,8 +71,6 @@ src_configure() {
 		-Ddefault_library=shared
 		-Dtests=false
 		-Dwlroots:logind-provider=systemd
-		-Dwlroots:libseat=disabled
-		-Dxwayland=disabled
 	)
 	meson_src_configure
 }
