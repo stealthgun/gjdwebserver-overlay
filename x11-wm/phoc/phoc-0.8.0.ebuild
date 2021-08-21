@@ -7,6 +7,9 @@ inherit meson vala xdg
 
 MY_PV="v${PV}"
 MY_P="${PN}-${MY_PV}"
+# 0.13.0 does not work atm
+WL_PV="0.10.1"
+WL_P="wlroots-${WL_PV}"
 
 DESCRIPTION="Wlroots based Phone compositor"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phoc"
@@ -14,8 +17,10 @@ HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phoc"
 # we don't use the version on gentoo because it breaks
 # the phoc installation. we follow method used in archlinuxarm
 SRC_URI="
-	https://gitlab.gnome.org/World/Phosh/phoc/-/archive/${MY_PV}/${MY_P}.tar.gz
+	https://source.puri.sm/Librem5/phoc/-/archive/${MY_PV}/${MY_P}.tar.gz
+	https://github.com/swaywm/wlroots/releases/download/${WL_PV}/${WL_P}.tar.gz
 "
+
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -40,7 +45,7 @@ RDEPEND="
 	x11-libs/xcb-util-wm
 	x11-wm/mutter
 	gnome-base/gsettings-desktop-schemas
-	=gui-libs/wlroots-0.10.0
+	#=gui-libs/wlroots-0.10.0
 "
 
 BDEPEND="
@@ -49,19 +54,25 @@ BDEPEND="
 	virtual/pkgconfig
 	x11-base/xorg-server
 "
+PATCHES=(
+	"${FILESDIR}/0001-seat-Don-t-notify-on-key-release.patch"
+	"${FILESDIR}/0002-seat-inhibit-touch-events-when-in-power-save-mode-or.patch"
+)
 
 S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
 	default
 	rm -r "${S}"/subprojects/wlroots || die "Failed to remove bundled wlroots"
+	cp -r "${WORKDIR}/${WL_P}" "${S}"/subprojects/wlroots || die "Failed to copy right version of wlroots"
 }
 
 src_configure() {
 	local emesonargs=(
 		-Ddefault_library=shared
 		-Dtests=false
-		-Dembed-wlroots=disabled
+		-Dwlroots:logind-provider=systemd
+		-Dwlroots:libseat=disabled
 	)
 	meson_src_configure
 }
