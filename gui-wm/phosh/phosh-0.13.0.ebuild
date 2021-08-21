@@ -29,6 +29,7 @@ DEPEND="
 	media-sound/pulseaudio
 	>=gui-libs/libhandy-1.1.90
 	net-misc/networkmanager
+	gnome-base/gnome-control-center
 	gnome-base/gnome-desktop
 	gnome-base/gnome-session
 	x11-themes/gnome-backgrounds
@@ -37,6 +38,7 @@ DEPEND="
 	x11-wm/phoc
 	systemd? ( sys-apps/systemd )
 	sys-power/upower
+	app-misc/geoclue
 "
 RDEPEND="${DEPEND}"
 BDEPEND="
