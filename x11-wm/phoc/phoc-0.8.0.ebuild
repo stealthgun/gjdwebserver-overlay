@@ -8,7 +8,7 @@ inherit meson vala xdg
 MY_PV="v${PV}"
 MY_P="${PN}-${MY_PV}"
 # 0.13.0 does not work atm
-WL_PV="0.10.1"
+WL_PV="0.12.0"
 WL_P="wlroots-${WL_PV}"
 
 DESCRIPTION="Wlroots based Phone compositor"
