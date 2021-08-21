@@ -8,17 +8,17 @@ inherit meson vala xdg
 MY_PV="v${PV}"
 MY_P="${PN}-${MY_PV}"
 # 0.13.0 does not work atm
-WL_PV="0.14.1"
+WL_PV="0.14.0"
 WL_P="wlroots-${WL_PV}"
 
 DESCRIPTION="Wlroots based Phone compositor"
-HOMEPAGE="https://source.puri.sm/Librem5/phoc"
+HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phoc"
 
 # we don't use the version on gentoo because it breaks
 # the phoc installation. we follow method used in archlinuxarm
 SRC_URI="
-	https://source.puri.sm/Librem5/phoc/-/archive/${MY_PV}/${MY_P}.tar.gz
-	https://github.com/swaywm/wlroots/releases/download/${WL_PV}/${WL_P}.tar.gz
+	https://gitlab.gnome.org/World/Phosh/phoc/-/archive/${MY_PV}/${MY_P}.tar.gz
+	https://source.puri.sm/Librem5/wlroots/-/archive/${WL_PV}/${WL_P}.tar.gz
 "
 
 LICENSE="GPL-3"
