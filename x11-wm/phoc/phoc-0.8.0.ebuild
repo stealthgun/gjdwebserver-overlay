@@ -44,7 +44,6 @@ RDEPEND="
 	x11-libs/xcb-util
 	x11-libs/xcb-util-wm
 	x11-wm/mutter
-	gnome-base/gsettings-desktop-schemas
 "
 
 BDEPEND="
@@ -81,13 +80,15 @@ src_configure() {
 
 src_install() {
 	DESTDIR="${D}" meson_src_install
-#	dobin "${S}"/helpers/scale-to-fit
+	dobin "${S}"/helpers/scale-to-fit
 }
 
 pkg_postinst() {
 	xdg_pkg_postinst
+	gnome2_schemas_update
 }
 
 pkg_postrm() {
 	xdg_pkg_postrm
+	gnome2_schemas_update
 }
