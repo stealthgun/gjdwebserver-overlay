@@ -21,7 +21,6 @@ SRC_URI="
 	https://github.com/swaywm/wlroots/releases/download/${WL_PV}/${WL_P}.tar.gz
 "
 
-
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
@@ -44,6 +43,7 @@ RDEPEND="
 	x11-libs/xcb-util
 	x11-libs/xcb-util-wm
 	x11-wm/mutter
+	sys-auth/seatd
 "
 
 BDEPEND="
@@ -63,10 +63,10 @@ src_prepare() {
 	default
 	rm -r "${S}"/subprojects/wlroots || die "Failed to remove bundled wlroots"
 	cp -r "${WORKDIR}/${WL_P}" "${S}"/subprojects/wlroots || die "Failed to copy right version of wlroots"
-	
+
 	cd "${S}"/subprojects/wlroots
-	eapply ${FILESDIR}/xcursor-fix-false-positive-stringop-truncation.diff
-	eapply ${FILESDIR}/Revert-layer-shell-error-on-0-dimension-without-anchors.diff
+	eapply "${FILESDIR}"/xcursor-fix-false-positive-stringop-truncation.diff
+	eapply "${FILESDIR}"/Revert-layer-shell-error-on-0-dimension-without-anchors.diff
 
 }
 

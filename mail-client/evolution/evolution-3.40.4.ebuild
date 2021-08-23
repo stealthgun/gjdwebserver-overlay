@@ -14,7 +14,7 @@ SLOT="2.0"
 
 IUSE="archive +bogofilter geolocation gtk-doc highlight ldap spamassassin spell ssl +weather ytnef"
 
-KEYWORDS="amd64 ~arm ~arm64 ~ppc64 x86"
+KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~x86"
 
 # glade-3 support is for maintainers only per configure.ac
 # pst is not mature enough and changes API/ABI frequently
@@ -51,8 +51,7 @@ DEPEND="
 		>=media-libs/libchamplain-0.12:0.12[gtk]
 		>=media-libs/clutter-1.0.0:1.0
 		>=media-libs/clutter-gtk-0.90:1.0
-		>=sci-geosciences/geocode-glib-3.10.0
-		x11-libs/mx:1.0 )
+		>=sci-geosciences/geocode-glib-3.10.0 )
 	ldap? ( >=net-nds/openldap-2:= )
 	spamassassin? ( mail-filter/spamassassin )
 	spell? ( >=app-text/gspell-1.8:= )
