@@ -10,7 +10,7 @@ SRC_URI=""
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm64 ~arm"
-IUSE="cawbird squeekboard chromium authenticator geary lollypop dino owncloud nextcloud"
+IUSE="cawbird squeekboard chromium firefox vivaldi authenticator geary lollypop dino owncloud nextcloud"
 
 DEPEND="
 		gui-wm/phosh
@@ -21,6 +21,7 @@ DEPEND="
 		app-misc/gnote
 		media-video/megapixels
 		gnome-base/gnome-control-center
+		gnome-base/gnome-keyring
 		gnome-extra/gnome-contacts
 		gnome-extra/gnome-calculator
 		gnome-extra/gnome-calendar
@@ -51,7 +52,15 @@ DEPEND="
 		
 		chromium? (
 			www-client/chromium
-		)	
+		)
+		
+		firefox? (
+			www-client/firefox
+		)
+		
+		vivaldi? (
+			www-client/vivaldi
+		)
 		
 		authenticator? (
 			gnome-extra/authenticator
@@ -63,13 +72,16 @@ DEPEND="
 		
 		lollypop? (	
 			media-sound/lollypop
-		)		
+		)
+			
 		dino? (
 			net-im/dino-libhandy
 		)
+		
 		owncloud? (
 			net-misc/owncloud-client
 		)
+		
 		nextcloud? (
 			net-misc/nextcloud-client
 		)
@@ -91,4 +103,3 @@ pkg_postinst() {
 		fi
 	done
 }
-

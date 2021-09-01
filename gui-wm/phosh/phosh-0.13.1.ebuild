@@ -6,7 +6,7 @@ EAPI=7
 inherit desktop gnome2-utils meson pam readme.gentoo-r1 vala systemd xdg
 
 MY_P="${PN}-v${PV}"
-LVC_COMMIT="c5ab6037f460406ac9799b1e5765de3ce0097a8b"
+LVC_COMMIT="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
 LCU_COMMIT="465f6add090b623fb80c6c5cbb9ab2880ff531a4"
 
 DESCRIPTION="A pure Wayland shell prototype for GNOME on mobile devices"
