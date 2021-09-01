@@ -19,7 +19,6 @@ MY_REPO_URI="https://github.com/dino/dino"
 KEYWORDS="~amd64 ~arm64"
 SRC_URI="${MY_REPO_URI}/archive/${COMMIT}.tar.gz -> ${PN}-${PV}.tar.gz"
 
-
 RDEPEND="
 	app-text/gspell[vala]
 	dev-db/sqlite:3
@@ -56,23 +55,9 @@ src_prepare() {
 }
 
 src_configure() {
-	local disabled_plugins=(
-		$(usex gpg "" "openpgp")
-		$(usex omemo "" "omemo")
-		$(usex http  "" "http-files")
-	)
-	local enabled_plugins=(
-		$(usex notification-sound "notification-sound" "")
-	)
 	local mycmakeargs+=(
-		"-DENABLED_PLUGINS=$(local IFS=";"; echo "${enabled_plugins[*]}")"
-		"-DDISABLED_PLUGINS=$(local IFS=";"; echo "${disabled_plugins[*]}")"
 		"-DVALA_EXECUTABLE=${VALAC}"
 	)
-
-	if has test ${FEATURES}; then
-		mycmakeargs+=("-DBUILD_TESTS=yes")
-	fi
 
 	cmake_src_configure
 }
