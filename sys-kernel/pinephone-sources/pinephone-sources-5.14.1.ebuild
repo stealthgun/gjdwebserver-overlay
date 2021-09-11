@@ -48,7 +48,6 @@ PATCHES=(
 	${FILESDIR}/PATCH-v3-11-14-mm-multigenerational-lru-eviction.patch
 	${FILESDIR}/PATCH-v3-12-14-mm-multigenerational-lru-user-interface.patch
 	${FILESDIR}/PATCH-v3-13-14-mm-multigenerational-lru-Kconfig.patch
-	${FILESDIR}/PATCH-v3-14-14-mm-multigenerational-lru-documentation.patch
 )
 
 src_prepare() {
