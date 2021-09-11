@@ -24,30 +24,16 @@ SRC_URI="${KERNEL_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
 
 PATCHES=(
 	${DISTDIR}/all-${PV}.patch
-    ${FILESDIR}/enable-hdmi-output-pinetab.patch
-    ${FILESDIR}/enable-jack-detection-pinetab.patch
-    ${FILESDIR}/pinetab-bluetooth.patch
-    ${FILESDIR}/pinetab-accelerometer.patch
+	${FILESDIR}/enable-hdmi-output-pinetab.patch
+	${FILESDIR}/enable-jack-detection-pinetab.patch
+	${FILESDIR}/pinetab-bluetooth.patch
+	${FILESDIR}/pinetab-accelerometer.patch
 	${FILESDIR}/dts-pinephone-drop-modem-power-node.patch
 	${FILESDIR}/media-ov5640-Implement-autofocus.patch
 	${FILESDIR}/0011-dts-pinetab-hardcode-mmc-numbers.patch
 	${FILESDIR}/0107-quirk-kernel-org-bug-210681-firmware_rome_error.patch
 	${FILESDIR}/0177-leds-gpio-make-max_brightness-configurable.patch
-    ${FILESDIR}/panic-led-5.12.patch
-
-	${FILESDIR}/PATCH-v3-01-14-include-linux-memcontrol.h-do-not-warn-in-page_memcg_rcu-if-CONFIG_MEMCG.patch
-	${FILESDIR}/PATCH-v3-02-14-include-linux-nodemask.h-define-next_memory_node-if-CONFIG_NUMA.patch
-	${FILESDIR}/PATCH-v3-03-14-include-linux-cgroup.h-export-cgroup_mutex.patch
-	${FILESDIR}/PATCH-v3-04-14-mm-x86-support-the-access-bit-on-non-leaf-PMD-entries.patch
-	${FILESDIR}/PATCH-v3-05-14-mm-vmscan.c-refactor-shrink_node.patch
-	${FILESDIR}/PATCH-v3-06-14-mm-workingset.c-refactor-pack_shadow-and-unpack_shadow.patch 
-	${FILESDIR}/PATCH-v3-07-14-mm-multigenerational-lru-groundwork.patch
-	${FILESDIR}/PATCH-v3-08-14-mm-multigenerational-lru-activation.patch
-	${FILESDIR}/PATCH-v3-09-14-mm-multigenerational-lru-mm_struct-list.patch
-	${FILESDIR}/PATCH-v3-10-14-mm-multigenerational-lru-aging.patch
-	${FILESDIR}/PATCH-v3-11-14-mm-multigenerational-lru-eviction.patch
-	${FILESDIR}/PATCH-v3-12-14-mm-multigenerational-lru-user-interface.patch
-	${FILESDIR}/PATCH-v3-13-14-mm-multigenerational-lru-Kconfig.patch
+    	${FILESDIR}/panic-led-5.12.patch
 )
 
 src_prepare() {
