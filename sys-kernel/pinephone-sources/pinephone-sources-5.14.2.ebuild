@@ -9,7 +9,7 @@ ETYPE="sources"
 inherit kernel-2
 detect_version
 
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86"
+KEYWORDS="~arm64"
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
@@ -33,7 +33,14 @@ PATCHES=(
 	${FILESDIR}/0011-dts-pinetab-hardcode-mmc-numbers.patch
 	${FILESDIR}/0107-quirk-kernel-org-bug-210681-firmware_rome_error.patch
 	${FILESDIR}/0177-leds-gpio-make-max_brightness-configurable.patch
-    	${FILESDIR}/panic-led-5.12.patch
+	${FILESDIR}/panic-led-5.12.patch
+
+	# keyboard
+	${FILESDIR}/d1d849cae12db71aa81ceedaedc1b17a34790367.patch
+	${FILESDIR}/2423aac2d6f5db55da99e11fd799ee66fe6f54c6.patch
+
+	# LRU
+	${FILESDIR}/Multigenerational-LRU-Framework.patch
 )
 
 src_prepare() {
@@ -60,3 +67,4 @@ pkg_postinst() {
 pkg_postrm() {
 	kernel-2_pkg_postrm
 }
+
