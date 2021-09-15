@@ -15,10 +15,14 @@ KEYWORDS="~amd64 ~arm64"
 
 RDEPEND="
 	gui-libs/gtk
+	x11-libs/gtk+:3
 	media-libs/tiff
 	media-gfx/zbar
 	media-libs/libepoxy
 	media-libs/libraw
+	media-gfx/dcraw
+	media-gfx/imagemagick
+
 "
 
 pkg_postinst() {
