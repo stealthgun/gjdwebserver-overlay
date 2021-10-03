@@ -23,6 +23,11 @@ RDEPEND="
 	x11-themes/sound-theme-librem5
 "
 
+RDEPEND="${DEPEND}"
+BDEPEND=""
+
+S=${WORKDIR}
+
 src_install() {
 	udev_dorules "${FILESDIR}/10-proximity.rules"
 	udev_dorules "${FILESDIR}/10-pinephone-brightness.rules"
