@@ -1,0 +1,3 @@
+## Automatically mount the SD card when inserted
+
+ACTION=="add", KERNEL=="mmcblk[0-2]p*", ENV{ID_FS_USAGE}=="filesystem", RUN{program}+="/usr/bin/systemd-mount --no-block --automount=yes --timeout-idle-sec=1s $devnode /media/%k"

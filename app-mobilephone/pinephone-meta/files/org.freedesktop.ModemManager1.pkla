@@ -1,0 +1,9 @@
+[ModemManager Permissions]
+Identity=unix-group:dialout
+Action=org.freedesktop.ModemManager1.*
+# We want no here but need to fix
+# https://source.puri.sm/Librem5/phosh/issues/34
+# first
+ResultAny=yes
+ResultInactive=yes
+ResultActive=yes

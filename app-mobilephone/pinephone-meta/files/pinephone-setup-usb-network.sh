@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if [ ! -e /etc/NetworkManager/system-connections/USB.nmconnection ]; then
+    # Create network connection
+    nmcli connection add con-name USB \
+                         ifname usb0 \
+                         type ethernet \
+                         ip4 10.66.0.1/8
+
+    # Set priorities so it doesn't take precedence over WiFi/mobile connections
+    nmcli connection modify USB ipv4.route-metric 1500
+    nmcli connection modify USB ipv4.dns-priority 150
+
+    # Share connection so it can be used for tethering
+    nmcli connection modify USB ipv4.method shared
+fi

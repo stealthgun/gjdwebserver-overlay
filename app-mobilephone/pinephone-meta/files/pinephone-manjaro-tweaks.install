@@ -1,0 +1,51 @@
+msg() {
+    ALL_OFF="\e[1;0m"
+    BOLD="\e[1;1m"
+    GREEN="${BOLD}\e[1;32m"
+	local mesg=$1; shift
+	printf "${GREEN}==>${ALL_OFF}${BOLD} ${mesg}${ALL_OFF}\n" "$@" >&2
+}
+
+_configure_network() {
+    # Not enabled for now: https://gitlab.com/mobian1/issues/-/issues/232
+    # Reload units so the umtp-responder override is taken into account
+    #systemctl daemon-reload
+    
+    # Enable tethering
+    #systemctl enable umtp-responder
+    #systemctl enable pinephone-usb-gadget
+    
+    # Try setting up USB networking directly; if it doesn't work (i.e. the NM
+    # connection file isn't created), then we're probably creating an image and
+    # need a systemd service running on first boot to setup USB networking
+    /usr/bin/pinephone-setup-usb-network.sh
+    if [ ! -e /etc/NetworkManager/system-connections/USB.nmconnection ]; then
+        systemctl enable pinephone-setup-usb-network
+    fi
+}
+
+post_install() {
+    echo 'CHASSIS="handset"' > /etc/machine-info
+    msg "Enable USB-Networking"    
+    _configure_network
+}    
+
+post_upgrade() {
+    if [[ "$(vercmp $2 20210320)" -lt 0 ]]; then
+        msg "Removing some unused files"
+        rm -f /etc/profile.d/gtk-app-wayland.sh
+        rm -f /etc/systemd/system/phosh.service deleted
+        rm -f /etc/systemd/system/phosh.service.bak
+        rm -f /etc/systemd/system/phosh.service.d/override.conf.bak
+        rm -f /usr/share/glib-2.0/schemas/000-gschema.override
+        rm -f /usr/share/lightdm/lightdm.conf.d/60-lightdm-autologin.conf
+        rm -f /usr/share/manjaro/applications/org.gnome.Cheese.desktop
+    fi
+    if [[ "$(vercmp $2 20210405)" -lt 0 ]]; then
+        msg "Setting chassis"
+        post_install
+    fi
+    if [[ "$(vercmp $2 20211001)" -lt 0 ]]; then
+        _configure_network
+    fi
+}

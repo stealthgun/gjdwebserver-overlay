@@ -1,0 +1,14 @@
+[Unit]
+Description=Setup USB networking
+Requires=NetworkManager.service
+After=NetworkManager.service
+ConditionFirstBoot=yes
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/pinephone-setup-usb-network.sh
+
+[Install]
+WantedBy=multi-user.target
+
+

@@ -1,0 +1,12 @@
+[Unit]
+Description=Configure USB gadget
+Before=umtp-responder.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/pinephone-usb-gadget.sh setup
+ExecStop=/usr/bin/pinephone-usb-gadget.sh reset
+RemainAfterExit=yes
+
+[Install]
+RequiredBy=umtp-responder.service
