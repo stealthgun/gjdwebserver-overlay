@@ -21,6 +21,7 @@ RDEPEND="
 	net-misc/eg25-manager
 	sys-firmware/pinephone-firmware
 	x11-themes/sound-theme-librem5
+	app-misc/geoclue
 "
 
 S=${WORKDIR}
