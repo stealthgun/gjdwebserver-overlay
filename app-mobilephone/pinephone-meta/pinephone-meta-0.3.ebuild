@@ -23,9 +23,6 @@ RDEPEND="
 	x11-themes/sound-theme-librem5
 "
 
-RDEPEND="${DEPEND}"
-BDEPEND=""
-
 S=${WORKDIR}
 
 src_install() {
@@ -91,4 +88,3 @@ src_install() {
 	dobin ${FILESDIR}/pinephone-usb-gadget.sh
 	dobin ${FILESDIR}/pinephone-setup-usb-network.sh
 }
-
