@@ -13,7 +13,7 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 
-RDEPEND="
+DEPEND="
 	gui-libs/gtk
 	x11-libs/gtk+:3
 	media-libs/tiff
@@ -24,6 +24,8 @@ RDEPEND="
 	media-gfx/imagemagick
 
 "
+RDEPEND="${DEPEND}"
+BDEPEND=""
 
 pkg_postinst() {
 	xdg_pkg_postinst
