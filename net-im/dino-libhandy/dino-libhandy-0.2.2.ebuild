@@ -7,7 +7,7 @@ CMAKE_MAKEFILE_GENERATOR="ninja"
 VALA_MIN_API_VERSION="0.34"
 inherit cmake gnome2-utils vala xdg-utils
 
-COMMIT="093491d132bdfbc89794067fbbddfa3ff30c7c0f"
+COMMIT="db1bff1c87e4ed4f791e9262571266fab14ccde7"
 
 DESCRIPTION="Modern Jabber/XMPP Client using GTK+/Vala/libhandy"
 HOMEPAGE="https://dino.im"
