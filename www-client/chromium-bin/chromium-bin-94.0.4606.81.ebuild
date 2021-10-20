@@ -81,10 +81,8 @@ src_install() {
 	cd "${ED}" || die
 	unpacker
 
-	mv usr/share/doc/${MY_PN} usr/share/doc/${PF} || die
-
-	gzip -d usr/share/doc/${PF}/changelog.gz || die
-	gzip -d usr/share/man/man1/${MY_PN}.1.gz || die
+	gzip -d usr/share/doc/chromium-browser/changelog.Debian.gz || die
+	gzip -d usr/share/man/man1/chromium-browser.1.gz || die
 
 	pushd "/usr/lib/chromium-browser/locales" > /dev/null || die
 	chromium_remove_language_paks
