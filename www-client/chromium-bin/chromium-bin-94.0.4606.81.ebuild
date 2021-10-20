@@ -82,7 +82,6 @@ src_install() {
 	unpacker
 
 	pushd "/usr/lib/chromium-browser/locales" > /dev/null || die
-	chromium_remove_language_paks
 	popd > /dev/null || die
 
 }
