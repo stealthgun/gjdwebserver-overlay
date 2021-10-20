@@ -56,9 +56,8 @@ RDEPEND="
 "
 
 QA_PREBUILT="*"
-QA_DESKTOP_FILE="usr/share/applications/chromium.*\\.desktop"
+QA_DESKTOP_FILE="usr/share/applications/chromium-browser.*\\.desktop"
 S=${WORKDIR}
-CHROME_HOME="opt/google/chromium${PN#chromium-browser}"
 
 pkg_nofetch() {
 	eerror "Please wait 24 hours and sync your tree before reporting a bug for chromium fetch failures."
@@ -82,14 +81,13 @@ src_install() {
 	cd "${ED}" || die
 	unpacker
 
-	pushd "${CHROME_HOME}/locales" > /dev/null || die
+	mv usr/share/doc/${MY_PN} usr/share/doc/${PF} || die
+
+	gzip -d usr/share/doc/${PF}/changelog.gz || die
+	gzip -d usr/share/man/man1/${MY_PN}.1.gz || die
+
+	pushd "/usr/lib/chromium-browser/locales" > /dev/null || die
 	chromium_remove_language_paks
 	popd > /dev/null || die
 
-	local size
-	for size in 16 24 32 48 64 128 256 ; do
-		newicon -s ${size} "${CHROME_HOME}/product_logo_${size}${suffix}.png" ${PN}.png
-	done
-
-	pax-mark m "${CHROME_HOME}/chromium"
 }
