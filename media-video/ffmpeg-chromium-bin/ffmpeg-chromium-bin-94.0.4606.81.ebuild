@@ -5,9 +5,6 @@ EAPI=8
 
 inherit chromium-2 desktop pax-utils unpacker xdg
 
-DESCRIPTION="The web browser from Google"
-HOMEPAGE="https://www.google.com/chrome"
-
 KEYWORDS="~arm64"
 
 MY_P="chromium-codecs-ffmpeg_${PV}-0"
@@ -19,6 +16,7 @@ IUSE="selinux"
 RESTRICT="bindist mirror strip"
 
 RDEPEND=""
+S=${WORKDIR}
 
 src_unpack() {
 	:
