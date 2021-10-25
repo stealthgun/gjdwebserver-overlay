@@ -24,6 +24,7 @@ DEPEND="
 	gnome-base/gnome-common
 	gui-libs/gtk
 	x11-libs/gdk-pixbuf
+	x11-libs/libadwaita
 	media-gfx/zbar
 	>=media-libs/gstreamer-1.18.0
 	>=media-libs/gst-plugins-base-1.18.0
