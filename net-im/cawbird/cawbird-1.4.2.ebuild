@@ -22,7 +22,7 @@ DEPEND="
 	>=dev-libs/glib-2.44
 	>=dev-libs/json-glib-1.0
 	>=dev-db/sqlite-3.0
-	>=net-libs/libsoup-2.4
+	>=net-libs/libsoup-2.4:*
 	net-libs/liboauth
 	>=sys-devel/gettext-0.19
 	media-libs/gst-plugins-base
