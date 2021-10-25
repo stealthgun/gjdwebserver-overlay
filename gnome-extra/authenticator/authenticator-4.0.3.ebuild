@@ -23,7 +23,6 @@ RESTRICT="network-sandbox"
 DEPEND="
 	gnome-base/gnome-common
 	gui-libs/gtk
-	x11-libs/libadwaita
 	x11-libs/gdk-pixbuf
 	media-gfx/zbar
 	>=media-libs/gstreamer-1.18.0
