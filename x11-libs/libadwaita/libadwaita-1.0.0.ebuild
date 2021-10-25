@@ -20,6 +20,7 @@ REQUIRED_USE="vala? ( introspection )"
 RESTRICT="network-sandbox"
 
 DEPEND="
+	dev-lang/sassc
 	gnome-base/gnome-common
 	gui-libs/gtk
 	dev-libs/fribidi
