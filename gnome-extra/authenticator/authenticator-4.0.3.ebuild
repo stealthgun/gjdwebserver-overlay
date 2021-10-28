@@ -38,7 +38,7 @@ BDEPEND="
 		dev-libs/gobject-introspection
 		"
 
-S="${WORKDIR}/Authenticator-${PV}-${COMMIT}"
+S="${WORKDIR}/Authenticator-${COMMIT}"
 
 src_install() {
 	meson_src_install
