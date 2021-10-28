@@ -6,7 +6,7 @@ VALA_USE_DEPEND="vapigen"
 
 inherit vala meson gnome2-utils xdg
 
-COMMIT="f5932ab4250c8e709958c6e75a1a4941a5f0f386"
+COMMIT="40c19ab2591763a482ebc79c82f1da32eea3bab6"
 
 DESCRIPTION="Building blocks for modern GNOME applications."
 HOMEPAGE="https://gitlab.gnome.org/GNOME/libadwaita"
@@ -17,7 +17,6 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 IUSE="+introspection +vala"
 REQUIRED_USE="vala? ( introspection )"
-RESTRICT="network-sandbox"
 
 DEPEND="
 	dev-lang/sassc
