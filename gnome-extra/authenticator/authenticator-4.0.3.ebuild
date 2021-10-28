@@ -7,7 +7,7 @@ VALA_USE_DEPEND="vapigen"
 
 inherit vala meson gnome2-utils xdg
 
-COMMIT="ba1894159358275be2765bc42ef89782a2d1d45d"
+COMMIT="24e88b31709131141ebcb78ee144ccf59f56ef0a"
 
 DESCRIPTION="Simple application for generating Two-Factor Authentication Codes."
 HOMEPAGE="https://gitlab.gnome.org/World/Authenticator"
