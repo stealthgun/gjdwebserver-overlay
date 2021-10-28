@@ -11,7 +11,7 @@ COMMIT="24e88b31709131141ebcb78ee144ccf59f56ef0a"
 
 DESCRIPTION="Simple application for generating Two-Factor Authentication Codes."
 HOMEPAGE="https://gitlab.gnome.org/World/Authenticator"
-SRC_URI="https://gitlab.gnome.org/World/Authenticator/-/archive/${PV}/${PN}-${PV}.tar.gz"
+SRC_URI="https://gitlab.gnome.org/World/Authenticator/-/archive/${COMMIT}/Authenticator-${COMMIT}.tar.gz -> ${PN}-${PV}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
