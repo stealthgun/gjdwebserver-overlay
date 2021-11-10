@@ -1,7 +1,7 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="6"
+EAPI="8"
 K_NOUSENAME="yes"
 K_NOSETEXTRAVERSION="yes"
 K_SECURITY_UNSUPPORTED="1"
@@ -24,13 +24,9 @@ SRC_URI="${KERNEL_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
 
 PATCHES=(
 	${DISTDIR}/all-${PV}.patch
-    ${FILESDIR}/enable-hdmi-output-pinetab.patch
-    ${FILESDIR}/enable-jack-detection-pinetab.patch
-    ${FILESDIR}/pinetab-bluetooth.patch
-    ${FILESDIR}/pinetab-accelerometer.patch
+	${FILESDIR}/ccu-sun50i-a64-reparent-clocks-to-lower-speed-oscillator.patch
 	${FILESDIR}/dts-pinephone-drop-modem-power-node.patch
 	${FILESDIR}/media-ov5640-Implement-autofocus.patch
-	${FILESDIR}/0011-dts-pinetab-hardcode-mmc-numbers.patch
 	${FILESDIR}/0107-quirk-kernel-org-bug-210681-firmware_rome_error.patch
 	${FILESDIR}/0177-leds-gpio-make-max_brightness-configurable.patch
     ${FILESDIR}/panic-led-5.12.patch
@@ -43,7 +39,7 @@ PATCHES=(
     ${FILESDIR}/2423aac2d6f5db55da99e11fd799ee66fe6f54c6.patch
 
 	# LRU
-	${FILESDIR}/Multigenerational-LRU-Framework.patch
+	#${FILESDIR}/Multigenerational-LRU-Framework.patch
 )
 
 src_prepare() {
