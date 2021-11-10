@@ -44,6 +44,7 @@ RDEPEND="
 	x11-libs/xcb-util-wm
 	x11-wm/mutter
 	sys-auth/seatd
+	!gui-libs/wlroots
 "
 
 BDEPEND="
@@ -52,6 +53,10 @@ BDEPEND="
 	virtual/pkgconfig
 	x11-base/xorg-server
 "
+
+PATCHES=(
+	"${FILESDIR}/0001-seat-Don-t-notify-on-key-release.patch"
+)
 
 S="${WORKDIR}/${MY_P}"
 
@@ -62,7 +67,6 @@ src_prepare() {
 
 	cd "${S}"/subprojects/wlroots
 	eapply "${FILESDIR}"/xcursor-fix-false-positive-stringop-truncation.diff
-	eapply "${FILESDIR}"/Revert-layer-shell-error-on-0-dimension-without-anchors.diff
 
 }
 
