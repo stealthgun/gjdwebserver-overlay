@@ -159,7 +159,3 @@ src_install() {
 		dosym ../../../usr/share/${PN}/evolutionperson.schema /etc/openldap/schema/evolutionperson.schema
 	fi
 }
-		
-		dosym ../../../usr/share/${PN}/evolutionperson.schema /etc/openldap/schema/evolutionperson.schema
-	fi
-}
