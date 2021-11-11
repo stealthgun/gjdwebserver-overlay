@@ -11,21 +11,22 @@ HOMEPAGE="https://wiki.gnome.org/Apps/Evolution"
 
 # Note: explicitly "|| ( LGPL-2 LGPL-3 )", not "LGPL-2+".
 LICENSE="|| ( LGPL-2 LGPL-3 ) BSD Sleepycat"
-SLOT="0/62-26-20" # subslot = libcamel-1.2/libedataserver-1.2/libebook-1.2.so soname version
+SLOT="0/63-26-20" # subslot = libcamel-1.2/libedataserver-1.2/libebook-1.2.so soname version
 
-IUSE="berkdb +gnome-online-accounts +gtk gtk-doc +introspection ipv6 ldap kerberos oauth vala +weather phonenumber"
+IUSE="berkdb +gnome-online-accounts +gtk gtk-doc +introspection ipv6 ldap kerberos oauth vala +weather"
 REQUIRED_USE="vala? ( introspection )"
 
-KEYWORDS="~alpha amd64 ~arm arm64 ~ia64 ~ppc ~ppc64 ~sparc x86 ~amd64-linux ~x86-linux ~x86-solaris"
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~ppc ~ppc64 ~riscv ~sparc ~x86 ~amd64-linux ~x86-linux ~x86-solaris"
 
 # gdata-0.17.7 soft required for new gdata_feed_get_next_page_token API to handle more than 100 google tasks
 # berkdb needed only for migrating old addressbook data from <3.13 versions, bug #519512
-gdata_depend=">=dev-libs/libgdata-0.17.7:=[vala?]"
+# glib-2.70 for build-time optional GPowerProfileMonitor
+gdata_depend=">=dev-libs/libgdata-0.17.7:="
 RDEPEND="
 	>=app-crypt/gcr-3.4
 	>=app-crypt/libsecret-0.5[crypt]
 	>=dev-db/sqlite-3.7.17:=
-	>=dev-libs/glib-2.46:2
+	>=dev-libs/glib-2.70:2
 	>=dev-libs/libical-3.0.8:=[glib,introspection?]
 	>=dev-libs/libxml2-2
 	>=dev-libs/nspr-4.4:=
@@ -47,9 +48,6 @@ RDEPEND="
 		>=net-libs/webkit-gtk-2.28.0:4
 		${gdata_depend}
 	)
-	phonenumber? (
-		>=dev-libs/libphonenumber-8.12.24
-	)
 	gnome-online-accounts? (
 		>=net-libs/gnome-online-accounts-3.8:=
 		${gdata_depend} )
@@ -57,11 +55,16 @@ RDEPEND="
 	kerberos? ( virtual/krb5:= )
 	ldap? ( >=net-nds/openldap-2:= )
 	weather? ( >=dev-libs/libgweather-3.10:2= )
+	phonenumber? (
+		>=dev-libs/libphonenumber-8.12.24
+	)
 "
 DEPEND="${RDEPEND}
 	vala? ( $(vala_depend)
 		net-libs/libsoup:2.4[vala]
 		dev-libs/libical[vala]
+		oauth? ( dev-libs/libgdata[vala] )
+		gnome-online-accounts? ( dev-libs/libgdata[vala] )
 	)
 "
 BDEPEND="
@@ -87,6 +90,9 @@ src_prepare() {
 	gnome2_src_prepare
 
 	eapply "${FILESDIR}"/3.36.5-gtk-doc-1.32-compat.patch
+	# From gnome-41 branch:
+	eapply "${FILESDIR}"/${PV}-fix-build.patch
+	eapply "${FILESDIR}"/${PV}-fix-calendar-crash.patch
 
 	# Make CMakeLists versioned vala enabled
 	sed -e "s;\(find_program(VALAC\) valac);\1 ${VALAC});" \
@@ -150,6 +156,10 @@ src_install() {
 	if use ldap; then
 		insinto /etc/openldap/schema
 		doins "${FILESDIR}"/calentry.schema
+		dosym ../../../usr/share/${PN}/evolutionperson.schema /etc/openldap/schema/evolutionperson.schema
+	fi
+}
+		
 		dosym ../../../usr/share/${PN}/evolutionperson.schema /etc/openldap/schema/evolutionperson.schema
 	fi
 }
