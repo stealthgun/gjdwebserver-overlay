@@ -7,8 +7,9 @@ inherit meson vala xdg gnome2-utils
 
 MY_PV="v${PV}"
 MY_P="${PN}-${MY_PV}"
+
 # 0.13.0 does not work atm
-WL_PV="0.12.0"
+WL_PV="0.14.0"
 WL_P="wlroots-${WL_PV}"
 
 DESCRIPTION="Wlroots based Phone compositor"
@@ -18,7 +19,7 @@ HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phoc"
 # the phoc installation. we follow method used in archlinuxarm
 SRC_URI="
 	https://gitlab.gnome.org/World/Phosh/phoc/-/archive/${MY_PV}/${MY_P}.tar.gz
-	https://github.com/swaywm/wlroots/releases/download/${WL_PV}/${WL_P}.tar.gz
+	hhttps://source.puri.sm/Librem5/wlroots/releases/download/${WL_PV}/${WL_P}.tar.gz
 "
 
 LICENSE="GPL-3"
