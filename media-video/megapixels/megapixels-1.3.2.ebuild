@@ -6,8 +6,8 @@ EAPI=7
 inherit gnome2-utils meson xdg
 
 DESCRIPTION="A GTK3 camera application that knows how to deal with the media request api"
-HOMEPAGE="https://git.sr.ht/~martijnbraam/megapixels"
-SRC_URI="https://git.sr.ht/~martijnbraam/${PN}/archive/${PV}.tar.gz -> ${P}.tar.gz"
+HOMEPAGE="https://gitlab.com/postmarketOS/megapixels"
+SRC_URI="https://gitlab.com/postmarketOS/megapixels/-/archive/${PV}/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
