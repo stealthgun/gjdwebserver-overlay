@@ -1,0 +1,51 @@
+From 562a6c114ce736db51e41b8c06c408104b79b126 Mon Sep 17 00:00:00 2001
+From: Bhushan Shah <bshah@kde.org>
+Date: Wed, 14 Apr 2021 10:29:39 +0530
+Subject: [PATCH 3/5] qmi_wwan: provide wrapper for reset_resume
+
+---
+ drivers/net/usb/qmi_wwan.c | 21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index e18ded349d840..cd6ae9696b56a 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -840,6 +840,25 @@ static int qmi_wwan_resume(struct usb_interface *intf)
+ 	return ret;
+ }
+ 
++static int qmi_wwan_reset_resume(struct usb_interface *intf)
++{
++	struct usbnet *dev = usb_get_intfdata(intf);
++	struct qmi_wwan_state *info = (void *)&dev->data;
++	int ret = 0;
++	bool callsub = (intf == info->control && info->subdriver &&
++			info->subdriver->reset_resume);
++
++	if (callsub)
++		ret = info->subdriver->reset_resume(intf);
++	if (ret < 0)
++		goto err;
++	ret = usbnet_resume(intf);
++	if (ret < 0 && callsub)
++		info->subdriver->suspend(intf, PMSG_SUSPEND);
++err:
++	return ret;
++}
++
+ static const struct driver_info	qmi_wwan_info = {
+ 	.description	= "WWAN/QMI device",
+ 	.flags		= FLAG_WWAN | FLAG_SEND_ZLP,
+@@ -1478,7 +1497,7 @@ static struct usb_driver qmi_wwan_driver = {
+ 	.disconnect	      = qmi_wwan_disconnect,
+ 	.suspend	      = qmi_wwan_suspend,
+ 	.resume		      =	qmi_wwan_resume,
+-	.reset_resume         = qmi_wwan_resume,
++	.reset_resume         = qmi_wwan_reset_resume,
+ 	.supports_autosuspend = 1,
+ 	.disable_hub_initiated_lpm = 1,
+ };
+-- 
+2.31.1
+

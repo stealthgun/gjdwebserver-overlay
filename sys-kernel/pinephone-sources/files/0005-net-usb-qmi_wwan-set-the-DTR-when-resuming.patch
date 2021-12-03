@@ -1,0 +1,34 @@
+From ed73c96e313c549f710df58c8fbe47200ee13df1 Mon Sep 17 00:00:00 2001
+From: Bhushan Shah <bshah@kde.org>
+Date: Sat, 10 Apr 2021 08:52:05 +0530
+Subject: [PATCH 5/5] net: usb: qmi_wwan: set the DTR when resuming
+
+If usb device does reset_resume instead of unbind/bind, we need to
+re-enable the DTR quirk, that way after resuming connection QMI
+communication between host and modem is possible again.
+
+Signed-off-by: Bhushan Shah <bshah@kde.org>
+Tested-by: Dalton Durst <d@ltondur.st>
+---
+ drivers/net/usb/qmi_wwan.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/drivers/net/usb/qmi_wwan.c b/drivers/net/usb/qmi_wwan.c
+index cd6ae9696b56a..ada94a3242146 100644
+--- a/drivers/net/usb/qmi_wwan.c
++++ b/drivers/net/usb/qmi_wwan.c
+@@ -855,6 +855,11 @@ static int qmi_wwan_reset_resume(struct usb_interface *intf)
+ 	ret = usbnet_resume(intf);
+ 	if (ret < 0 && callsub)
+ 		info->subdriver->suspend(intf, PMSG_SUSPEND);
++
++	if (dev->driver_info->data & QMI_WWAN_QUIRK_DTR ||
++	    le16_to_cpu(dev->udev->descriptor.bcdUSB) >= 0x0201) {
++		qmi_wwan_change_dtr(dev, true);
++	}
+ err:
+ 	return ret;
+ }
+-- 
+2.31.1
+

@@ -1,0 +1,118 @@
+From mboxrd@z Thu Jan  1 00:00:00 1970
+Return-Path: <linux-kernel-owner@kernel.org>
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+	aws-us-west-2-korg-lkml-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-15.8 required=3.0 tests=BAYES_00,DKIM_SIGNED,
+	DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+	HEADER_FROM_DIFFERENT_DOMAINS,INCLUDES_PATCH,MAILING_LIST_MULTI,
+	MENTIONS_GIT_HOSTING,SPF_HELO_NONE,SPF_PASS,USER_AGENT_GIT autolearn=ham
+	autolearn_force=no version=3.4.0
+Received: from mail.kernel.org (mail.kernel.org [198.145.29.99])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 30CB3C433DB
+	for <linux-kernel@archiver.kernel.org>; Sat, 27 Mar 2021 13:07:07 +0000 (UTC)
+Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
+	by mail.kernel.org (Postfix) with ESMTP id F053961971
+	for <linux-kernel@archiver.kernel.org>; Sat, 27 Mar 2021 13:07:06 +0000 (UTC)
+Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
+        id S230259AbhC0NGA (ORCPT <rfc822;linux-kernel@archiver.kernel.org>);
+        Sat, 27 Mar 2021 09:06:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59650 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229582AbhC0NFz (ORCPT
+        <rfc822;linux-kernel@vger.kernel.org>);
+        Sat, 27 Mar 2021 09:05:55 -0400
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DAA2C0613B1
+        for <linux-kernel@vger.kernel.org>; Sat, 27 Mar 2021 06:05:55 -0700 (PDT)
+Received: by mail-pf1-x435.google.com with SMTP id j25so6773824pfe.2
+        for <linux-kernel@vger.kernel.org>; Sat, 27 Mar 2021 06:05:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=j1vEagJw59z7NUkgTmJto/iZqe4yWAoKFE4cIPL6KSA=;
+        b=W++BsAIwl+3ucDDq6J9gfd2LQIPwdj2biEakUpnxpy/YsK+3iCoF33X3sftQWOxfP7
+         IPnjeO9Rde2kHHrwJMlMu2vkeccABUo1mLD6uTVGrEfxwUsN9YJWo9jUzaSY3cyvbGI2
+         ehpcqqnKgU3Fn5s/X8mIRCamioqbkc4WM23kxCZTaHn+XhPN+SWL6FLKRXDgGS2ivbn1
+         OER7kHG7/pVx6TS91PpzwDFvN3Rnt6x9672uUa2Evpoapzy9P2POwsDV4zxWpGjlEc44
+         x99r44072+JXwATmacsPj8yOAksyAgxYYzYtUqJdpS51qpCmDWMBwE12Glc6HXWJKDrZ
+         V2jw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=j1vEagJw59z7NUkgTmJto/iZqe4yWAoKFE4cIPL6KSA=;
+        b=kBUfAu8SPEqgcOJWgnRXoXkAISBVy5hrC8mdP43B3bJdOtUy3ckGem52OQlxU4JiZ9
+         fRLzgQhtoaEPJwBegty5xhiBi7a9Z8jtP5y9BGPLtHnPY0vj7Q5WoLeJW8VQSdnTfIea
+         LWI0QFW1FPejnWt1OkpKrg23YuIwnAy4JeS4ppYqwxoJLaA2CK49uIgHZvkO/KUWTZ1u
+         H4FTpR1COt4JDajdNEO9PXbgAIn7Zhc84m4BrHeFhPPMguGgiORNl8CiVYnEidYMOYB4
+         xKZysxTMak3CltRje+eBSpYQa9T1mcAv1kMsc7OY2YJYnK7TadU5FcwBnEGYEGtI6pK9
+         kbyg==
+X-Gm-Message-State: AOAM531ZZkAzAjwe4lLioYqlb3vcaxOF8kBIHnAElR+v7R84d5htjzCI
+        w2CjFLBp7ZYpGnOW93HhwfMMXbvyGk6rb63y
+X-Google-Smtp-Source: ABdhPJwtfu5Tfa4UYXfW8whmzPPLMc8XbemaxfI6PdBR3nuuwqL4rugT9FibIaSdi/j6K0J4cIJCqg==
+X-Received: by 2002:a63:e906:: with SMTP id i6mr16394983pgh.132.1616850352891;
+        Sat, 27 Mar 2021 06:05:52 -0700 (PDT)
+Received: from johnchen902-arch-ryzen.. (2001-b011-3815-3a1f-9afa-9bff-fe6e-3ce2.dynamic-ip6.hinet.net. [2001:b011:3815:3a1f:9afa:9bff:fe6e:3ce2])
+        by smtp.gmail.com with ESMTPSA id ot17sm6413787pjb.50.2021.03.27.06.05.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 27 Mar 2021 06:05:52 -0700 (PDT)
+From:   John Chen <johnchen902@gmail.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Rohit Pidaparthi <rohitpid@gmail.com>,
+        RicardoEPRodrigues <ricardo.e.p.rodrigues@gmail.com>,
+        Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        John Chen <johnchen902@gmail.com>
+Subject: [PATCH 0/4] HID: add Apple Magic Mouse 2 support
+Date:   Sat, 27 Mar 2021 21:05:04 +0800
+Message-Id: <20210327130508.24849-1-johnchen902@gmail.com>
+X-Mailer: git-send-email 2.31.0
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Precedence: bulk
+List-ID: <linux-kernel.vger.kernel.org>
+X-Mailing-List: linux-kernel@vger.kernel.org
+Archived-At: <https://lore.kernel.org/lkml/20210327130508.24849-1-johnchen902@gmail.com/>
+List-Archive: <https://lore.kernel.org/lkml/>
+List-Post: <mailto:linux-kernel@vger.kernel.org>
+
+The HID descriptor of Magic Mouse 2 contains BTN_LEFT, BTN_RIGHT, REL_X,
+REL_Y, whether it's charging, whether it's fully charged, and battery
+capacity.
+
+$ xxd -p report_descriptor
+05010902a101851205091901290215002501950275018102950175068103
+05010901a1001601f826ff073601fb46ff046513550d0930093175109502
+8106750895028101c00602ff09558555150026ff0075089540b1a2c00600
+ff0914a10185900584750195031500250109610585094409468102950581
+0175089501150026ff0009658102c000
+
+As hidinput can handle the BTNs and RELs, the Magic Mouse 2 already
+functions as a basic mouse. Nevertheless, It should be reasonable to
+extend hid-magicmouse to support Magic Mouse 2 as well. Furthermore,
+hidinput is patched to handle the battery capacity.
+
+This work is based on Recardo's, which is in turned based on Rohitpid's.
+Their GitHub repositories are linked below:
+https://github.com/RicardoEPRodrigues/magicmouse-hid
+https://github.com/rohitpid/Linux-Magic-Trackpad-2-Driver
+
+John Chen (4):
+  HID: magicmouse: add Apple Magic Mouse 2 support
+  HID: magicmouse: fix 3 button emulation of Mouse 2
+  HID: magicmouse: fix reconnection of Magic Mouse 2
+  HID: input: map battery capacity (00850065)
+
+ drivers/hid/hid-debug.c      |   1 +
+ drivers/hid/hid-ids.h        |   1 +
+ drivers/hid/hid-input.c      |  11 +++
+ drivers/hid/hid-magicmouse.c | 156 ++++++++++++++++++++++++++++-------
+ include/linux/hid.h          |   3 +
+ 5 files changed, 140 insertions(+), 32 deletions(-)
+
+-- 
+2.31.0
+
+
