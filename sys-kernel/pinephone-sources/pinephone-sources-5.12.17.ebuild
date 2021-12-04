@@ -36,43 +36,16 @@ PATCHES=(
     ${FILESDIR}/pinetab-bluetooth.patch
     ${FILESDIR}/pinetab-accelerometer.patch
 	${FILESDIR}/dts-pinephone-drop-modem-power-node.patch
-	#${FILESDIR}/dts-headphone-jack-detection.patch
 	${FILESDIR}/media-ov5640-Implement-autofocus.patch
 	${FILESDIR}/0011-dts-pinetab-hardcode-mmc-numbers.patch
 	${FILESDIR}/0012-pinephone-fix-pogopin-i2c.patch
 	${FILESDIR}/0107-quirk-kernel-org-bug-210681-firmware_rome_error.patch
 	${FILESDIR}/0177-leds-gpio-make-max_brightness-configurable.patch
-	#${FILESDIR}/0178-sun8i-codec-fix-headphone-jack-pin-name.patch
 	${FILESDIR}/0179-arm64-dts-allwinner-pinephone-improve-device-tree-5.12.patch
     ${FILESDIR}/panic-led-5.12.patch
-    #${FILESDIR}/improve-jack-button-handling-and-mic.patch
-    #${FILESDIR}/camera-added-bggr-bayer-mode.patch
-    #${FILESDIR}/0002-Bluetooth-Fix-LL-PRivacy-BLE-device-fails-to-connect.patch
-    #${FILESDIR}/0003-Bluetooth-Fix-attempting-to-set-RPA-timeout-when-unsupported.patch
-    #${FILESDIR}/0001-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch
-	#${FILESDIR}/0002-revert-fbcon-remove-no-op-fbcon_set_origin.patch
-	#${FILESDIR}/0003-revert-fbcon-remove-soft-scrollback-code.patch
 	${FILESDIR}/PATCH-1-4-HID-magicmouse-add-Apple-Magic-Mouse-2-support.patch
 	${FILESDIR}/PATCH-2-4-HID-magicmouse-fix-3-button-emulation-of-Mouse-2.patch
 	${FILESDIR}/PATCH-3-4-HID-magicmouse-fix-reconnection-of-Magic-Mouse-2.patch
-	${FILESDIR}/PATCH-4-4-HID-input-map-battery-capacity-00850065.patch
-	#
-	#${FILESDIR}/PATCH-v2-01-16-include-linux-memcontrol.h-do-not-warn-in-page_memcg_rcu-if-CONFIG_MEMCG.patch
-	#${FILESDIR}/PATCH-v2-02-16-include-linux-nodemask.h-define-next_memory_node-if-CONFIG_NUMA.patch
-	#${FILESDIR}/PATCH-v2-03-16-include-linux-huge_mm.h-define-is_huge_zero_pmd-if-CONFIG_TRANSPARENT_HUGEPAGE.patch
-	#${FILESDIR}/PATCH-v2-04-16-include-linux-cgroup.h-export-cgroup_mutex.patch
-	#${FILESDIR}/PATCH-v2-05-16-mm-swap.c-export-activate_page.patch
-	#${FILESDIR}/PATCH-v2-06-16-mm-x86-support-the-access-bit-on-non-leaf-PMD-entries.patch
-	#${FILESDIR}/PATCH-v2-07-16-mm-vmscan.c-refactor-shrink_node.patch
-	#${FILESDIR}/PATCH-v2-08-16-mm-multigenerational-lru-groundwork.patch
-	#${FILESDIR}/PATCH-v2-09-16-mm-multigenerational-lru-activation.patch
-	#${FILESDIR}/PATCH-v2-10-16-mm-multigenerational-lru-mm_struct-list.patch
-	#${FILESDIR}/PATCH-v2-11-16-mm-multigenerational-lru-aging.patch
-	#${FILESDIR}/PATCH-v2-12-16-mm-multigenerational-lru-eviction.patch
-	#${FILESDIR}/PATCH-v2-13-16-mm-multigenerational-lru-page-reclaim.patch
-	#${FILESDIR}/PATCH-v2-14-16-mm-multigenerational-lru-user-interface.patch
-	#${FILESDIR}/PATCH-v2-15-16-mm-multigenerational-lru-Kconfig.patch
-	#${FILESDIR}/PATCH-v2-16-16-mm-multigenerational-lru-documentation.patch
 )
 
 src_prepare() {
