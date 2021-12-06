@@ -41,6 +41,7 @@ BDEPEND="
 S="${WORKDIR}/Authenticator-${COMMIT}"
 
 src_prepare() {
+	cargo update
 	eapply "${FILESDIR}"/767.patch
 }
 	
