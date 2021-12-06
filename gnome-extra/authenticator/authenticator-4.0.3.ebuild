@@ -40,6 +40,10 @@ BDEPEND="
 
 S="${WORKDIR}/Authenticator-${COMMIT}"
 
+src_prepare() {
+	eapply "${FILESDIR}"/767.patch
+}
+	
 src_install() {
 	meson_src_install
 }
