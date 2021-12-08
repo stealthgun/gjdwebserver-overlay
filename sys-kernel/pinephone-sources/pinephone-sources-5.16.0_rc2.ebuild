@@ -26,7 +26,7 @@ DESCRIPTION="Full sources for the Linux kernel, with megi's patch for pinephone"
 HOMEPAGE="https://www.kernel.org"
 
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86"
-KERNEL_URI="https://github.com/megous/linux/archive/c6fda0a09217b8c183cf1ef4782746fcfcf055f1.tar.gz -> {$P}.tar.gz"
+KERNEL_URI="https://github.com/megous/linux/archive/c6fda0a09217b8c183cf1ef4782746fcfcf055f1.tar.gz -> ${P}.tar.gz"
 SRC_URI="${KERNEL_URI}"
 
 src_prepare() {
