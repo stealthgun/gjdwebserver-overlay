@@ -1,39 +1,33 @@
 # Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI="8"
+EAPI="6"
+UNIPATCH_STRICTORDER="yes"
 K_NOUSENAME="yes"
 K_NOSETEXTRAVERSION="yes"
+K_NOUSEPR="yes"
 K_SECURITY_UNSUPPORTED="1"
+K_BASE_VER="5.12"
+K_EXP_GENPATCHES_NOUSE="1"
+K_FROM_GIT="yes"
 ETYPE="sources"
+CKV="${PVR/-r/-git}"
+
+# only use this if it's not an _rc/_pre release
+[ "${PV/_pre}" == "${PV}" ] && [ "${PV/_rc}" == "${PV}" ] && OKV="${PV}"
 inherit kernel-2
 detect_version
 
-KEYWORDS="~arm64"
 
 DEPEND="${RDEPEND}
 	>=sys-devel/patch-2.7.5"
 
 DESCRIPTION="Full sources for the Linux kernel, with megi's patch for pinephone"
+HOMEPAGE="https://www.kernel.org"
 
-MEGI_PATCH_URI="https://xff.cz/kernels/${PV:0:4}/patches/all.patch"
-SRC_URI="${KERNEL_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
-
-PATCHES=(
-	${DISTDIR}/all-${PV}.patch
-	
-	#${FILESDIR}/ccu-sun50i-a64-reparent-clocks-to-lower-speed-oscillator.patch
-	#${FILESDIR}/dts-pinephone-drop-modem-power-node.patch
-	#${FILESDIR}/media-ov5640-Implement-autofocus.patch
-	#${FILESDIR}/0107-quirk-kernel-org-bug-210681-firmware_rome_error.patch
-	#${FILESDIR}/0177-leds-gpio-make-max_brightness-configurable.patch
-	#${FILESDIR}/panic-led-5.12.patch
-
-	# keyboard
-	#${FILESDIR}/d1d849cae12db71aa81ceedaedc1b17a34790367.patch
-    	#${FILESDIR}/2423aac2d6f5db55da99e11fd799ee66fe6f54c6.patch
-
-)
+KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~ia64 ~mips ~ppc ~ppc64 ~s390 ~sparc ~x86"
+KERNEL_URI="https://github.com/megous/linux/archive/c6fda0a09217b8c183cf1ef4782746fcfcf055f1.tar.gz -> {$P}.tar.gz"
+SRC_URI="${KERNEL_URI}"
 
 src_prepare() {
 	default
