@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+	<maintainer type="person">
+		<email>gjdijkman@gjdwebserver.nl</email>
+		<name>Gerben Jan Dijkman</name>
+	</maintainer>
+	<longdescription lang="en">
+	An anti-spam program designed to work with phosh
+	</longdescription>
+	<upstream>
+		<doc>https://gitlab.com/kop316/phosh-antispam/</doc>
+		<bugs-to>https://gitlab.com/kop316/phosh-antispam/-/issues</bugs-to>
+	</upstream>
+</pkgmetadata>
