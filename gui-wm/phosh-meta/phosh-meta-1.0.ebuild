@@ -30,6 +30,7 @@ DEPEND="
 		gnome-extra/portfolio 
 		gnome-base/gnome-session
 		gnome-extra/gnome-system-monitor
+		sys-process/gnome-usage
 		gnome-extra/gnome-tweaks
 		app-arch/file-roller
 		sys-apps/gnome-disk-utility
@@ -58,13 +59,6 @@ DEPEND="
 			www-client/firefox
 		)
 		
-		vivaldi? (
-			www-client/vivaldi
-		)
-		
-		authenticator? (
-			gnome-extra/authenticator
-		)			
 		
 		geary? (	
 			mail-client/geary
