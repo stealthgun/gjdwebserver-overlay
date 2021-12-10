@@ -6,7 +6,7 @@ VALA_USE_DEPEND="vapigen"
 
 inherit vala meson gnome2-utils xdg
 
-COMMIT="40c19ab2591763a482ebc79c82f1da32eea3bab6"
+COMMIT="c948f94f79fc10cb8049dc72b6d58ac4058d870a"
 
 DESCRIPTION="Building blocks for modern GNOME applications."
 HOMEPAGE="https://gitlab.gnome.org/GNOME/libadwaita"
