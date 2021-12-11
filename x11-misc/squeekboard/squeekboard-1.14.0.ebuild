@@ -52,7 +52,7 @@ CRATES="
 
 inherit cargo gnome2-utils meson toolchain-funcs xdg
 
-MY_COMMIT="19630334b07d6d2949932cf05018925cb3ab9613"
+MY_COMMIT="8293c5f10dbd5c1fdb071e1f7e4a97a4cd52d592"
 
 DESCRIPTION="Virtual keyboard supporting Wayland, built primarily for the Librem 5 phone"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/squeekboard"
