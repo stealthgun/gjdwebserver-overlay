@@ -5,16 +5,23 @@ EAPI=8
 
 inherit toolchain-funcs
 
+PKGREL="4"
+FIRMWAREVERSION="2.6"
 MY_P="u-boot-${PV/_/-}"
 DESCRIPTION="utilities for working with Das U-Boot for the PinePhone Pro"
 HOMEPAGE="https://www.denx.de/wiki/U-Boot/WebHome"
-SRC_URI="https://ftp.denx.de/pub/u-boot/${MY_P}.tar.bz2"
+SRC_URI="
+	https://ftp.denx.de/pub/u-boot/${MY_P}.tar.bz2
+	https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/snapshot/trusted-firmware-a-${FIRMWAREVERSION}.tar.gz
+"
+
 S="${WORKDIR}/${MY_P}"
 
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~arm64"
 IUSE="envtools"
+
 
 RDEPEND="dev-libs/openssl:="
 DEPEND="${RDEPEND}"
@@ -48,6 +55,13 @@ src_configure() {
 }
 
 src_compile() {
+	cd ${WORKDIR}/trusted-firmware-a-${FIRMWAREVERSION}
+	unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
+	make PLAT=rk3399
+	cp build/rk3399/release/bl31/bl31.elf ${S}
+	
+	cd ${S}
+	
 	# Unset a few KBUILD variables. Bug #540476
 	unset KBUILD_OUTPUT KBUILD_SRC
 
@@ -62,22 +76,16 @@ src_compile() {
 
 	emake "${myemakeargs[@]}" pinephone-pro-rk3399_defconfig
 	
-	echo 'CONFIG_IDENT_STRING=" Gentoo Linux"' >> .config
-	echo 'CONFIG_USB_EHCI_HCD=n' >> .config
-	echo 'CONFIG_USB_EHCI_GENERIC=n' >> .config
-	echo 'CONFIG_USB_XHCI_HCD=n' >> .config
-	echo 'CONFIG_USB_XHCI_DWC3=n' >> .config
-	echo 'CONFIG_USB_DWC3=n' >> .config
-  	echo 'CONFIG_USB_DWC3_GENERIC=n' >> .config
+	echo 'CONFIG_IDENT_STRING=" Gentoo"' >> .config
 
-	emake "${myemakeargs[@]}" 
+	emake "${myemakeargs[@]}" EXTRAVERSION=-${PKGREL}
 	
 }
 
 src_test() { :; }
 
 src_install() {
-	emake "${myemakeargs[@]}" install
+	cp idbloader.img u-boot.itb  "/boot/"
 
 	dobin env/fw_printenv
 
