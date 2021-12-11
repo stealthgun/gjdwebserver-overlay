@@ -78,6 +78,13 @@ src_compile() {
 	emake "${myemakeargs[@]}" pinephone-pro-rk3399_defconfig
 	
 	echo 'CONFIG_IDENT_STRING=" Gentoo"' >> .config
+	echo 'CONFIG_USB_EHCI_HCD=n' >> .config
+	echo 'CONFIG_USB_EHCI_GENERIC=n' >> .config
+	echo 'CONFIG_USB_XHCI_HCD=n' >> .config
+	echo 'CONFIG_USB_XHCI_DWC3=n' >> .config
+	echo 'CONFIG_USB_DWC3=n' >> .config
+	echo 'CONFIG_USB_DWC3_GENERIC=n' >> .config
+
 
 	emake "${myemakeargs[@]}" EXTRAVERSION=-${PKGREL}
 	
@@ -86,7 +93,17 @@ src_compile() {
 src_test() { :; }
 
 src_install() {
-	cp ${S}/idbloader.img ${S}/u-boot.itb  "/boot/"
+	insinto /boot/
+	doins ${S}/u-boot.itb
+	
+	insinto /boot/
+	doins ${S}/idbloader.img
+		
+	cd tools || die
+
+	if ! use envtools; then
+		dobin bmp_logo dumpimage fdtgrep gen_eth_addr img2srec mkenvimage mkimage
+	fi
 
 	dobin env/fw_printenv
 
@@ -100,6 +117,5 @@ src_install() {
 
 pkg_postinst() {
 	einfo "This U-Boot is only to be used for the PinePhone Pro."
-	einfo "In /usr/src/linux use make pinephone_pro_defconfig to create a PinePhone Pro config"
 	einfo "After compiling a new Gentoo kernel, copy the resulting Image from /usr/src/linux/arch/arm64/boot/zImage to the boot partition (replacing the existing Image)."	
 }
