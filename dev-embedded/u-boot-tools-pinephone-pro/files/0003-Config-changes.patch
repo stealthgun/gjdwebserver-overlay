@@ -1,0 +1,25 @@
+From 6e64cdb39e4452315cf9a4d1e9e89691403c3089 Mon Sep 17 00:00:00 2001
+From: Martijn Braam <martijn@brixit.nl>
+Date: Sun, 13 Dec 2020 19:36:14 +0100
+Subject: [PATCH 3/8] Config changes
+
+---
+ configs/pinephone-pro-rk3399_defconfig | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/configs/pinephone-pro-rk3399_defconfig b/configs/pinephone-pro-rk3399_defconfig
+index 320ce65ffb..1c2e7f278d 100644
+--- a/configs/pinephone-pro-rk3399_defconfig
++++ b/configs/pinephone-pro-rk3399_defconfig
+@@ -53,8 +53,6 @@ CONFIG_SF_DEFAULT_SPEED=20000000
+ CONFIG_SPI_FLASH_GIGADEVICE=y
+ CONFIG_SPI_FLASH_WINBOND=y
+ CONFIG_DM_ETH=y
+-CONFIG_NVME=y
+-CONFIG_PCI=y
+ CONFIG_PHY_ROCKCHIP_INNO_USB2=y
+ CONFIG_PHY_ROCKCHIP_TYPEC=y
+ CONFIG_DM_PMIC_FAN53555=y
+-- 
+2.33.0
+

@@ -1,0 +1,24 @@
+From 19150d65b1bed6831ba92a4cf3e7262518f1049f Mon Sep 17 00:00:00 2001
+From: Martijn Braam <martijn@brixit.nl>
+Date: Sun, 13 Dec 2020 20:02:56 +0100
+Subject: [PATCH 7/8] u-boot.dtsi fixes
+
+---
+ arch/arm/dts/rk3399-pinephone-pro-u-boot.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/arm/dts/rk3399-pinephone-pro-u-boot.dtsi b/arch/arm/dts/rk3399-pinephone-pro-u-boot.dtsi
+index 7a058477db..e52263aafe 100644
+--- a/arch/arm/dts/rk3399-pinephone-pro-u-boot.dtsi
++++ b/arch/arm/dts/rk3399-pinephone-pro-u-boot.dtsi
+@@ -12,7 +12,7 @@
+ 	};
+ 
+ 	chosen {
+-		u-boot,spl-boot-order = "same-as-spl", &sdhci, &spiflash, &sdmmc;
++		u-boot,spl-boot-order = "same-as-spl", &sdhci, &sdmmc;
+ 	};
+ 
+ 	config {
+-- 
+2.33.0
