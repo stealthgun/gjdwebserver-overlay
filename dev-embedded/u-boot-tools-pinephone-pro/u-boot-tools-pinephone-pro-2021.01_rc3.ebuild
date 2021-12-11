@@ -62,7 +62,7 @@ src_compile() {
 
 	emake "${myemakeargs[@]}" pinephone-pro-rk3399_defconfig
 	
-	echo 'CONFIG_IDENT_STRING=" Gentoo"' >> .config
+	echo 'CONFIG_IDENT_STRING=" Gentoo Linux"' >> .config
 	echo 'CONFIG_USB_EHCI_HCD=n' >> .config
 	echo 'CONFIG_USB_EHCI_GENERIC=n' >> .config
 	echo 'CONFIG_USB_XHCI_HCD=n' >> .config
@@ -70,22 +70,14 @@ src_compile() {
 	echo 'CONFIG_USB_DWC3=n' >> .config
   	echo 'CONFIG_USB_DWC3_GENERIC=n' >> .config
 
-	emake "${myemakeargs[@]}" \
-		NO_SDL=1 \
-		HOSTSTRIP=: \
-		STRIP=: \
-		CONFIG_ENV_OVERWRITE=y \
-		$(usex envtools envtools tools-all)
+	emake "${myemakeargs[@]}" 
+	
 }
 
 src_test() { :; }
 
 src_install() {
-	cd tools || die
-
-	if ! use envtools; then
-		dobin bmp_logo dumpimage fdtgrep gen_eth_addr img2srec mkenvimage mkimage
-	fi
+	emake "${myemakeargs[@]}" install
 
 	dobin env/fw_printenv
 
