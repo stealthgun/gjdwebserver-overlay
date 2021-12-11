@@ -7,11 +7,12 @@ inherit toolchain-funcs
 
 PKGREL="4"
 FIRMWAREVERSION="2.6"
+COMMMIT="0719bf42931033c3109ecc6357e8adb567cb637b"
 MY_P="u-boot-${PV/_/-}"
 DESCRIPTION="utilities for working with Das U-Boot for the PinePhone Pro"
 HOMEPAGE="https://www.denx.de/wiki/U-Boot/WebHome"
 SRC_URI="
-	https://ftp.denx.de/pub/u-boot/${MY_P}.tar.bz2
+	https://source.denx.de/u-boot/u-boot/-/archive/${COMMMIT}/u-boot-${COMMMIT}.tar.gz -> ${MY_P}.tar.gz
 	https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/snapshot/trusted-firmware-a-${FIRMWAREVERSION}.tar.gz
 "
 
@@ -66,7 +67,6 @@ src_compile() {
 	unset KBUILD_OUTPUT KBUILD_SRC
 
 	local myemakeargs=(
-		V=1
 		AR="${AR}"
 		CC="${CC}"
 		HOSTCC="${BUILD_CC}"
