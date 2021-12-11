@@ -1,0 +1,24 @@
+From 4101d635fb8d82a5f6e63decccddfcfdea9f081e Mon Sep 17 00:00:00 2001
+From: Martijn Braam <martijn@brixit.nl>
+Date: Sun, 13 Dec 2020 19:48:37 +0100
+Subject: [PATCH 4/8] Add kconfig include
+
+---
+ arch/arm/mach-rockchip/rk3399/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/mach-rockchip/rk3399/Kconfig b/arch/arm/mach-rockchip/rk3399/Kconfig
+index 35b1125906..3ba603ca80 100644
+--- a/arch/arm/mach-rockchip/rk3399/Kconfig
++++ b/arch/arm/mach-rockchip/rk3399/Kconfig
+@@ -161,6 +161,7 @@ endif # BOOTCOUNT_LIMIT
+ source "board/firefly/roc-pc-rk3399/Kconfig"
+ source "board/google/gru/Kconfig"
+ source "board/pine64/pinebook-pro-rk3399/Kconfig"
++source "board/pine64/pinephone-pro-rk3399/Kconfig"
+ source "board/pine64/rockpro64_rk3399/Kconfig"
+ source "board/rockchip/evb_rk3399/Kconfig"
+ source "board/theobroma-systems/puma_rk3399/Kconfig"
+-- 
+2.33.0
+

@@ -1,0 +1,44 @@
+From b212ad24a604b00b240add35516b7381965deb31 Mon Sep 17 00:00:00 2001
+From: Alex Bee <knaerzche@gmail.com>
+Date: Thu, 17 Jun 2021 11:01:12 +0200
+Subject: [PATCH] rockchip: Fix MMC boot order
+
+Basically all, i.e. rk3036.dtsi, rk3128.dtsi, rk3xxx.dtsi, rk322x.dtsi,
+rk3288.dtsi, rk3308-u-boot.dtsi, rk3328-u-boot.dtsi, rk3399-u-boot.dtsi
+and px30-u-boot.dtsi Rockchip SoC devicetrees which have mmc indexes
+are defining eMMC as mmc0 and sdmmc as mmc1.
+This means that the rule to try to boot from the SD card first is ignored,
+which as per comment is what we want and is important for distros, which
+rely on that.
+
+Fix this by setting the correct mmc index, i.e. first from mmc1 (SD card),
+second from mmc0 (eMMC).
+
+Signed-off-by: Alex Bee <knaerzche@gmail.com>
+Reviewed-by: Kever Yang <kever.yang@rock-chips.com>
+---
+ include/configs/rockchip-common.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/include/configs/rockchip-common.h b/include/configs/rockchip-common.h
+index 0b9e24d1db..ba7061a287 100644
+--- a/include/configs/rockchip-common.h
++++ b/include/configs/rockchip-common.h
+@@ -14,11 +14,11 @@
+ 
+ #ifndef CONFIG_SPL_BUILD
+ 
+-/* First try to boot from SD (index 0), then eMMC (index 1) */
++/* First try to boot from SD (index 1), then eMMC (index 0) */
+ #if CONFIG_IS_ENABLED(CMD_MMC)
+ 	#define BOOT_TARGET_MMC(func) \
+-		func(MMC, mmc, 0) \
+-		func(MMC, mmc, 1)
++		func(MMC, mmc, 1) \
++		func(MMC, mmc, 0)
+ #else
+ 	#define BOOT_TARGET_MMC(func)
+ #endif
+-- 
+GitLab
+
