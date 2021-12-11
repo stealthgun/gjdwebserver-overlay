@@ -8,7 +8,7 @@ inherit toolchain-funcs
 PKGREL="4"
 FIRMWAREVERSION="2.6"
 COMMMIT="0719bf42931033c3109ecc6357e8adb567cb637b"
-MY_P="u-boot-${PV/_/-}"
+MY_P="u-boot-${COMMMIT}"
 DESCRIPTION="utilities for working with Das U-Boot for the PinePhone Pro"
 HOMEPAGE="https://www.denx.de/wiki/U-Boot/WebHome"
 SRC_URI="
