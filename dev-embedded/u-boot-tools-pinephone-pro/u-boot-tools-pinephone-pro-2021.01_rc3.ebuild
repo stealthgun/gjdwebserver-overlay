@@ -85,7 +85,7 @@ src_compile() {
 src_test() { :; }
 
 src_install() {
-	cp idbloader.img u-boot.itb  "/boot/"
+	cp ${S}/idbloader.img ${S}/u-boot.itb  "/boot/"
 
 	dobin env/fw_printenv
 
