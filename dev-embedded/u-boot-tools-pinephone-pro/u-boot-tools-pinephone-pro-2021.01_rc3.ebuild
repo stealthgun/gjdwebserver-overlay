@@ -6,7 +6,7 @@ EAPI=8
 inherit toolchain-funcs
 
 MY_P="u-boot-${PV/_/-}"
-DESCRIPTION="utilities for working with Das U-Boot"
+DESCRIPTION="utilities for working with Das U-Boot for the PinePhone Pro"
 HOMEPAGE="https://www.denx.de/wiki/U-Boot/WebHome"
 SRC_URI="https://ftp.denx.de/pub/u-boot/${MY_P}.tar.bz2"
 S="${WORKDIR}/${MY_P}"
@@ -31,6 +31,7 @@ src_prepare() {
 		scripts/kconfig/Makefile \
 		tools/Makefile || die
 		
+		#Apply PinePhone Pro patches
 		eapply "${FILESDIR}"/0001-PPP.patch
 		eapply "${FILESDIR}"/0002-Add-ppp-dt.patch
 		eapply "${FILESDIR}"/0003-Config-changes.patch
@@ -59,7 +60,15 @@ src_compile() {
 		HOSTLDFLAGS="${LDFLAGS}"
 	)
 
-	emake "${myemakeargs[@]}" tools-only_defconfig
+	emake "${myemakeargs[@]}" pinephone-pro-rk3399_defconfig
+	
+	echo 'CONFIG_IDENT_STRING=" Gentoo"' >> .config
+	echo 'CONFIG_USB_EHCI_HCD=n' >> .config
+	echo 'CONFIG_USB_EHCI_GENERIC=n' >> .config
+	echo 'CONFIG_USB_XHCI_HCD=n' >> .config
+	echo 'CONFIG_USB_XHCI_DWC3=n' >> .config
+	echo 'CONFIG_USB_DWC3=n' >> .config
+  	echo 'CONFIG_USB_DWC3_GENERIC=n' >> .config
 
 	emake "${myemakeargs[@]}" \
 		NO_SDL=1 \
@@ -86,4 +95,10 @@ src_install() {
 	doins env/fw_env.config
 
 	doman ../doc/mkimage.1
+}
+
+pkg_postinst() {
+	einfo "This U-Boot is only to be used for the PinePhone Pro."
+	einfo "In /usr/src/linux use make pinephone_pro_defconfig to create a PinePhone Pro config"
+	einfo "After compiling a new Gentoo kernel, copy the resulting Image from /usr/src/linux/arch/arm64/boot/zImage to the boot partition (replacing the existing Image)."	
 }
