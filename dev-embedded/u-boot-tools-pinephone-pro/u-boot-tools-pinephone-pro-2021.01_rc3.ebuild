@@ -27,6 +27,7 @@ IUSE="envtools"
 RDEPEND="dev-libs/openssl:="
 DEPEND="${RDEPEND}"
 BDEPEND="
+	sys-apps/dtc
 	sys-devel/bison
 	sys-devel/flex
 	virtual/pkgconfig
