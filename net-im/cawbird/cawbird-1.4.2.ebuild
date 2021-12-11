@@ -37,10 +37,8 @@ BDEPEND="
 		dev-libs/gobject-introspection
 "
 src_prepare() {
-#	use vala && vala_src_prepare
-	eapply_user
 	cmake_src_prepare
-	gnome2_src_prepare
+	vala_src_prepare
 }
 
 S="${WORKDIR}/$PN-${PV}"
