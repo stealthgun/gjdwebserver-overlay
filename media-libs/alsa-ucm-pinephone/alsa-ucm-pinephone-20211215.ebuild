@@ -13,7 +13,7 @@ LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~arm64"
 
-RDEPEND="media-libs/alsa-ucm-conf"
+RDEPEND=" >=media-libs/alsa-ucm-conf-1.2.6.2"
 
 S="${WORKDIR}/alsa-ucm-${COMMIT}"
 
