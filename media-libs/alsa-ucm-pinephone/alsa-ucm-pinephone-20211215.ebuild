@@ -13,11 +13,17 @@ LICENSE="BSD"
 SLOT="0"
 KEYWORDS="~arm64"
 
-RDEPEND=" >=media-libs/alsa-ucm-conf-1.2.6.2"
+RDEPEND="
+	>=media-libs/alsa-ucm-conf-1.2.6
+	"
+
+DEPEND="${RDEPEND}"
+
+BDEPEND="${RDEPEND}"
 
 S="${WORKDIR}/alsa-ucm-pinephone-${COMMIT}"
 
 src_install() {
 	insinto /usr/share/alsa/ucm2/PinePhone
-	doins -r ${S}/*.conf
+	doins -r "${S}"/*.conf
 }
