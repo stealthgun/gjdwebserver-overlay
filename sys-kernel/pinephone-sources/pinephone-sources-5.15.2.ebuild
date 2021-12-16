@@ -21,6 +21,17 @@ SRC_URI="${KERNEL_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
 
 PATCHES=(
 	${DISTDIR}/all-${PV}.patch
+	${FILESDIR}/ccu-sun50i-a64-reparent-clocks-to-lower-speed-oscillator.patch
+	${FILESDIR}/dts-pinephone-drop-modem-power-node.patch
+	${FILESDIR}/media-ov5640-Implement-autofocus.patch
+	${FILESDIR}/0107-quirk-kernel-org-bug-210681-firmware_rome_error.patch
+	${FILESDIR}/0177-leds-gpio-make-max_brightness-configurable.patch
+    	${FILESDIR}/panic-led-5.12.patch
+
+	# keyboard
+    	${FILESDIR}/d1d849cae12db71aa81ceedaedc1b17a34790367.patch
+    	${FILESDIR}/2423aac2d6f5db55da99e11fd799ee66fe6f54c6.patch
+
 )
 
 src_prepare() {
