@@ -15,3 +15,13 @@ sync-type = git
 sync-uri = https://git.gjdwebserver.nl/gjdwebserver/gjdwebserver-overlay
 auto-sync = yes
 ```
+
+Or if you want to use GitHub
+
+```
+[gjdwebserver]
+location = /var/db/repos/gjdwebserver
+sync-type = git
+sync-uri = https://github.com/stealthgun/gjdwebserver-overlay
+auto-sync = yes
+```
