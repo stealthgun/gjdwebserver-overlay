@@ -7,10 +7,10 @@ notice_uboot() {
 
 create_config() {
   mkdir -p /boot/extlinux
-  echo "LABEL Manjaro ARM
+  echo "LABEL Gentoo Linux 5.16.0 RC3
 KERNEL /Image
-FDT /dtbs/rockchip/rk3399-pinephone-pro.dtb
-APPEND initrd=/initramfs-linux.img console=ttyS2,1500000 root=LABEL=ROOT_MNJRO rw rootwait quiet splash plymouth.ignore-serial-consoles" > /boot/extlinux/extlinux.conf
+FDT /dtbs/5.16.0-rc3/rockchip/rk3399-pinephone-pro.dtb
+APPEND initrd=/initramfs-linux.img console=ttyS2,1500000 root=/dev/mmcblk2p3 rw rootwait quiet splash plymouth.ignore-serial-consoles" > /boot/extlinux/extlinux.conf
 }
 
 post_install() {

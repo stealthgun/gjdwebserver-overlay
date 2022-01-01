@@ -12,6 +12,6 @@ Add the following content to /etc/portage/repos.conf/gjdwebserver.conf
 [gjdwebserver]
 location = /var/db/repos/gjdwebserver
 sync-type = git
-sync-uri = https://github.com/stealthgun/gjdwebserver-overlay.git
+sync-uri = https://git.gjdwebserver.nl/gjdwebserver/gjdwebserver-overlay
 auto-sync = yes
 ```

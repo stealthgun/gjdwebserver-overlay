@@ -99,6 +99,8 @@ src_compile() {
 src_test() { :; }
 
 src_install() {
+	mkdir /boot/extlinux
+	
 	insinto /boot/
 	doins ${S}/u-boot.itb
 	
@@ -123,5 +125,9 @@ src_install() {
 
 pkg_postinst() {
 	einfo "This U-Boot is only to be used for the PinePhone Pro."
-	einfo "After compiling a new Gentoo kernel, copy the resulting Image from /usr/src/linux/arch/arm64/boot/zImage to the boot partition (replacing the existing Image)."	
+	einfo "After compiling a new Gentoo kernel, copy the resulting Image from /usr/src/linux/arch/arm64/boot/Image to the boot partition (replacing the existing Image)."	
+  	einfo "New version of U-Boot firmware can be flashed to your microSD card or eMMC module."
+  	einfo "You can do that by running:"
+  	einfo "# dd if=/boot/idbloader.img of=/dev/mmcblkX seek=64 conv=notrunc,fsync"
+	einfo "# dd if=/boot/u-boot.itb of=/dev/mmcblkX seek=16384 conv=notrunc,fsync"
 }
