@@ -15,7 +15,7 @@ SLOT="0"
 KEYWORDS="~arm64"
 IUSE="ofono"
 
-DEPEND="net-dialup/atinout
+DEPEND="	net-dialup/atinout
 		sci-geosciences/gpsd
 "
 RDEPEND="${DEPEND}"
