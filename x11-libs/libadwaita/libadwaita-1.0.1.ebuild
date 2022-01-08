@@ -1,12 +1,12 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=7
 VALA_USE_DEPEND="vapigen"
 
-inherit vala meson gnome2-utils xdg
+inherit vala meson xdg
 
-COMMIT="c948f94f79fc10cb8049dc72b6d58ac4058d870a"
+COMMIT="b274a0c32c51a92692e3b282f04e88f033ba73b1"
 
 DESCRIPTION="Building blocks for modern GNOME applications."
 HOMEPAGE="https://gitlab.gnome.org/GNOME/libadwaita"
