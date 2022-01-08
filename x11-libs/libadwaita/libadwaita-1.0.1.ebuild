@@ -23,6 +23,7 @@ DEPEND="
 	gnome-base/gnome-common
 	gui-libs/gtk
 	dev-libs/fribidi
+	>=gui-libs/gtk-4.5.0
 "
 
 RDEPEND="${DEPEND}"
