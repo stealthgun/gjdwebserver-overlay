@@ -51,6 +51,7 @@ PDEPEND="miners? ( >=app-misc/tracker-miners-${PV_SERIES} )"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-3.1.1-Fix-asciidoc-manpage.xsl-location.patch
+	"${FILESDIR}"/2.3.6-sqlite-3.34-compat.patch
 )
 
 function inotify_enabled() {
