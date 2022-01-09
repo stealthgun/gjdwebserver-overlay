@@ -44,6 +44,7 @@ DEPEND="
 		app-text/evince
 		sys-power/gtherm
 		sys-auth/rtkit
+		gnome-extra/sushi
 		
 		cawbird? (
 			net-im/cawbird
