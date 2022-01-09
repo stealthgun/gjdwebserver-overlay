@@ -5,11 +5,7 @@
 		<email>gjdijkman@gjdwebserver.nl</email>
 		<name>Gerben Jan Dijkman</name>
 	</maintainer>
-	<longdescription lang="en">
-	The final Librem5 keyboard.
-	</longdescription>
 	<upstream>
-		<doc>https://source.puri.sm/Librem5/squeekboard</doc>
 		<bugs-to>https://source.puri.sm/Librem5/squeekboard/-/issues</bugs-to>
 	</upstream>
 </pkgmetadata>
