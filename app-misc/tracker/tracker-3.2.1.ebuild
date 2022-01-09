@@ -49,10 +49,6 @@ BDEPEND="
 "
 PDEPEND="miners? ( >=app-misc/tracker-miners-${PV_SERIES} )"
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-3.1.1-Fix-asciidoc-manpage.xsl-location.patch
-)
-
 function inotify_enabled() {
 	if linux_config_exists; then
 		if ! linux_chkconfig_present INOTIFY_USER; then

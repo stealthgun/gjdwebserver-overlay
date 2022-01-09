@@ -77,10 +77,6 @@ BDEPEND="
 	)
 "
 
-PATCHES=(
-	"${FILESDIR}"/${PN}-3.1.1-Fix-asciidoc-manpage.xsl-location.patch
-)
-
 python_check_deps() {
 	has_version -b "dev-python/tappy[${PYTHON_USEDEP}]"
 }
