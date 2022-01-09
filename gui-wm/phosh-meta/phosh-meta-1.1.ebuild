@@ -45,6 +45,7 @@ DEPEND="
 		sys-power/gtherm
 		sys-auth/rtkit
 		gnome-extra/sushi
+		media-gfx/eog
 		
 		cawbird? (
 			net-im/cawbird
