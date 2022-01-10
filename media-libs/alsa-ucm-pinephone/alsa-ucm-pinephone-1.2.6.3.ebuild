@@ -31,4 +31,8 @@ src_install() {
 	
 	insinto /usr/share/alsa/ucm2/PinePhonePro
 	doins -r "${S}"/ucm2/PinePhonePro/*.conf
+	
+	insinto /usr/share/alsa/ucm2/conf.d/simple-card
+	doins -r "${S}"/ucm2/PinePhone/PinePhone.conf
+	doins -r "${S}"/ucm2/PinePhonePro/PinePhonePro.conf
 }
