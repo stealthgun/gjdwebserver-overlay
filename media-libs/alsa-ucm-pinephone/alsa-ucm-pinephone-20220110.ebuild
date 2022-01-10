@@ -3,11 +3,11 @@
 
 EAPI=7
 
-COMMIT="ff6beb59a927c3f3744261b35a5fb65682073e80"
+COMMIT="ec0ef36b8b897ed1ae6bb0d0de13d5776f5d3659"
 
 DESCRIPTION="ALSA ucm configuration files for PinePhone bases on the Manjaro ARM repo"
-HOMEPAGE="https://gitlab.manjaro.org/manjaro-arm/packages/community/pinephone/alsa-ucm-pinephone"
-SRC_URI="https://gitlab.manjaro.org/manjaro-arm/packages/community/pinephone/alsa-ucm-pinephone/-/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
+HOMEPAGE="https://gitlab.com/pine64-org/pine64-alsa-ucm"
+SRC_URI="https://gitlab.com/pine64-org/pine64-alsa-ucm/-/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
@@ -25,5 +25,8 @@ S="${WORKDIR}/alsa-ucm-pinephone-${COMMIT}"
 
 src_install() {
 	insinto /usr/share/alsa/ucm2/PinePhone
-	doins -r "${S}"/*.conf
+	doins -r "${S}"/ucm2/PinePhone/*.conf
+	
+	insinto /usr/share/alsa/ucm2/PinePhonePro
+	doins -r "${S}"/ucm2/PinePhonePro/*.conf
 }
