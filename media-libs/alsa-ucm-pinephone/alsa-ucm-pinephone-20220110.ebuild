@@ -14,6 +14,8 @@ SLOT="0"
 KEYWORDS="~arm64"
 
 RDEPEND="
+	>=media-libs/alsa-lib-1.2.6
+	>=media-plugins/alsa-plugins-1.2.6
 	>=media-libs/alsa-ucm-conf-1.2.6
 	"
 
