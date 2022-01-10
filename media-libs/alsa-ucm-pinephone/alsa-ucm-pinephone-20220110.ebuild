@@ -21,7 +21,7 @@ DEPEND="${RDEPEND}"
 
 BDEPEND="${RDEPEND}"
 
-S="${WORKDIR}/alsa-ucm-pinephone-${COMMIT}"
+S="${WORKDIR}/pine64-alsa-ucm-${COMMIT}"
 
 src_install() {
 	insinto /usr/share/alsa/ucm2/PinePhone
