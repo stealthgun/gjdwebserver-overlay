@@ -21,8 +21,7 @@ SRC_URI="${KERNEL_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
 
 PATCHES=(
 	${DISTDIR}/all-${PV}.patch
-	
-	
+
         # Pinephone Keyboard
         ${FILESDIR}/d1d849cae12db71aa81ceedaedc1b17a34790367.patch
         ${FILESDIR}/2423aac2d6f5db55da99e11fd799ee66fe6f54c6.patch
