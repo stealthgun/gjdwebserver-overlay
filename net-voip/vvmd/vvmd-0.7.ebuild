@@ -5,9 +5,9 @@ EAPI=7
 
 inherit gnome2-utils meson systemd udev
 
-DESCRIPTION="Visual Voicemail Player"
-HOMEPAGE="https://gitlab.com/kop316/vvmplayer"
-SRC_URI="https://gitlab.com/kop316/vvmplayer/-/archive/${PV}/${P}.tar.gz"
+DESCRIPTION="vvmd is a lower level daemon that retrieves Visual Voicemail"
+HOMEPAGE="https://gitlab.com/kop316/vvmd"
+SRC_URI="https://gitlab.com/kop316/vvmd/-/archive/${PV}/${P}.tar.gz"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -20,7 +20,6 @@ RDEPEND="
 	>=media-libs/gstreamer-1.16.0
 	gnome-extra/evolution-data-server
 	media-sound/callaudiod
-	net-voip/vvmd
 "
 
 DEPEND=""

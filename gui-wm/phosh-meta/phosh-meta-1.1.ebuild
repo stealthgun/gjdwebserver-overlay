@@ -10,11 +10,10 @@ SRC_URI=""
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm64 ~arm"
-IUSE="cawbird squeekboard chromium firefox geary lollypop owncloud nextcloud"
+IUSE="cawbird squeekboard chromium firefox geary lollypop owncloud nextcloud voicemail"
 
 DEPEND="
 		gui-wm/phosh
-		gnome-extra/vvmplayer
 		gnome-extra/phosh-antispam
 		net-voip/gnome-calls
 		net-im/chatty
@@ -78,6 +77,10 @@ DEPEND="
 		
 		nextcloud? (
 			net-misc/nextcloud-client
+		)
+		
+		voicemail? (
+			gnome-extra/vvmplayer
 		)
 "
 
