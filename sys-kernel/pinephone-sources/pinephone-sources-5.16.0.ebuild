@@ -22,7 +22,6 @@ SRC_URI="${KERNEL_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
 PATCHES=(
 	${DISTDIR}/all-${PV}.patch
 	
-	${FILESDIR}/ccu-sun50i-a64-reparent-clocks-to-lower-speed-oscillator.patch
 	${FILESDIR}/dts-pinephone-drop-modem-power-node.patch
 	${FILESDIR}/media-ov5640-Implement-autofocus.patch
 	${FILESDIR}/0107-quirk-kernel-org-bug-210681-firmware_rome_error.patch
