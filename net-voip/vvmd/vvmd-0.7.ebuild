@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit gnome2-utils meson systemd udev
+inherit meson systemd udev
 
 DESCRIPTION="vvmd is a lower level daemon that retrieves Visual Voicemail"
 HOMEPAGE="https://gitlab.com/kop316/vvmd"
@@ -14,27 +14,13 @@ SLOT="0"
 KEYWORDS="~amd64 ~arm64"
 
 RDEPEND="
-	>=dev-libs/glib-2.50
-	>=x11-libs/gtk+-3.22.0
-	>=gui-libs/libhandy-1.0
-	>=media-libs/gstreamer-1.16.0
-	gnome-extra/evolution-data-server
-	media-sound/callaudiod
+	>=dev-libs/glib-2.16
+	>=net-misc/curl-7.70
+	>=dev-cpp/glibmm-1.14
 "
 
 DEPEND=""
 
 src_install() {
 	meson_src_install
-}
-
-pkg_postinst() {
-	xdg_pkg_postinst
-	gnome2_schemas_update
-	xdg_icon_cache_update
-}
-
-pkg_postrm() {
-	xdg_pkg_postrm
-	gnome2_schemas_update
 }
