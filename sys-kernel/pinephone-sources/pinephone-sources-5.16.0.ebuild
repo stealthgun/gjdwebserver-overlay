@@ -22,10 +22,8 @@ SRC_URI="${KERNEL_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
 PATCHES=(
 	${DISTDIR}/all-${PV}.patch
 	
-	${FILESDIR}/dts-pinephone-drop-modem-power-node.patch
 	${FILESDIR}/media-ov5640-Implement-autofocus.patch
-	${FILESDIR}/0107-quirk-kernel-org-bug-210681-firmware_rome_error.patch
-	${FILESDIR}/0177-leds-gpio-make-max_brightness-configurable.patch
+	${FILESDIR}/dts-pinephone-pro-dts-modem-fix.patch
     	${FILESDIR}/panic-led.patch
 
         # Pinephone Keyboard
