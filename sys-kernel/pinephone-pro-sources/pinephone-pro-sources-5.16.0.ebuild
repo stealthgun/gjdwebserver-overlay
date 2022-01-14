@@ -17,7 +17,8 @@ DEPEND="${RDEPEND}
 DESCRIPTION="Full sources for the Linux kernel, with megi's patch for Pinephone Pro"
 
 MEGI_PATCH_COMMIT="382509700d5a3ea447b44f002e9d928fd0a14ad5"
-SRC_URI="https://github.com/megous/linux/archive/${MEGI_PATCH_COMMIT}.tar.gz -> ${P}.tar.gz"
+MEGI_PATCH_URI="orange-pi-5.16-20220110-0757"
+SRC_URI="https://github.com/megous/linux/archive/${MEGI_PATCH_URI}.tar.gz -> ${P}.tar.gz"
 
 PATCHES=(
 	${FILESDIR}/0001-bootsplash.patch
