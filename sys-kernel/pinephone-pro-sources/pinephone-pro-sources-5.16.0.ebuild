@@ -12,6 +12,8 @@ K_BASE_VER="5.16"
 K_EXP_GENPATCHES_NOUSE="1"
 K_FROM_GIT="yes"
 ETYPE="sources"
+inherit kernel-2
+detect_version
 
 KEYWORDS="~arm64"
 
