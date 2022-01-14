@@ -43,7 +43,6 @@ PATCHES=(
 )
 
 src_prepare() {
-	default
 	eapply_user
 }
 
