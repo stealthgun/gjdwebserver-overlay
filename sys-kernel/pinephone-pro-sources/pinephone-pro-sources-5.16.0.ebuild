@@ -1,13 +1,17 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+
 EAPI="8"
+UNIPATCH_STRICTORDER="yes"
 K_NOUSENAME="yes"
 K_NOSETEXTRAVERSION="yes"
+K_NOUSEPR="yes"
 K_SECURITY_UNSUPPORTED="1"
+K_BASE_VER="5.16"
+K_EXP_GENPATCHES_NOUSE="1"
+K_FROM_GIT="yes"
 ETYPE="sources"
-inherit kernel-2
-detect_version
 
 KEYWORDS="~arm64"
 
@@ -43,6 +47,7 @@ PATCHES=(
 )
 
 src_prepare() {
+	default
 	eapply_user
 }
 
