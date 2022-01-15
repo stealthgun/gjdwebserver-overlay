@@ -21,7 +21,7 @@ DESCRIPTION="Full sources for the Linux kernel with gentoo patchset and with meg
 SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI}"
 
 PATCHES=(
-	# Mobian Patches
+	# Mobian PinePhone Pro Patches
 	${FILESDIR}/0001-base-property-Swap-order-of-search-for-connection-to.patch
         ${FILESDIR}/0002-clk-rk3399-Export-SCLK_CIF_OUT_SRC-to-device-tree.patch
         ${FILESDIR}/0003-media-rockchip-rga-Fix-probe-bugs.patch
