@@ -18,9 +18,6 @@ RDEPEND="
 	>=media-libs/alsa-lib-1.2.6
 	>=media-plugins/alsa-plugins-1.2.6
 	>=media-libs/alsa-ucm-conf-1.2.6
-	media-libs/zita-resampler
-	media-libs/zita-alsa-pcmi
-	media-libs/portaudio
 	"
 
 DEPEND="${RDEPEND}"
