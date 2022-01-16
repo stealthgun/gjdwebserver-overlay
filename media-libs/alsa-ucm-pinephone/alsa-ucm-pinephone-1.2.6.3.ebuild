@@ -16,8 +16,9 @@ KEYWORDS="~arm64"
 RDEPEND="
 	>=media-libs/alsa-topology-conf-1.2.5
 	>=media-libs/alsa-lib-1.2.6
-	>=media-plugins/alsa-plugins-1.2.6
+	>=media-plugins/alsa-plugins-1.2.6[-pulseaudio]
 	>=media-libs/alsa-ucm-conf-1.2.6
+	>=media-video/pipewire-0.3.42[pipewire-alsa]
 	"
 
 DEPEND="${RDEPEND}"
