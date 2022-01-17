@@ -53,7 +53,6 @@ S="${WORKDIR}/upower-UPOWER_0_99_13"
 src_prepare() {
 	default
 	xdg_environment_reset
-	sed -i -e '/DISABLE_DEPRECATED/d' configure || die
 }
 
 src_configure() {
