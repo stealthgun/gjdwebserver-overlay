@@ -48,6 +48,8 @@ DOCS=( AUTHORS HACKING NEWS README )
 
 PATCHES=( "${FILESDIR}/${P}-fix-power_now-energy_rate-readings.patch" ) # bug 796896
 
+S="${WORKDIR}/upower-UPOWER_0_99_13"
+
 src_prepare() {
 	default
 	xdg_environment_reset
