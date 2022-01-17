@@ -1,0 +1,60 @@
+#!/bin/bash
+
+#
+# /usr/bin/ppp-uboot-flash
+# Utility that flashes selected U-Boot image to the boot device.
+#
+
+# Check that we're running as root
+if [[ ${EUID} != 0 ]]; then
+  echo "Flashing U-Boot image not possible, please execute this utility as root."
+  exit 1
+fi
+
+# Get the device that the root resides on, and remove "/dev/" from the device name
+ROOT_DEV=`findmnt / -o source -n | cut -d "[" -f 1 | cut -d "/" -f 3`
+
+# Get the full real name of the root device, which is usually "/dev/mmcblk0"
+ROOT_DEV_NAME="/dev/"`echo /sys/block/*/${ROOT_DEV} | cut -d "/" -f 4`
+
+# Verify that the determined root device is available, just in case
+if [[ ! -r ${ROOT_DEV_NAME} ]]; then
+  echo "Flashing U-Boot not possible, device ${ROOT_DEV_NAME} not found.  No changes made to U-Boot."
+  exit 1
+fi
+
+# Get the U-Boot component names and check that they exist
+IDBLOADER_IMG="/boot/idbloader.img"
+U_BOOT_ITB="/boot/u-boot.itb"
+for COMPONENT in ${IDBLOADER_IMG} ${U_BOOT_ITB}; do
+  if [[ ! -r ${COMPONENT} ]]; then
+    echo "Flashing U-Boot not possible, file ${COMPONENT} not found.  No changes made to U-Boot."
+    exit 1
+  fi
+done
+
+# Flash the first of the selected U-Boot components to the determined root device
+echo -n "Flashing U-Boot components..."
+dd if=${IDBLOADER_IMG} of=${ROOT_DEV_NAME} seek=64 conv=notrunc,fsync > /dev/null 2>&1
+STATUS_IMG=$?
+STATUS_ITB=0
+
+# Now flash the second U-Boot component, but only if the first one flashed successfully
+if [[ ${STATUS_IMG} = 0 ]]; then
+  dd if=${U_BOOT_ITB} of=${ROOT_DEV_NAME} seek=16384 conv=notrunc,fsync > /dev/null 2>&1
+  STATUS_ITB=$?
+fi
+
+# At the end, display the final status message of the U-Boot flashing
+if [[ ${STATUS_IMG} = 0 && ${STATUS_ITB} = 0 ]]; then
+  echo " done."
+  echo "Required U-Boot components flashed to ${ROOT_DEV_NAME} successfully."
+  echo "Please reboot your phone for the changes to take effect."
+else
+  echo " failed."
+  echo "Flashing U-Boot components to ${ROOT_DEV_NAME} failed due to unknown reason."
+  echo "Please try flashing the U-Boot again, or your phone may no longer boot properly."
+  exit 1
+fi
+
+# EOF

@@ -1,4 +1,4 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -7,7 +7,7 @@ inherit toolchain-funcs
 
 PKGREL="4"
 FIRMWAREVERSION="2.6"
-COMMMIT="0719bf42931033c3109ecc6357e8adb567cb637b"
+COMMMIT="d637294e264adfeb29f390dfc393106fd4d41b17"
 MY_P="u-boot-${COMMMIT}"
 DESCRIPTION="Das U-boot and utilities for working with Das U-Boot for the PinePhone Pro"
 HOMEPAGE="https://www.denx.de/wiki/U-Boot/WebHome"
@@ -41,16 +41,11 @@ src_prepare() {
 		tools/Makefile || die
 		
 		#Apply PinePhone Pro patches
-		eapply "${FILESDIR}"/0001-PPP.patch
-		eapply "${FILESDIR}"/0002-Add-ppp-dt.patch
-		eapply "${FILESDIR}"/0003-Config-changes.patch
-		eapply "${FILESDIR}"/0004-Add-kconfig-include.patch
-		eapply "${FILESDIR}"/0005-Add-pinephone-pro-rk3399.h.patch
-		eapply "${FILESDIR}"/0006-Added-dts-to-makefile.patch
-		eapply "${FILESDIR}"/0007-u-boot.dtsi-fixes.patch
-		eapply "${FILESDIR}"/0008-fix-boot-order.patch
-		eapply "${FILESDIR}"/0009-Correct-boot-order-to-be-USB-SD-eMMC.patch
-}
+		eapply "${FILESDIR}/0001-rockchip-Add-initial-support-for-the-PinePhone-Pro.patch"
+		eapply "${FILESDIR}/0002-Correct-boot-order-to-be-USB-SD-eMMC.patch"
+		eapply "${FILESDIR}/0003-Configure-USB-power-settings-for-PinePhone-Pro.patch"
+		}
+
 
 src_configure() {
 	tc-export AR BUILD_CC CC PKG_CONFIG
@@ -77,15 +72,15 @@ src_compile() {
 
 	emake "${myemakeargs[@]}" pinephone-pro-rk3399_defconfig
 	
-	echo 'CONFIG_IDENT_STRING=" Gentoo"' >> .config
+	echo 'CONFIG_IDENT_STRING=" Gentoo Linux"' >> .config
+	echo 'CONFIG_BOOTDELAY=0' >> .config
 	echo 'CONFIG_USB_EHCI_HCD=n' >> .config
 	echo 'CONFIG_USB_EHCI_GENERIC=n' >> .config
 	echo 'CONFIG_USB_XHCI_HCD=n' >> .config
 	echo 'CONFIG_USB_XHCI_DWC3=n' >> .config
 	echo 'CONFIG_USB_DWC3=n' >> .config
 	echo 'CONFIG_USB_DWC3_GENERIC=n' >> .config
-
-
+	
 	emake "${myemakeargs[@]}" EXTRAVERSION=-${PKGREL}
 	
 	emake "${myemakeargs[@]}" \
@@ -99,13 +94,20 @@ src_compile() {
 src_test() { :; }
 
 src_install() {
-	mkdir /boot/extlinux
-	
 	insinto /boot/
 	doins ${S}/u-boot.itb
-	
+
 	insinto /boot/
 	doins ${S}/idbloader.img
+	
+	insinto /boot/
+	doins ${S}/boot.txt	
+	
+	insinto /usr/bin/
+	doins ${S}/ppp-uboot-flash	
+	
+	insinto /usr/bin/
+	doins ${S}/ppp-uboot-mkscr	
 		
 	cd tools || die
 
@@ -126,8 +128,9 @@ src_install() {
 pkg_postinst() {
 	einfo "This U-Boot is only to be used for the PinePhone Pro."
 	einfo "After compiling a new Gentoo kernel, copy the resulting Image from /usr/src/linux/arch/arm64/boot/Image to the boot partition (replacing the existing Image)."	
+  	einfo "Update /boot/boot.txt to your wishes and then run ppp-uboot-mkscr to create the config."
   	einfo "New version of U-Boot firmware can be flashed to your microSD card or eMMC module."
-  	einfo "You can do that by running:"
+  	einfo "You can do that by running ppp-uboot-flash or by running:"
   	einfo "# dd if=/boot/idbloader.img of=/dev/mmcblkX seek=64 conv=notrunc,fsync"
 	einfo "# dd if=/boot/u-boot.itb of=/dev/mmcblkX seek=16384 conv=notrunc,fsync"
 }
