@@ -31,6 +31,7 @@ DEPEND="
 		gnome-extra/portfolio 
 		gnome-base/gnome-session
 		gnome-extra/gnome-system-monitor
+		media-gfx/gnome-screenshot
 		sys-process/gnome-usage
 		gnome-extra/gnome-tweaks
 		app-arch/file-roller
