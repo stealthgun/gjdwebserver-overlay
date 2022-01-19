@@ -1,29 +1,29 @@
-# Copyright 1999-2021 Gentoo Authors
+# Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+
 EAPI="8"
-K_NOUSENAME="yes"
-K_NOSETEXTRAVERSION="yes"
-K_SECURITY_UNSUPPORTED="1"
 ETYPE="sources"
+K_WANT_GENPATCHES="base extras"
+K_GENPATCHES_VER="1"
+
 inherit kernel-2
 detect_version
+detect_arch
 
 KEYWORDS="~arm64"
 
 DEPEND="${RDEPEND}
 	>=sys-devel/patch-2.7.5"
 
-DESCRIPTION="Full sources for the Linux kernel, with megi's patch for pinephone"
+DESCRIPTION="Full sources for the Linux kernel with gentoo patchset and with megi's patch for the PinePhone (Non pro), For the PinePhone Pro please use the pinephone-pro-sources"
 
-MEGI_PATCH_URI="https://xff.cz/kernels/${PV:0:4}/patches/all.patch"
-SRC_URI="${KERNEL_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
+SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI}"
 
 PATCHES=(
 	${DISTDIR}/all-${PV}.patch
 	
 	${FILESDIR}/media-ov5640-Implement-autofocus.patch
-	${FILESDIR}/dts-pinephone-pro-dts-modem-fix.patch
     	${FILESDIR}/panic-led.patch
 
         # Pinephone Keyboard
@@ -44,8 +44,6 @@ pkg_postinst() {
 	einfo "make Image Image.gz modules"
 	einfo "make DTC_FLAGS="-@" dtbs"
 	einfo "make install; make modules_intall; make dtbs_install"
-	einfo "If you use kernel config coming with this ebuild, don't forget to also copy dracut-pp.conf to /etc/dracut.conf.d/"
-	einfo "to make sure proper kernel modules are loaded into initramfs"
 	einfo "if you want to cross compile pinephone kernel on amd64 host, follow the https://wiki.gentoo.org/wiki/Cross_build_environment"
 	einfo "to setup cross toolchain environment, then create a xmake wrapper like the following, and replace make with xmake in above commands"
 	einfo "#!/bin/sh"
