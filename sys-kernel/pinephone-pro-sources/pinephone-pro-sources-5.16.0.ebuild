@@ -16,7 +16,7 @@ KEYWORDS="~arm64"
 DEPEND="${RDEPEND}
 	>=sys-devel/patch-2.7.5"
 
-DESCRIPTION="Full sources for the Linux kernel with gentoo patchset and with megi's patch for Pinephone (Pro)"
+DESCRIPTION="Full sources for the Linux kernel with gentoo patchset and with megi's patch for the PinePhone Pro"
 
 SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI}"
 
@@ -115,8 +115,6 @@ pkg_postinst() {
 	einfo "make Image Image.gz modules"
 	einfo "make DTC_FLAGS="-@" dtbs"
 	einfo "make install; make modules_intall; make dtbs_install"
-	einfo "If you use kernel config coming with this ebuild, don't forget to also copy dracut-pp.conf to /etc/dracut.conf.d/"
-	einfo "to make sure proper kernel modules are loaded into initramfs"
 	einfo "if you want to cross compile pinephone kernel on amd64 host, follow the https://wiki.gentoo.org/wiki/Cross_build_environment"
 	einfo "to setup cross toolchain environment, then create a xmake wrapper like the following, and replace make with xmake in above commands"
 	einfo "#!/bin/sh"
