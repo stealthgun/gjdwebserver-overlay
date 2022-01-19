@@ -17,6 +17,7 @@ RDEPEND="
 	>=dev-libs/glib-2.16
 	>=net-misc/curl-7.70
 	>=dev-cpp/glibmm-1.14
+	dev-libs/libphonenumber
 "
 
 DEPEND=""
