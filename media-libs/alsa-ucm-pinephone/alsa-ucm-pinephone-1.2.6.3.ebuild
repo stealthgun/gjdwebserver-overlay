@@ -30,12 +30,10 @@ src_install() {
 	#PinePhone Configs
 	insinto /usr/share/alsa/ucm2/PinePhone/HiFi.conf
 	insopts -m644
-	fperms 644
 	doins "${FILESDIR}"/PinePhone-HiFi.conf
 	
 	insinto /usr/share/alsa/ucm2/PinePhone/VoiceCall.conf
 	insopts -m644
-	fperms 644
 	doins -"${FILESDIR}"/PinePhone-VoiceCall.conf
 	
 	insinto /usr/share/alsa/ucm2/PinePhone/PinePhone.conf
@@ -45,17 +43,14 @@ src_install() {
 	#PinePhone Pro Configs	
 	insinto /usr/share/alsa/ucm2/PinePhonePro/HiFi.conf
 	insopts -m644
-	fperms 644	
 	doins "${FILESDIR}"/PinePhonePro-HiFi.conf
 	
 	insinto /usr/share/alsa/ucm2/PinePhonePro/VoiceCall.conf
-	insopts -m644
-	fperms 644	
+	insopts -m644	
 	doins "${FILESDIR}"/PinePhonePro-VoiceCall.conf
 	
 	insinto /usr/share/alsa/ucm2/PinePhonePro/PinePhonePro.conf
-	insopts -m644
-	fperms 644	
+	insopts -m644	
 	doins "${FILESDIR}"/PinePhonePro.conf
 	
 	#Create Symlinks
