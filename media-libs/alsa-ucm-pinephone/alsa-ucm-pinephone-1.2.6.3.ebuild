@@ -29,11 +29,11 @@ S="${WORKDIR}/pine64-alsa-ucm-${COMMIT}"
 
 src_install() {
 	insinto /usr/share/alsa/ucm2/PinePhone
-	insopts -m644
+	#insopts -m644
 	doins -r "${S}"/ucm2/PinePhone/*.conf
 	
 	insinto /usr/share/alsa/ucm2/PinePhonePro
-	insopts -m644
+	#insopts -m644
 	doins -r "${S}"/ucm2/PinePhonePro/*.conf
 	
 	dosym /usr/share/alsa/ucm2/PinePhone/PinePhone.conf \
