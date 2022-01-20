@@ -39,7 +39,7 @@ src_install() {
 	
 	insinto /usr/share/alsa/ucm2/PinePhone/
 	insopts -m644
-	doins "${S}"/ucm2/PinePhone/PinePhone.conf
+	doins "${FILESDIR}"/PinePhone.conf
 	
 	#PinePhone Pro Configs	
 	insinto /usr/share/alsa/ucm2/PinePhonePro/
@@ -52,7 +52,7 @@ src_install() {
 	
 	insinto /usr/share/alsa/ucm2/PinePhonePro/
 	insopts -m644
-	doins "${S}"/ucm2/PinePhonePro/PinePhonePro.conf
+	doins "${FILESDIR}"/PinePhonePro.conf
 	
 	#Create Symlinks
 	dosym /usr/share/alsa/ucm2/PinePhone/PinePhone.conf \
