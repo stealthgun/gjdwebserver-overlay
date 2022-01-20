@@ -25,13 +25,29 @@ DEPEND="${RDEPEND}"
 BDEPEND="${RDEPEND}"
 
 src_install() {
-	insinto /usr/share/alsa/ucm2/PinePhone
+	insinto /usr/share/alsa/ucm2/PinePhone/HiFi.conf
 	insopts -m644
-	doins -r "${FILESDIR}"/ucm2/PinePhone/*.conf
+	doins -r "${FILESDIR}"/ucm2/PinePhone/PinePhone-HiFi.conf
 	
-	insinto /usr/share/alsa/ucm2/PinePhonePro
+	insinto /usr/share/alsa/ucm2/PinePhone/VoiceCall.conf
 	insopts -m644
-	doins -r "${FILESDIR}"/ucm2/PinePhonePro/*.conf
+	doins -r "${FILESDIR}"/ucm2/PinePhone/PinePhone-VoiceCall.conf
+	
+	insinto /usr/share/alsa/ucm2/PinePhone/PinePhone.conf
+	insopts -m644
+	doins -r "${FILESDIR}"/ucm2/PinePhone/PinePhone.conf
+		
+	insinto /usr/share/alsa/ucm2/PinePhonePro/HiFi.conf
+	insopts -m644
+	doins -r "${FILESDIR}"/ucm2/PinePhonePro/PinePhonePro-HiFi.conf
+	
+	insinto /usr/share/alsa/ucm2/PinePhonePro/VoiceCall.conf
+	insopts -m644
+	doins -r "${FILESDIR}"/ucm2/PinePhonePro/PinePhonePro-VoiceCall.conf
+	
+	insinto /usr/share/alsa/ucm2/PinePhonePro/PinePhonePro.conf
+	insopts -m644
+	doins -r "${FILESDIR}"/ucm2/PinePhonePro/PinePhonePro.conf
 	
 	dosym /usr/share/alsa/ucm2/PinePhone/PinePhone.conf \
 	        /usr/share/alsa/ucm2/conf.d/simple-card/PinePhone.conf
