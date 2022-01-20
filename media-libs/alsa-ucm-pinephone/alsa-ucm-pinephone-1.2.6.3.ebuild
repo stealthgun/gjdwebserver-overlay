@@ -29,29 +29,23 @@ S="${WORKDIR}"
 src_install() {
 	#PinePhone Configs
 	insinto /usr/share/alsa/ucm2/PinePhone/HiFi.conf
-	insopts -m644
-	doins "${FILESDIR}"/PinePhone-HiFi.conf
+	doins "${FILESDIR}/PinePhone-HiFi.conf"
 	
 	insinto /usr/share/alsa/ucm2/PinePhone/VoiceCall.conf
-	insopts -m644
-	doins -"${FILESDIR}"/PinePhone-VoiceCall.conf
+	doins -"${FILESDIR}/PinePhone-VoiceCall.conf"
 	
 	insinto /usr/share/alsa/ucm2/PinePhone/PinePhone.conf
-	insopts -m644
-	doins -r "${FILESDIR}"/PinePhone.conf
+	doins -r "${FILESDIR}/PinePhone.conf"
 	
 	#PinePhone Pro Configs	
 	insinto /usr/share/alsa/ucm2/PinePhonePro/HiFi.conf
-	insopts -m644
-	doins "${FILESDIR}"/PinePhonePro-HiFi.conf
+	doins "${FILESDIR}/PinePhonePro-HiFi.conf"
 	
 	insinto /usr/share/alsa/ucm2/PinePhonePro/VoiceCall.conf
-	insopts -m644	
-	doins "${FILESDIR}"/PinePhonePro-VoiceCall.conf
+	doins "${FILESDIR}/PinePhonePro-VoiceCall.conf"
 	
 	insinto /usr/share/alsa/ucm2/PinePhonePro/PinePhonePro.conf
-	insopts -m644	
-	doins "${FILESDIR}"/PinePhonePro.conf
+	doins "${FILESDIR}/PinePhonePro.conf"
 	
 	#Create Symlinks
 	dosym /usr/share/alsa/ucm2/PinePhone/PinePhone.conf \
