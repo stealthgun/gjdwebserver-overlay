@@ -7,7 +7,6 @@ COMMIT="ec0ef36b8b897ed1ae6bb0d0de13d5776f5d3659"
 
 DESCRIPTION="ALSA ucm configuration files for the PinePhone (Pro)"
 HOMEPAGE="https://gitlab.com/pine64-org/pine64-alsa-ucm"
-SRC_URI="https://gitlab.com/pine64-org/pine64-alsa-ucm/-/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
 
 LICENSE="BSD"
 SLOT="0"
@@ -25,16 +24,14 @@ DEPEND="${RDEPEND}"
 
 BDEPEND="${RDEPEND}"
 
-S="${WORKDIR}/pine64-alsa-ucm-${COMMIT}"
-
 src_install() {
 	insinto /usr/share/alsa/ucm2/PinePhone
-	#insopts -m644
-	doins -r "${S}"/ucm2/PinePhone/*.conf
+	insopts -m644
+	doins -r "${FILESDIR}"/ucm2/PinePhone/*.conf
 	
 	insinto /usr/share/alsa/ucm2/PinePhonePro
-	#insopts -m644
-	doins -r "${S}"/ucm2/PinePhonePro/*.conf
+	insopts -m644
+	doins -r "${FILESDIR}"/ucm2/PinePhonePro/*.conf
 	
 	dosym /usr/share/alsa/ucm2/PinePhone/PinePhone.conf \
 	        /usr/share/alsa/ucm2/conf.d/simple-card/PinePhone.conf
