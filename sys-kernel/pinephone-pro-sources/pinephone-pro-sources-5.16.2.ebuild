@@ -16,7 +16,7 @@ KEYWORDS="~arm64"
 DEPEND="${RDEPEND}
 	>=sys-devel/patch-2.7.5"
 
-DESCRIPTION="Full sources for the Linux kernel with gentoo patchset and with megi'/s patch for the PinePhone Pro"
+DESCRIPTION="Full sources for the Linux kernel with gentoo patchset and with Mobian patches for the PinePhone Pro"
 
 SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI}"
 
@@ -80,6 +80,7 @@ PATCHES=(
         "${FILESDIR}"/0056-arm64-dts-rk3399-pinephone-pro-add-modem-RI-pin.patch
         "${FILESDIR}"/0057-arm64-dts-rk3399-pinephone-pro-improve-sound-device.patch
         "${FILESDIR}"/0058-arm64-dts-rk3399-pinephone-pro-remove-front-camera-n.patch
+        "${FILESDIR}"/0059-power-supply-rk818-battery-Report-charging-status-ba.patch
         # Pinephone Keyboard
         "${FILESDIR}"/pp-keyboard.patch
         "${FILESDIR}"/ppp-keyboard.patch

@@ -16,7 +16,7 @@ KEYWORDS="~arm64"
 DEPEND="${RDEPEND}
 	>=sys-devel/patch-2.7.5"
 
-DESCRIPTION="Full sources for the Linux kernel with gentoo patchset and with megi's patch for the PinePhone Pro"
+DESCRIPTION="Full sources for the Linux kernel with gentoo patchset and with Mobian patches for the PinePhone Pro"
 
 SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI}"
 
