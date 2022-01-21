@@ -5,7 +5,7 @@
 EAPI="8"
 ETYPE="sources"
 K_WANT_GENPATCHES="base extras"
-K_GENPATCHES_VER="2"
+K_GENPATCHES_VER="3"
 
 MEGI_PATCH_URI="https://xff.cz/kernels/${PV:0:4}/patches/all.patch"
 
