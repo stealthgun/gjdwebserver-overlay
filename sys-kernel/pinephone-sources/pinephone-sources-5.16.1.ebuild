@@ -29,10 +29,6 @@ PATCHES=(
         ${FILESDIR}/pp-keyboard.patch
         ${FILESDIR}/ppp-keyboard.patch
         # Bootsplash
-        ${FILESDIR}/0001-revert-garbage-collect-fbdev-scrolling-acceleration.patch
-        ${FILESDIR}/0002-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch
-        ${FILESDIR}/0003-revert-fbcon-remove-no-op-fbcon_set_origin.patch
-        ${FILESDIR}/0004-revert-fbcon-remove-soft-scrollback-code.patch
         ${FILESDIR}/0001-bootsplash.patch
         ${FILESDIR}/0002-bootsplash.patch
         ${FILESDIR}/0003-bootsplash.patch
