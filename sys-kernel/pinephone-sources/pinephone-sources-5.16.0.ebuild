@@ -28,19 +28,6 @@ PATCHES=(
         # Pinephone Keyboard
         ${FILESDIR}/pp-keyboard.patch
         ${FILESDIR}/ppp-keyboard.patch
-        # Bootsplash
-        ${FILESDIR}/0001-bootsplash.patch
-        ${FILESDIR}/0002-bootsplash.patch
-        ${FILESDIR}/0003-bootsplash.patch
-        ${FILESDIR}/0004-bootsplash.patch
-        ${FILESDIR}/0005-bootsplash.patch
-        ${FILESDIR}/0006-bootsplash.patch
-        ${FILESDIR}/0007-bootsplash.patch
-        ${FILESDIR}/0008-bootsplash.patch
-        ${FILESDIR}/0009-bootsplash.patch
-        ${FILESDIR}/0010-bootsplash.patch
-        ${FILESDIR}/0011-bootsplash.patch
-        ${FILESDIR}/0012-bootsplash.patch
 )
 
 src_prepare() {
