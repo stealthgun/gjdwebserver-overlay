@@ -7,6 +7,8 @@ ETYPE="sources"
 K_WANT_GENPATCHES="base extras"
 K_GENPATCHES_VER="1"
 
+MEGI_PATCH_URI="https://xff.cz/kernels/${PV:0:4}/patches/all.patch"
+
 inherit kernel-2
 detect_version
 detect_arch
@@ -16,19 +18,33 @@ KEYWORDS="~arm64"
 DEPEND="${RDEPEND}
 	>=sys-devel/patch-2.7.5"
 
-DESCRIPTION="Full sources for the Linux kernel with gentoo patchset and with megi's patch for the PinePhone (Non pro), For the PinePhone Pro please use the pinephone-pro-sources"
+DESCRIPTION="Full sources for the Linux kernel with gentoo patchset and with megi's patch for the PinePhone and PinePhone Pro"
 
-SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI}"
+SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
 
 PATCHES=(
+	#Megi patch set
 	${DISTDIR}/all-${PV}.patch
-	
-	${FILESDIR}/media-ov5640-Implement-autofocus.patch
-    	${FILESDIR}/panic-led.patch
-
         # Pinephone Keyboard
-        ${FILESDIR}/d1d849cae12db71aa81ceedaedc1b17a34790367.patch
-        ${FILESDIR}/2423aac2d6f5db55da99e11fd799ee66fe6f54c6.patch
+        ${FILESDIR}/pp-keyboard.patch
+        ${FILESDIR}/ppp-keyboard.patch
+        # Bootsplash
+        ${FILESDIR}/0001-revert-garbage-collect-fbdev-scrolling-acceleration.patch
+        ${FILESDIR}/0002-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch
+        ${FILESDIR}/0003-revert-fbcon-remove-no-op-fbcon_set_origin.patch
+        ${FILESDIR}/0004-revert-fbcon-remove-soft-scrollback-code.patch
+        ${FILESDIR}/0001-bootsplash.patch
+        ${FILESDIR}/0002-bootsplash.patch
+        ${FILESDIR}/0003-bootsplash.patch
+        ${FILESDIR}/0004-bootsplash.patch
+        ${FILESDIR}/0005-bootsplash.patch
+        ${FILESDIR}/0006-bootsplash.patch
+        ${FILESDIR}/0007-bootsplash.patch
+        ${FILESDIR}/0008-bootsplash.patch
+        ${FILESDIR}/0009-bootsplash.patch
+        ${FILESDIR}/0010-bootsplash.patch
+        ${FILESDIR}/0011-bootsplash.patch
+        ${FILESDIR}/0012-bootsplash.patch
 )
 
 src_prepare() {
@@ -53,3 +69,4 @@ pkg_postinst() {
 pkg_postrm() {
 	kernel-2_pkg_postrm
 }
+
