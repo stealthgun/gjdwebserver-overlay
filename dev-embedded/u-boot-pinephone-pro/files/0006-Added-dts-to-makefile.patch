@@ -1,0 +1,23 @@
+From 3e8d6e4d57dd15acf104a8f11ff18833f8d7adc7 Mon Sep 17 00:00:00 2001
+From: Martijn Braam <martijn@brixit.nl>
+Date: Sun, 13 Dec 2020 19:57:49 +0100
+Subject: [PATCH 6/8] Added dts to makefile
+
+---
+ arch/arm/dts/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index e2e8a5fb7a..ff07ae0270 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -135,6 +135,7 @@ dtb-$(CONFIG_ROCKCHIP_RK3399) += \
+ 	rk3399-nanopi-r4s.dtb \
+ 	rk3399-orangepi.dtb \
+ 	rk3399-pinebook-pro.dtb \
++	rk3399-pinephone-pro.dtb \
+ 	rk3399-puma-haikou.dtb \
+ 	rk3399-roc-pc.dtb \
+ 	rk3399-roc-pc-mezzanine.dtb \
+-- 
+2.33.0

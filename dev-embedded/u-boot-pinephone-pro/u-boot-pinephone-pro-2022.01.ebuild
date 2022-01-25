@@ -41,9 +41,16 @@ src_prepare() {
 		tools/Makefile || die
 		
 		#Apply PinePhone Pro patches
-		eapply "${FILESDIR}/0001-rockchip-Add-initial-support-for-the-PinePhone-Pro.patch"
-		eapply "${FILESDIR}/0002-Correct-boot-order-to-be-USB-SD-eMMC.patch"
-		eapply "${FILESDIR}/0003-Configure-USB-power-settings-for-PinePhone-Pro.patch"
+		eapply "${FILESDIR}"/0001-PPP.patch
+		eapply "${FILESDIR}"/0002-Add-ppp-dt.patch
+		eapply "${FILESDIR}"/0003-Config-changes.patch
+		eapply "${FILESDIR}"/0004-Add-kconfig-include.patch
+		eapply "${FILESDIR}"/0005-Add-pinephone-pro-rk3399.h.patch
+		eapply "${FILESDIR}"/0006-Added-dts-to-makefile.patch
+		eapply "${FILESDIR}"/0007-u-boot.dtsi-fixes.patch
+		eapply "${FILESDIR}"/0008-fix-boot-order.patch
+		eapply "${FILESDIR}"/0009-Correct-boot-order-to-be-USB-SD-eMMC.patch
+
 		}
 
 
