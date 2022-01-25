@@ -101,13 +101,13 @@ src_install() {
 	doins ${S}/idbloader.img
 	
 	insinto /boot/
-	doins ${S}/boot.txt	
+	doins ${FILESDIR}/boot.txt	
 	
 	insinto /usr/bin/
-	doins ${S}/ppp-uboot-flash	
+	doins ${FILESDIR}/ppp-uboot-flash	
 	
 	insinto /usr/bin/
-	doins ${S}/ppp-uboot-mkscr	
+	doins ${FILESDIR}/ppp-uboot-mkscr	
 		
 	cd tools || die
 
@@ -129,8 +129,9 @@ pkg_postinst() {
 	einfo "This U-Boot is only to be used for the PinePhone Pro."
 	einfo "After compiling a new Gentoo kernel, copy the resulting Image from /usr/src/linux/arch/arm64/boot/Image to the boot partition (replacing the existing Image)."	
   	einfo "Update /boot/boot.txt to your wishes and then run ppp-uboot-mkscr to create the config."
-  	einfo "New version of U-Boot firmware can be flashed to your microSD card or eMMC module."
+  	einfo "New version of U-Boot firmware can be flashed to your microSD card or eMMc module."
   	einfo "You can do that by running ppp-uboot-flash or by running:"
   	einfo "# dd if=/boot/idbloader.img of=/dev/mmcblkX seek=64 conv=notrunc,fsync"
 	einfo "# dd if=/boot/u-boot.itb of=/dev/mmcblkX seek=16384 conv=notrunc,fsync"
+	einfo "# Due to the Boot Priority for the PPP it is HIGHLY recommended to not but U-Boot on the eMMc because there is no easy way to recover is something went wrong."
 }
