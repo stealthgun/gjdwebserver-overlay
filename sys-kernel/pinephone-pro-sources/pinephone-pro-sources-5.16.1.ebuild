@@ -115,8 +115,8 @@ pkg_postinst() {
 	einfo "# make Image modules"
 	einfo "# make DTC_FLAGS="-@" dtbs"
 	einfo "# cp arch/arm64/boot/Image /boot"
-	einfo "# make /usr modules_intall"
-	einfo "# make /boot/dtbs dtbs_install"
+	einfo "# make INSTALL_MOD_PATH=/usr modules_intall"
+	einfo "# make INSTALL_DTBS_PATH=/boot/dtbs dtbs_install"
 }
 
 pkg_postrm() {
