@@ -52,10 +52,6 @@ BDEPEND="
 	x11-base/xorg-server
 "
 
-PATCHES=(
-	"${FILESDIR}/0001-seat-Don-t-notify-on-key-release.patch"
-)
-
 S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
