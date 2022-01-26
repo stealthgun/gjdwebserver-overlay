@@ -62,10 +62,6 @@ src_prepare() {
 	default
 	rm -r "${S}"/subprojects/wlroots || die "Failed to remove bundled wlroots"
 	cp -r "${WORKDIR}/${WL_P}" "${S}"/subprojects/wlroots || die "Failed to copy right version of wlroots"
-
-	cd "${S}"/subprojects/wlroots
-	eapply "${FILESDIR}"/xcursor-fix-false-positive-stringop-truncation.diff
-
 }
 
 src_configure() {
