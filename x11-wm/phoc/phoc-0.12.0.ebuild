@@ -8,14 +8,12 @@ inherit meson vala xdg gnome2-utils
 MY_PV="v${PV}"
 MY_P="${PN}-${MY_PV}"
 
-WL_COMMIT="5413b1ec61c6e3390929db595c0ec92f92ea2594"
+WL_COMMIT="2fce64d30d378d7009a5770b2472231a0e535ada"
 WL_P="wlroots-${WL_COMMIT}"
 
 DESCRIPTION="Wlroots based Phone compositor"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phoc"
 
-# we don't use the version on gentoo because it breaks
-# the phoc installation. we follow method used in archlinuxarm
 SRC_URI="
 	https://gitlab.gnome.org/World/Phosh/phoc/-/archive/${MY_PV}/${MY_P}.tar.gz
 	https://source.puri.sm/Librem5/wlroots/-/archive/${WL_COMMIT}/${WL_P}.tar.gz
