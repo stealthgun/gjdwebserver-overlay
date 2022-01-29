@@ -25,8 +25,6 @@ SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI} ${MEGI_PATCH_URI} -> all-${
 PATCHES=(
 	#Megi patch set
 	${DISTDIR}/all-${PV}.patch
-        # Pinephone Keyboard
-        ${FILESDIR}/pp-keyboard.patch
         # Drop Megi's Modem-Power
         "${FILESDIR}"/dts-pinephone-drop-modem-power-node.patch
         # Implement Martijn's improvements for the cameras
