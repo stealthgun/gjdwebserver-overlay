@@ -20,7 +20,7 @@ DESCRIPTION="Full sources for the Linux kernel with gentoo patchset and with Mob
 
 MEGI_PATCH_URI="https://xff.cz/kernels/${PV:0:4}/patches/all.patch"
 
-SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI}"
+SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
 
 PATCHES=(
 	#Megi patch set
