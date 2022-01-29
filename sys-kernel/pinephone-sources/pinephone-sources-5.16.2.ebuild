@@ -5,7 +5,7 @@
 EAPI="8"
 ETYPE="sources"
 K_WANT_GENPATCHES="base extras"
-K_GENPATCHES_VER="4"
+K_GENPATCHES_VER="3"
 
 inherit kernel-2
 detect_version
@@ -57,14 +57,6 @@ pkg_postinst() {
 	einfo "If you use dracut you can run:"
 	einfo "# dracut -m \"rootfs-block base\" --host-only --kver 5.16.2-pinehone-gentoo-arm64"
 	einfo "Change 5.16.2-pinehone-gentoo-arm64 to your kernel version installed in /lib/modules"
-	einfo ""
-	einfo "Due to some bugs you might want to run the following commands:"
-	einfo "# install -Dt \"/usr/lib/modules/5.16.2-pinephone-gentoo-arm64/build/drivers/md\" -m644 drivers/md/*.h"
-  	einfo "# install -Dt \"/usr/lib/modules/5.16.2-pinephone-gentoo-arm64/build/net/mac80211\" -m644 net/mac80211/*.h"
-  	einfo "# install -Dt \"/usr/lib/modules/5.16.2-pinephone-gentoo-arm64/build/drivers/media/i2c\" -m644 drivers/media/i2c/msp3400-driver.h"
-  	einfo "# install -Dt \"/usr/lib/modules/5.16.2-pinephone-gentoo-arm64/build/drivers/media/usb/dvb-usb\" -m644 drivers/media/usb/dvb-usb/*.h"
-  	einfo "# install -Dt \"/usr/lib/modules/5.16.2-pinephone-gentoo-arm64/build/drivers/media/dvb-frontends\" -m644 drivers/media/dvb-frontends/*.h"
-  	einfo "# install -Dt \"/usr/lib/modules/5.16.2-pinephone-gentoo-arm64/build/drivers/media/tuners\" -m644 drivers/media/tuners/*.h"
 }
 
 pkg_postrm() {
