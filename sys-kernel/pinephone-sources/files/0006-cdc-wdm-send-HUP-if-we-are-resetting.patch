@@ -1,0 +1,27 @@
+From 1671ef2de0f3f698622bed7ba0e9a605fdd260fc Mon Sep 17 00:00:00 2001
+From: Bhushan Shah <bshah@kde.org>
+Date: Wed, 14 Apr 2021 18:58:41 +0530
+Subject: [PATCH 6/6] cdc-wdm: send HUP if we are resetting
+
+If userspace is polling the cdc-wdm socket, and device resets then we
+should notify userspace/client about reset.
+---
+ drivers/usb/class/cdc-wdm.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/usb/class/cdc-wdm.c b/drivers/usb/class/cdc-wdm.c
+index 2b9355ed4a2ad..93d9bacc18384 100644
+--- a/drivers/usb/class/cdc-wdm.c
++++ b/drivers/usb/class/cdc-wdm.c
+@@ -666,6 +666,8 @@ static __poll_t wdm_poll(struct file *file, struct poll_table_struct *wait)
+ 		spin_unlock_irqrestore(&desc->iuspin, flags);
+ 		goto desc_out;
+ 	}
++	if (test_bit(WDM_RESETTING, &desc->flags))
++		mask = EPOLLHUP;
+ 	if (test_bit(WDM_READ, &desc->flags))
+ 		mask = EPOLLIN | EPOLLRDNORM;
+ 	if (desc->rerr || desc->werr)
+-- 
+2.31.1
+
