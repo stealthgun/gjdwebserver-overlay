@@ -5,11 +5,7 @@
 		<email>gjdijkman@gjdwebserver.nl</email>
 		<name>Gerben Jan Dijkman</name>
 	</maintainer>
-	<longdescription lang="en">
-	XMPP and SMS messaging via libpurple and Modemmanager.
-	</longdescription>
 	<upstream>
-		<doc>https://source.puri.sm/Librem5/chatty</doc>
 		<bugs-to>https://source.puri.sm/Librem5/chatty/-/issues</bugs-to>
 	</upstream>
 </pkgmetadata>

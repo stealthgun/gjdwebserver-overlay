@@ -5,7 +5,7 @@ EAPI=7
 
 inherit meson gnome2-utils xdg
 
-COMMIT="501805ee4e013470c1c9eb17e930f9fe914e3671"
+COMMIT="da26b33a98137e542efd840eadae426b0cdb7b42"
 
 DESCRIPTION="XMPP and SMS messaging via libpurple and Modemmanager"
 HOMEPAGE="https://source.puri.sm/Librem5/chatty"
