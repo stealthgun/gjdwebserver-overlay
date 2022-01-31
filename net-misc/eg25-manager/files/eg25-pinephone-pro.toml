@@ -1,4 +1,5 @@
 [manager]
+monitor_udev = false
 # Delay between setting GPIO and PWRKEY sequence, set in microseconds
 poweron_delay = 100000
 
@@ -35,7 +36,7 @@ configure = [
 # Print software version
     { cmd = "QGMR" },
 # Configure audio
-    { cmd = "QDAI", expect = "3,0,0,4,0,0,1,1" },
+    { cmd = "QDAI", expect = "3,0,0,4,0,1,1,1" },
 # RI signaling using physical RI pin
     { cmd = "QCFG", subcmd = "risignaltype", expect = "\"physical\"" },
 # Enable VoLTE support

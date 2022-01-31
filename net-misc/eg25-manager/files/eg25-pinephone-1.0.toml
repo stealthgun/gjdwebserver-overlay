@@ -1,7 +1,11 @@
 [manager]
+monitor_udev = true
 need_libusb = true
 usb_vid = 0x2c7c
 usb_pid = 0x0125
+
+# Delay between setting GPIO and PWRKEY sequence, set in microseconds
+poweron_delay = 100000
 
 # Uncomment the following if you need to change the modem detection timeout on
 # resume and/or the time during which suspend is blocked after modem boot
@@ -10,11 +14,12 @@ usb_pid = 0x0125
 #recovery_timeout = 9
 
 [gpio]
-dtr = 358
-pwrkey = 35
-reset = 68
-apready = 231
-disable = 232
+chips = [ "1c20800.pinctrl", "1f02c00.pinctrl" ]
+dtr = { chip = 1, line = 6 }
+pwrkey = { chip = 0, line = 35 }
+reset = { chip = 0, line = 68 }
+apready = { chip = 0, line = 231 }
+disable = { chip = 0, line = 232 }
 
 [at]
 uart = "/dev/ttyS2"
@@ -31,19 +36,66 @@ configure = [
 #               match, the command is then executed with value `expect` in
 #               order to set the parameter to the configured value (optional)
 # A command can have `expect` OR `value` configured, but it shouldn't have both
+# Print software version
     { cmd = "QGMR" },
+# Configure audio
     { cmd = "QDAI", expect = "1,1,0,1,0,0,1,1" },
+# RI signaling using physical RI pin
     { cmd = "QCFG", subcmd = "risignaltype", expect = "\"physical\"" },
+# Enable VoLTE support
     { cmd = "QCFG", subcmd = "ims", expect = "1" },
+# Disable APREADY for PP 1.0 because pin is not connected
+    { cmd = "QCFG", subcmd = "apready", expect = "0,0,500" },
+# URC configuration for PP 1.0 (APREADY pin not connected):
+#   * RING URC: extend pulse length
+#   * Incoming SMS URC: extend pulse length
+#   * Other URC: extend pulse length
+#   * Report URCs on all ports (serial and USB) for FOSS firmware
+#   * Delay reporting of URCs
+#   * Configure URC pin to UART Ring Indicator
     { cmd = "QCFG", subcmd = "urc/ri/ring", expect = "\"pulse\",2000,1000,5000,\"off\",1" },
-    { cmd = "QCFG", subcmd = "urc/ri/smsincoming", expect = "\"pulse\",2000" },
-    { cmd = "QCFG", subcmd = "urc/ri/other", expect = "\"off\",1" },
+    { cmd = "QCFG", subcmd = "urc/ri/smsincoming", expect = "\"pulse\",2000,1" },
+    { cmd = "QCFG", subcmd = "urc/ri/other", expect = "\"off\",1,1" },
     { cmd = "QCFG", subcmd = "urc/delay", expect = "1" },
-    { cmd = "QURCCFG", subcmd = "urcport", expect = "\"usbat\"" },
+    { cmd = "QCFG", subcmd = "urc/cache", expect = "0" },
+    { cmd = "QCFG", subcmd = "urc/ri/pin", expect = "uart_ri" },
+    { cmd = "QURCCFG", subcmd = "urcport", expect = "\"all\"" },
+# Allow sleeping for power saving
     { cmd = "QSCLK", value = "1" },
+# GNSS configuration:
+#   * Enable A-GPS data upload support (XTRA)
+#   * Disable On-Demand-Positioning (ODP) mode 
+#     to avoid running the GNSS system in the background, even when not enabled.
+#   * Enable Dynamic Power Optimizations (DPO) mode to turn off GNSS RF radios 
+#     when they are not in use.
+#   * Only enable GPS and GLONASS, disable other GNSS systems.
+#     A-GPS data upload doesn't work for Galileo anyway.
+#   * Avoid turning on GNSS support automatically when the modem boots.
+    { cmd = "QGPSXTRA", expect = "1" },
+    { cmd = "QGPSCFG", subcmd = "gnssconfig", expect = "4" },
+    { cmd = "QGPSCFG", subcmd = "odpcontrol", expect = "0" },
+    { cmd = "QGPSCFG", subcmd = "dpoenable", expect = "1" },
+    { cmd = "QGPSCFG", subcmd = "gpsnmeatype", expect = "31" },
+    { cmd = "QGPSCFG", subcmd = "glonassnmeatype", expect = "7" },
+    { cmd = "QGPSCFG", subcmd = "galileonmeatype", expect = "0" },
+    { cmd = "QGPSCFG", subcmd = "beidounmeatype", expect = "0" },
+    { cmd = "QGPSCFG", subcmd = "autogps", expect = "0" },
+# Disable fast poweroff for stability
+    { cmd = "QCFG", subcmd = "fast/poweroff", expect = "0" },
+# Configure sleep and wake up pin levels to active low
+    { cmd = "QCFG", subcmd = "sleepind/level", expect = "0" },
+    { cmd = "QCFG", subcmd = "wakeupin/level", expect = "0,0" },
+# Do not enter RAMDUMP mode, auto-reset instead
+    { cmd = "QCFG", subcmd = "ApRstLevel", expect = "1" },
+    { cmd = "QCFG", subcmd = "ModemRstLevel", expect = "1" },
 ]
 suspend = [
 ]
 resume = [
 ]
 reset = [ { cmd = "CFUN", value = "1,1" } ]
+
+[gnss]
+enabled = true
+url = "https://xtrapath4.izatcloud.net"
+file = "xtra2.bin"
