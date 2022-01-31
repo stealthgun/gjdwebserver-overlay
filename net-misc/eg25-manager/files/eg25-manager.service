@@ -8,7 +8,6 @@ ExecStart=/usr/bin/eg25manager
 Restart=on-failure
 ProtectControlGroups=true
 ProtectHome=true
-ProtectKernelTunables=true
 ProtectSystem=strict
 RestrictSUIDSGID=true
 PrivateTmp=true
@@ -20,4 +19,3 @@ LockPersonality=true
 
 [Install]
 WantedBy=multi-user.target
-
