@@ -1,4 +1,4 @@
-# Copyright 2011-2021 Gentoo Authors
+# Copyright 2011-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -50,6 +50,7 @@ RDEPEND="
 	x11-libs/pango
 	x11-misc/xdg-utils
 	=media-video/ffmpeg-chromium-bin-${PV}
+	=media-video/ffmpeg-extra-chromium-bin-${PV}
 "
 
 QA_PREBUILT="*"

@@ -80,13 +80,6 @@ src_compile() {
 	emake "${myemakeargs[@]}" pinephone-pro-rk3399_defconfig
 	
 	echo 'CONFIG_IDENT_STRING=" Gentoo Linux"' >> .config
-	echo 'CONFIG_BOOTDELAY=0' >> .config
-	echo 'CONFIG_USB_EHCI_HCD=n' >> .config
-	echo 'CONFIG_USB_EHCI_GENERIC=n' >> .config
-	echo 'CONFIG_USB_XHCI_HCD=n' >> .config
-	echo 'CONFIG_USB_XHCI_DWC3=n' >> .config
-	echo 'CONFIG_USB_DWC3=n' >> .config
-	echo 'CONFIG_USB_DWC3_GENERIC=n' >> .config
 	
 	emake "${myemakeargs[@]}" EXTRAVERSION=-${PKGREL}
 	
@@ -106,15 +99,6 @@ src_install() {
 
 	insinto /boot/
 	doins ${S}/idbloader.img
-	
-	insinto /boot/
-	doins ${FILESDIR}/boot.txt	
-	
-	insinto /usr/bin/
-	doins ${FILESDIR}/ppp-uboot-flash	
-	
-	insinto /usr/bin/
-	doins ${FILESDIR}/ppp-uboot-mkscr	
 		
 	cd tools || die
 
@@ -135,10 +119,9 @@ src_install() {
 pkg_postinst() {
 	einfo "This U-Boot is only to be used for the PinePhone Pro."
 	einfo "After compiling a new Gentoo kernel, copy the resulting Image from /usr/src/linux/arch/arm64/boot/Image to the boot partition (replacing the existing Image)."	
-  	einfo "Update /boot/boot.txt to your wishes and then run ppp-uboot-mkscr to create the config."
   	einfo "New version of U-Boot firmware can be flashed to your microSD card or eMMc module."
-  	einfo "You can do that by running ppp-uboot-flash or by running:"
+  	einfo "You can do that by running:"
   	einfo "# dd if=/boot/idbloader.img of=/dev/mmcblkX seek=64 conv=notrunc,fsync"
 	einfo "# dd if=/boot/u-boot.itb of=/dev/mmcblkX seek=16384 conv=notrunc,fsync"
-	einfo "# Due to the Boot Priority for the PPP it is HIGHLY recommended to not but U-Boot on the eMMc because there is no easy way to recover is something went wrong."
+	einfo "Due to the Boot Priority for the PPP it is HIGHLY recommended to not put U-Boot on the eMMc because there is no easy way to recover is something went wrong."
 }
