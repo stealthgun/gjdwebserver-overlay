@@ -52,10 +52,12 @@ RDEPEND="
 	
 	proprietary-codecs? (
 		=media-video/ffmpeg-extra-chromium-bin-${PV}
+		!=media-video/ffmpeg-chromium-bin-${PV}
 	)
 	
 	!proprietary-codecs? (
 		=media-video/ffmpeg-chromium-bin-${PV}
+		!=media-video/ffmpeg-extra-chromium-bin-${PV}
 	)
 	
 "
