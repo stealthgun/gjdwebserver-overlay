@@ -7,7 +7,7 @@ inherit chromium-2 desktop pax-utils unpacker xdg
 
 KEYWORDS="~arm64"
 
-MY_P="hromium-codecs-ffmpeg-extra_${PV}-0"
+MY_P="chromium-codecs-ffmpeg-extra_${PV}-0"
 
 SRC_URI="http://ports.ubuntu.com/pool/universe/c/chromium-browser/${MY_P}ubuntu0.18.04.1_arm64.deb"
 
