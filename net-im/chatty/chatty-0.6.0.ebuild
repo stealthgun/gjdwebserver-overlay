@@ -38,7 +38,7 @@ src_prepare() {
 	default
 	eapply_user
 	rm -r "${S}"/subprojects/libgd || die
-	mv "${WORKDIR}"/libgd-"${LVC_COMMIT}" "${S}"/subprojects/libgd || die
+	mv "${WORKDIR}"/libgd-"${LIBGD_COMMIT}" "${S}"/subprojects/libgd || die
 }
 
 pkg_postinst() {
