@@ -15,7 +15,7 @@ MY_P="chromium-browser_${PV}-0"
 SRC_URI="http://ports.ubuntu.com/pool/universe/c/chromium-browser/${MY_P}ubuntu0.18.04.1_arm64.deb"
 
 SLOT="0"
-IUSE="selinux"
+IUSE="selinux proprietary-codecs"
 RESTRICT="bindist mirror strip"
 
 RDEPEND="
@@ -49,8 +49,15 @@ RDEPEND="
 	x11-libs/libxshmfence
 	x11-libs/pango
 	x11-misc/xdg-utils
-	=media-video/ffmpeg-chromium-bin-${PV}
-	=media-video/ffmpeg-extra-chromium-bin-${PV}
+	
+	proprietary-codecs? (
+		=media-video/ffmpeg-extra-chromium-bin-${PV}
+	)
+	
+	!proprietary-codecs? (
+		=media-video/ffmpeg-chromium-bin-${PV}
+	)
+	
 "
 
 QA_PREBUILT="*"
