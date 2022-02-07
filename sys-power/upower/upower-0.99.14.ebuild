@@ -17,7 +17,7 @@ SLOT="0/3" # based on SONAME of libupower-glib.so
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~mips ~ppc ppc64 ~riscv ~sparc ~x86"
 
 # gtk-doc files are not available as prebuilt in the tarball
-IUSE="doc +introspection ios selinux"
+IUSE="doc +introspection ios selinux vala"
 
 DEPEND="
 	>=dev-libs/glib-2.38:2
@@ -31,6 +31,7 @@ DEPEND="
 			>=app-pda/libplist-2:=
 		)
 	)
+	vala? ( $(vala_depend) )
 "
 RDEPEND="${DEPEND}
 	selinux? ( sec-policy/selinux-devicekit )
@@ -80,7 +81,7 @@ src_configure() {
 }
 
 src_install() {
-	default
+	meson_src_install
 	find "${ED}" -type f -name '*.la' -delete || die
 	keepdir /var/lib/upower #383091
 }
