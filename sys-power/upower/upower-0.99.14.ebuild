@@ -17,7 +17,7 @@ SLOT="0/3" # based on SONAME of libupower-glib.so
 KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~ia64 ~mips ~ppc ppc64 ~riscv ~sparc ~x86"
 
 # gtk-doc files are not available as prebuilt in the tarball
-IUSE="doc +introspection ios selinux vala"
+IUSE="doc +introspection ios selinux"
 
 DEPEND="
 	>=dev-libs/glib-2.38:2
@@ -49,13 +49,12 @@ DOCS=( AUTHORS HACKING NEWS README )
 
 S="${WORKDIR}/${PN}-v${PV}"
 
-src_prepare() {	
-	eapply_user
-	default
+src_prepare() {
 	xdg_environment_reset
 }
 
 src_configure() {
+
 	local backend
 
 	if use kernel_linux ; then
@@ -76,11 +75,11 @@ src_configure() {
 		$(use_enable introspection)
 		$(use_with ios idevice)
 	)
-	econf "${myeconfargs[@]}"
+	meson_src_configure "${myeconfargs[@]}"
 }
 
 src_install() {
-	meson_src_install
+	default
 	find "${ED}" -type f -name '*.la' -delete || die
 	keepdir /var/lib/upower #383091
 }
