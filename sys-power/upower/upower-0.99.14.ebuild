@@ -55,28 +55,7 @@ src_prepare() {
 }
 
 src_configure() {
-
-	local backend
-
-	if use kernel_linux ; then
-		backend=linux
-	else
-		backend=dummy
-	fi
-
-	local myeconfargs=(
-		--disable-tests
-		--enable-man-pages
-		--libexecdir="${EPREFIX}"/usr/lib/${PN}
-		--localstatedir="${EPREFIX}"/var
-		--with-backend=${backend}
-		--with-systemdsystemunitdir="$(systemd_get_systemunitdir)"
-		--with-systemdutildir="$(systemd_get_utildir)"
-		$(use_enable doc gtk-doc)
-		$(use_enable introspection)
-		$(use_with ios idevice)
-	)
-	meson_src_configure "${myeconfargs[@]}"
+	meson_src_configure
 }
 
 src_install() {
