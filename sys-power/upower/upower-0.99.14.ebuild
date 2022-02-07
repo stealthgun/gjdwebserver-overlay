@@ -47,7 +47,7 @@ QA_MULTILIB_PATHS="usr/lib/${PN}/.*"
 
 DOCS=( AUTHORS HACKING NEWS README )
 
-#PATCHES=( "${FILESDIR}/${P}-fix-power_now-energy_rate-readings.patch" ) # bug 796896
+S="${WORKDIR}/${PN}-v${PV}"
 
 src_prepare() {
 	default
