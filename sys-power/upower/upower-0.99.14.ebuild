@@ -3,9 +3,9 @@
 
 EAPI=8
 
-inherit systemd xdg-utils meson
-
 VALA_USE_DEPEND="vapigen"
+
+inherit systemd xdg-utils meson vala
 
 DESCRIPTION="D-Bus abstraction for enumerating power devices, querying history and statistics"
 HOMEPAGE="https://upower.freedesktop.org/"
