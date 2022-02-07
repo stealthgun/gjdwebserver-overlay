@@ -7,7 +7,7 @@ inherit systemd xdg-utils
 
 DESCRIPTION="D-Bus abstraction for enumerating power devices, querying history and statistics"
 HOMEPAGE="https://upower.freedesktop.org/"
-SRC_URI="https://gitlab.freedesktop.org/upower/upower/uploads/177df5b9f9b76f25a2ad9da41aa0c1fa/upower-0.99.13.tar.xz"
+SRC_URI="https://gitlab.freedesktop.org/upower/upower/-/archive/v0.99.14/upower-v0.99.14.tar.gz"
 
 # No tarball released at the usual location
 #SRC_URI="https://${PN}.freedesktop.org/releases/${P}.tar.xz"
