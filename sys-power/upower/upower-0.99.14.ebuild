@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit systemd xdg-utils meson
+	inherit systemd xdg-utils meson
 
 DESCRIPTION="D-Bus abstraction for enumerating power devices, querying history and statistics"
 HOMEPAGE="https://upower.freedesktop.org/"
@@ -50,6 +50,7 @@ DOCS=( AUTHORS HACKING NEWS README )
 S="${WORKDIR}/${PN}-v${PV}"
 
 src_prepare() {
+	eapply_user
 	xdg_environment_reset
 }
 
@@ -79,7 +80,7 @@ src_configure() {
 }
 
 src_install() {
-	default
+	meson_src_configure
 	find "${ED}" -type f -name '*.la' -delete || die
 	keepdir /var/lib/upower #383091
 }
