@@ -3,9 +3,7 @@
 
 EAPI=8
 
-VALA_USE_DEPEND="vapigen"
-
-inherit systemd xdg-utils meson vala
+inherit systemd xdg-utils meson
 
 DESCRIPTION="D-Bus abstraction for enumerating power devices, querying history and statistics"
 HOMEPAGE="https://upower.freedesktop.org/"
@@ -33,7 +31,6 @@ DEPEND="
 			>=app-pda/libplist-2:=
 		)
 	)
-	vala? ( $(vala_depend) )
 "
 RDEPEND="${DEPEND}
 	selinux? ( sec-policy/selinux-devicekit )
@@ -52,9 +49,9 @@ DOCS=( AUTHORS HACKING NEWS README )
 
 S="${WORKDIR}/${PN}-v${PV}"
 
-src_prepare() {
+src_prepare() {	
 	eapply_user
-	use vala && vala_src_prepare
+	default
 	xdg_environment_reset
 }
 
