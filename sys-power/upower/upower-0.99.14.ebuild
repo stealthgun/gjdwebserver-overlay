@@ -80,7 +80,7 @@ src_configure() {
 }
 
 src_install() {
-	meson_src_configure
+	meson_src_install
 	find "${ED}" -type f -name '*.la' -delete || die
 	keepdir /var/lib/upower #383091
 }
