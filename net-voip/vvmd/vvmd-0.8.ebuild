@@ -19,6 +19,9 @@ RDEPEND="
 	>=dev-cpp/glibmm-1.14
 	dev-libs/libphonenumber
 	net-misc/modemmanager
+	sys-apps/dbus
+	>=dev-util/meson-0.56
+	
 "
 DEPEND="${RDEPEND}"
 
