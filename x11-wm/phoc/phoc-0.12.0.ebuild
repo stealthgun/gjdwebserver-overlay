@@ -3,7 +3,7 @@
 
 EAPI=7
 
-inherit meson vala xdg gnome2-utils
+inherit meson xdg gnome2-utils
 
 MY_PV="v${PV}"
 MY_P="${PN}-${MY_PV}"
