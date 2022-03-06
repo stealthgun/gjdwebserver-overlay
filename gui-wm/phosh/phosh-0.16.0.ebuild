@@ -3,11 +3,11 @@
 
 EAPI=7
 
-inherit desktop gnome2-utils meson pam readme.gentoo-r1 vala systemd xdg
+inherit desktop gnome2-utils meson pam readme.gentoo-r1 systemd xdg
 
 MY_P="${PN}-v${PV}"
 LVC_COMMIT="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
-LCU_COMMIT="5c79ccfc017db217d3a23a211919604083438846"
+LCU_COMMIT="acfbb136bbf74514e0b9801ce6c1e8acf36350b6"
 
 DESCRIPTION="A pure Wayland shell prototype for GNOME on mobile devices"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phosh/"
@@ -60,8 +60,7 @@ src_install() {
 	meson_src_install
 	newpamd "${FILESDIR}"/pam_phosh 'phosh'
 	systemd_newunit "${FILESDIR}"/phosh.service 'phosh.service'
-	insinto /usr/share/applications/
-	doins "${FILESDIR}"/sm.puri.OSK0.desktop
+	domenu "${FILESDIR}"/sm.puri.OSK0.desktop
 
 	DOC_CONTENTS="To amend the existing password policy please see the man 5 passwdqc.conf
 				page and then edit the /etc/security/passwdqc.conf file to change enforce=none
