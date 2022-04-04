@@ -1,8 +1,7 @@
 # Copyright 1999-2022 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
-EAPI=7
-VALA_USE_DEPEND="vapigen"
+EAPI=8
 
 inherit cmake db-use flag-o-matic gnome2 vala virtualx
 
@@ -54,7 +53,7 @@ RDEPEND="
 	introspection? ( >=dev-libs/gobject-introspection-0.9.12:= )
 	kerberos? ( virtual/krb5:= )
 	ldap? ( >=net-nds/openldap-2:= )
-	weather? ( >=dev-libs/libgweather-3.10:2= )
+	weather? ( >=dev-libs/libgweather-3.91.0:4= )
 	phonenumber? (
 		>=dev-libs/libphonenumber-8.12.24
 	)
@@ -85,7 +84,7 @@ RESTRICT="test !test? ( test )"
 
 # global scope PATCHES or DOCS array mustn't be used due to double default_src_prepare call
 src_prepare() {
-	use vala && vala_src_prepare
+	use vala && vala_setup
 	cmake_src_prepare
 	gnome2_src_prepare
 
@@ -131,6 +130,7 @@ src_configure() {
 		# ENABLE_BACKTRACES requires libdwarf ?
 		-DENABLE_IPV6=$(usex ipv6)
 		-DENABLE_WEATHER=$(usex weather)
+		-DWITH_GWEATHER4=ON
 		-DENABLE_GOOGLE=${google_enable}
 		-DENABLE_LARGEFILE=ON
 		-DENABLE_VALA_BINDINGS=$(usex vala)
