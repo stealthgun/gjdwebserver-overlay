@@ -7,7 +7,7 @@ inherit toolchain-funcs
 
 PKGREL="4"
 FIRMWAREVERSION="2.6"
-COMMMIT="0719bf42931033c3109ecc6357e8adb567cb637b"
+COMMMIT="e4b6ebd3de982ae7185dbf689a030e73fd06e0d2"
 MY_P="u-boot-${COMMMIT}"
 DESCRIPTION="Das U-boot and utilities for working with Das U-Boot for the PinePhone Pro"
 HOMEPAGE="https://www.denx.de/wiki/U-Boot/WebHome"
@@ -42,15 +42,13 @@ src_prepare() {
 		
 		#Apply PinePhone Pro patches
 		eapply "${FILESDIR}"/0001-PPP.patch
-		eapply "${FILESDIR}"/0002-Add-ppp-dt.patch
-		eapply "${FILESDIR}"/0003-Config-changes.patch
-		eapply "${FILESDIR}"/0004-Add-kconfig-include.patch
-		eapply "${FILESDIR}"/0005-Add-pinephone-pro-rk3399.h.patch
-		eapply "${FILESDIR}"/0006-Added-dts-to-makefile.patch
-		eapply "${FILESDIR}"/0007-u-boot.dtsi-fixes.patch
-		eapply "${FILESDIR}"/0008-fix-boot-order.patch
-		eapply "${FILESDIR}"/0009-Correct-boot-order-to-be-USB-SD-eMMC.patch
-
+        	eapply "${FILESDIR}"/1001-Correct-boot-order-to-be-USB-SD-eMMC.patch
+	        eapply "${FILESDIR}"/1002-rockchip-Add-initial-support-for-the-PinePhone-Pro.patch
+	        eapply "${FILESDIR}"/1004-mtd-spi-nor-ids-Add-GigaDevice-GD25LQ128E-entry.patch
+	        eapply "${FILESDIR}"/1005-Reconfigure-GPIO4_D3-as-input-on-PinePhone-Pro.patch
+	        eapply "${FILESDIR}"/2001-mmc-sdhci-allow-disabling-sdma-in-spl.patch
+	        eapply "${FILESDIR}"/3001-pinephone-pro-Remove-cargo-culted-iodomain-config.patch
+	        eapply "${FILESDIR}"/3002-pine64-pinephonePro-SPI-support.patch
 		}
 
 
@@ -80,6 +78,10 @@ src_compile() {
 	emake "${myemakeargs[@]}" pinephone-pro-rk3399_defconfig
 	
 	echo 'CONFIG_IDENT_STRING=" Gentoo Linux"' >> .config
+	echo 'CONFIG_BOOTDELAY=" 0"' >> .config
+	echo 'CONFIG_SPL_DM_SEQ_ALIAS=" y"' >> .config
+	echo 'CONFIG_SF_DEFAULT_BUS=" 1"' >> .config
+	echo 'CONFIG_SPL_MMC_SDHCI_SDMA=" n"' >> .config
 	
 	emake "${myemakeargs[@]}" EXTRAVERSION=-${PKGREL}
 	
