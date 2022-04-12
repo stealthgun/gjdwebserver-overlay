@@ -23,11 +23,15 @@ S="${WORKDIR}"
 src_install() {
 	exeinto "/usr/lib/danctnix"
 	doexe "${FILESDIR}/usb-tethering"
+	
 	systemd_dounit "${FILESDIR}"/usb-tethering.service
+	
 	insinto "/usr/lib/tmpfiles.d/"
 	doins "${FILESDIR}"/tmpfiles.d.danctnix-usb.conf
+	
 	insinto "/etc/systemd/system/dhcpd4.service.d/"
 	doins "${FILESDIR}"/dhcpd4.service-customexec.conf
+	
 	insinto "/etc/danctnix/"
 	doins "${FILESDIR}"/dhcpd.conf
 }
