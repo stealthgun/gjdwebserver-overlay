@@ -56,7 +56,7 @@ DEPEND="
 		)
 		
 		chromium? (
-			www-client/chromium
+			www-client/chromium-bin-debian
 		)
 		
 		firefox? (
