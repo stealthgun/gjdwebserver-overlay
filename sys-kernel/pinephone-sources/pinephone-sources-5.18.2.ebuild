@@ -45,7 +45,7 @@ pkg_postinst() {
 	einfo "You will need to create and initramfs afterwards."
 	einfo "If you use dracut you can run:"
 	einfo "# dracut -m \"rootfs-block base\" --host-only --kver 5.18.3-pinehone-gentoo-arm64"
-	einfo "Change 5.16.2-pinehone-gentoo-arm64 to your kernel version installed in /lib/modules"
+	einfo "Change 5.18.3-pinehone-gentoo-arm64 to your kernel version installed in /lib/modules"
 }
 
 pkg_postrm() {
