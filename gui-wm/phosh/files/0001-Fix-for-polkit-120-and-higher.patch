@@ -1,0 +1,29 @@
+From 19e3a56e02646308b2b78512308119811af96896 Mon Sep 17 00:00:00 2001
+From: Gerben Jan Dijkman <gjdijkman@gjdwebserver.nl>
+Date: Wed, 15 Jun 2022 18:13:55 +0200
+Subject: [PATCH] Fix for polkit 120 and higher
+
+---
+ src/polkit-auth-agent.h | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/src/polkit-auth-agent.h b/src/polkit-auth-agent.h
+index fe7e808..bd79a20 100644
+--- a/src/polkit-auth-agent.h
++++ b/src/polkit-auth-agent.h
+@@ -19,7 +19,11 @@ G_BEGIN_DECLS
+ #if POLKIT_AGENT_MAJOR_VERSION == 0 && POLKIT_AGENT_MINOR_VERSION < 114
+ G_DEFINE_AUTOPTR_CLEANUP_FUNC(PolkitSubject, g_object_unref)
+ #endif
+-G_DEFINE_AUTOPTR_CLEANUP_FUNC(PolkitAgentListener, g_object_unref)
++
++/* libpolkit lacks these */
++#if POLKIT_AGENT_MAJOR_VERSION == 0 && POLKIT_AGENT_MINOR_VERSION < 120
++ G_DEFINE_AUTOPTR_CLEANUP_FUNC(PolkitAgentListener, g_object_unref)
++#endif
+ 
+ #define PHOSH_TYPE_POLKIT_AUTH_AGENT (phosh_polkit_auth_agent_get_type())
+ 
+-- 
+2.35.1
+

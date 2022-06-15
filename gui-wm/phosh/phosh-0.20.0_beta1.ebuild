@@ -53,7 +53,7 @@ src_prepare() {
 	rm -r "${S}"/subprojects/libcall-ui || die
 	mv "${WORKDIR}"/libcall-ui-"${LCU_COMMIT}" "${S}"/subprojects/libcall-ui || die
 	
-	eapply "${FILESDIR}"/polkitagent.patch
+	eapply "${FILESDIR}"/0001-Fix-for-polkit-120-and-higher.patch
 }
 
 src_install() {
