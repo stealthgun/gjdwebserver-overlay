@@ -55,6 +55,7 @@ src_prepare() {
 	
 	local PATCHES=(
 	"${FILESDIR}"/polkitagent.patch
+	)
 }
 
 src_install() {
