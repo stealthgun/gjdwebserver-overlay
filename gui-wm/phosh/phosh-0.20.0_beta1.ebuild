@@ -52,6 +52,9 @@ src_prepare() {
 	mv "${WORKDIR}"/libgnome-volume-control-"${LVC_COMMIT}" "${S}"/subprojects/gvc || die
 	rm -r "${S}"/subprojects/libcall-ui || die
 	mv "${WORKDIR}"/libcall-ui-"${LCU_COMMIT}" "${S}"/subprojects/libcall-ui || die
+	
+	local PATCHES=(
+	"${FILESDIR}"/polkitagent.patch
 }
 
 src_install() {
