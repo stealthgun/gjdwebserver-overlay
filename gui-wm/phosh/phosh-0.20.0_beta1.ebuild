@@ -53,9 +53,7 @@ src_prepare() {
 	rm -r "${S}"/subprojects/libcall-ui || die
 	mv "${WORKDIR}"/libcall-ui-"${LCU_COMMIT}" "${S}"/subprojects/libcall-ui || die
 	
-	local PATCHES=(
-	"${FILESDIR}"/polkitagent.patch
-	)
+	eapply "${FILESDIR}"/polkitagent.patch
 }
 
 src_install() {
