@@ -52,6 +52,8 @@ src_prepare() {
 	mv "${WORKDIR}"/libgnome-volume-control-"${LVC_COMMIT}" "${S}"/subprojects/gvc || die
 	rm -r "${S}"/subprojects/libcall-ui || die
 	mv "${WORKDIR}"/libcall-ui-"${LCU_COMMIT}" "${S}"/subprojects/libcall-ui || die
+	
+	eapply "${FILESDIR}"/0001-Fix-for-polkit-120-and-higher.patch
 }
 
 src_install() {

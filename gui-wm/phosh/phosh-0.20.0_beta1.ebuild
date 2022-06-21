@@ -18,7 +18,9 @@ SRC_URI="
 "
 S="${WORKDIR}/${MY_P}"
 
-KEYWORDS="~amd64 ~arm64"
+KEYWORDS=""
+#KEYWORDS="~amd64 ~arm64"
+
 LICENSE="GPL-3"
 SLOT="0"
 IUSE="+systemd"
