@@ -45,10 +45,10 @@ SRC_URI="
 LICENSE="GPL-2"
 KEYWORDS="amd64 ~arm arm64 ppc64 ~riscv x86"
 
-IUSE="alsa big-endian cups debug doc examples headless-awt +javafx +jbootstrap selinux source system-bootstrap systemtap"
+IUSE="alsa big-endian cups debug doc examples headless-awt +jbootstrap selinux source system-bootstrap systemtap"
 
 REQUIRED_USE="
-	javafx? ( alsa !headless-awt )
+	alsa !headless-awt
 	!system-bootstrap? ( jbootstrap )
 "
 
@@ -95,7 +95,7 @@ DEPEND="
 	x11-libs/libXrender
 	x11-libs/libXt
 	x11-libs/libXtst
-	javafx? ( dev-java/openjfx:${SLOT}= )
+	dev-java/openjfx:${SLOT}=
 	system-bootstrap? (
 		|| (
 			dev-java/openjdk-bin:${SLOT}[gentoo-vm(+)]
@@ -199,7 +199,7 @@ src_configure() {
 	)
 	! use riscv && myconf+=( --with-jvm-features=shenandoahgc )
 
-	if use javafx; then
+
 		# this is not useful for users, just for upstream developers
 		# build system compares mesa version in md file
 		# https://bugs.gentoo.org/822612
@@ -211,7 +211,7 @@ src_configure() {
 		else
 			die "${zip} not found or not readable"
 		fi
-	fi
+
 
 	if use !system-bootstrap ; then
 		addpredict /dev/random
