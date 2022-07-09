@@ -89,6 +89,15 @@ src_compile() {
 	echo 'CONFIG_SPL_DM_SEQ_ALIAS=" y"' >> .config
 	echo 'CONFIG_SF_DEFAULT_BUS=" 1"' >> .config
 	echo 'CONFIG_SPL_MMC_SDHCI_SDMA=" n"' >> .config
+	echo 'CONFIG_SERIAL_PRESENT=" y"' >> .config
+	echo 'CONFIG_GZIP=" y"' >> .config
+	echo 'CONFIG_CMD_UNZIP=" y"' >> .config
+	echo 'CONFIG_CMD_EXT4=" y"' >> .config
+	echo 'CONFIG_SUPPORT_RAW_INITRD=" y"' >> .config
+	echo 'CONFIG_CMD_EXT4_WRITE" n"' >> .config
+	echo 'CONFIG_EXT4_WRITE" n"' >> .config
+	echo 'CONFIG_OF_LIBFDT_OVERLAY=" y"' >> .config
+
 	
 	emake "${myemakeargs[@]}" EXTRAVERSION=-${PKGREL}
 	

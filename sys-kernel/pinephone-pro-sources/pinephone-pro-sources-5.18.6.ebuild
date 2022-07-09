@@ -1,33 +1,37 @@
-# Copyright 1999-2022 Gentoo Authors
+# Copyright 1999-2021 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
-
 
 EAPI="8"
 ETYPE="sources"
-K_WANT_GENPATCHES="base extras"
-K_GENPATCHES_VER="4"
+K_NOUSENAME="yes"
+K_NOSETEXTRAVERSION="yes"
+K_SECURITY_UNSUPPORTED="1"
+K_WANT_GENPATCHES="base extras experimental"
+K_GENPATCHES_VER="9"
 
 inherit kernel-2
 detect_version
-detect_arch
 
 KEYWORDS="~arm64"
 
 DEPEND="${RDEPEND}
 	>=sys-devel/patch-2.7.5"
 
-DESCRIPTION="Full sources for the Linux kernel with gentoo patchset and patches for the PinePhone"
+DESCRIPTION="Full sources for the Linux kernel with gentoo patchset and patches for the PinePhone Pro"
 
-MEGI_PATCH_URI="https://xff.cz/kernels/${PV:0:4}/patches/all.patch"
-
-SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
+MEGI_TAG="orange-pi-5.18-20220615-1100"
+SRC_URI="https://github.com/megous/linux/archive/${MEGI_TAG}.tar.gz ${GENPATCHES_URI}"
 
 PATCHES=(
-	#Megi patch set
-	${DISTDIR}/all-${PV}.patch
-        # Drop Megi's Modem-Power
-        "${FILESDIR}"/dts-pinephone-drop-modem-power-node.patch
+	${FILESDIR}/patch-5.18.4-5
+	${FILESDIR}/patch-5.18.5-6
 )
+
+S="${WORKDIR}/linux-${MEGI_TAG}"
+
+src_unpack() {
+	default
+}
 
 src_prepare() {
 	default
@@ -51,4 +55,3 @@ pkg_postinst() {
 pkg_postrm() {
 	kernel-2_pkg_postrm
 }
-
