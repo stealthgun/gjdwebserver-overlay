@@ -6,14 +6,16 @@ EAPI=8
 inherit toolchain-funcs
 
 PKGREL="4"
-FIRMWAREVERSION="2.6"
-COMMMIT="e4b6ebd3de982ae7185dbf689a030e73fd06e0d2"
+FIRMWAREVERSION="2.7.0"
+CRUSTVERSION="0.5"
+COMMMIT="0cc846dafcf6f6270c6587d6fe79011834d6e49a"
 MY_P="u-boot-${COMMMIT}"
 DESCRIPTION="Das U-boot and utilities for working with Das U-Boot for the PinePhone Pro"
 HOMEPAGE="https://www.denx.de/wiki/U-Boot/WebHome"
 SRC_URI="
 	https://source.denx.de/u-boot/u-boot/-/archive/${COMMMIT}/u-boot-${COMMMIT}.tar.gz -> u-boot-${PV}.tar.gz
 	https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/snapshot/trusted-firmware-a-${FIRMWAREVERSION}.tar.gz
+	https://github.com/crust-firmware/crust/archive/refs/tags/v${CRUSTVERSION}.tar.gz
 "
 
 S="${WORKDIR}/${MY_P}"
@@ -41,14 +43,14 @@ src_prepare() {
 		tools/Makefile || die
 		
 		#Apply PinePhone Pro patches
-		eapply "${FILESDIR}"/0001-PPP.patch
-        	eapply "${FILESDIR}"/1001-Correct-boot-order-to-be-USB-SD-eMMC.patch
-	        eapply "${FILESDIR}"/1002-rockchip-Add-initial-support-for-the-PinePhone-Pro.patch
-	        eapply "${FILESDIR}"/1004-mtd-spi-nor-ids-Add-GigaDevice-GD25LQ128E-entry.patch
-	        eapply "${FILESDIR}"/1005-Reconfigure-GPIO4_D3-as-input-on-PinePhone-Pro.patch
-	        eapply "${FILESDIR}"/2001-mmc-sdhci-allow-disabling-sdma-in-spl.patch
-	        eapply "${FILESDIR}"/3001-pinephone-pro-Remove-cargo-culted-iodomain-config.patch
-	        eapply "${FILESDIR}"/3002-pine64-pinephonePro-SPI-support.patch
+	        eapply "${FILESDIR}"/1001-pinephone-Add-volume_key-environment-variable.patch
+	        eapply "${FILESDIR}"/1002-Enable-led-on-boot-to-notify-user-of-boot-status.patch
+	        eapply "${FILESDIR}"/1003-mmc-sunxi-Add-support-for-DMA-transfers.patch
+	        eapply "${FILESDIR}"/1004-mmc-sunxi-DDR-DMA-support-for-SPL.patch
+	        eapply "${FILESDIR}"/1005-spl-ARM-Enable-CPU-caches.patch
+	        eapply "${FILESDIR}"/1006-common-expose-DRAM-clock-speed.patch
+	        eapply "${FILESDIR}"/1007-Improve-Allwinner-A64-timer-workaround.patch
+
 		}
 
 
@@ -57,6 +59,11 @@ src_configure() {
 }
 
 src_compile() {
+	cd ${WORKDIR}/crust-${CRUSTVERSION}
+	make CROSS_COMPILE=or1k-elf- pinephone_defconfig
+	make CROSS_COMPILE=or1k-elf- build/scp/scp.bin
+	cp build/scp/scp.bin ${S}
+	
 	cd ${WORKDIR}/trusted-firmware-a-${FIRMWAREVERSION}
 	unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
 	make PLAT=rk3399
