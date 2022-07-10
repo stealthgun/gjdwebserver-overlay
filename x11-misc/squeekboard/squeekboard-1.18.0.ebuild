@@ -7,11 +7,12 @@ inherit cargo gnome2-utils meson toolchain-funcs xdg
 DESCRIPTION="Virtual keyboard supporting Wayland, built primarily for the Librem 5 phone"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/squeekboard"
 SRC_URI="https://gitlab.gnome.org/World/Phosh/squeekboard/-/archive/v${PV}/squeekboard-v${PV}.tar.gz -> ${P}.tar.gz"
-RESTRICT="network-sandbox"
 
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm64"
+
+RESTRICT="network-sandbox"
 
 RDEPEND="
 	${PYTHON_DEPS}
