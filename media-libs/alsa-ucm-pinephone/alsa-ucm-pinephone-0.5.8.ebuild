@@ -28,15 +28,15 @@ src_install() {
 	# PinePhone Configs
 	insinto /usr/share/alsa/ucm2/PinePhone/
 	insopts -m644
-	doins "${S}"/HiFi.conf
-	doins "${S}"/VoiceCall.conf
+	doins "${S}"/PinePhone-HiFi.conf HiFi.conf
+	doins "${S}"/PinePhone-VoiceCall.conf VoiceCall.conf
 	doins "${S}"/PinePhone.conf
 
 	# PinePhone Pro Configs
 	insinto /usr/share/alsa/ucm2/PinePhonePro/
 	insopts -m644
-	doins "${S}"/HiFi.conf
-	doins "${S}"/VoiceCall.conf
+	doins "${S}"/PinePhonePro-HiFi.conf HiFi.conf
+	doins "${S}"/PinePhonePro-VoiceCall.conf VoiceCall.conf
 	doins "${S}"/PinePhonePro.conf
 
 	# Create Symlinks
