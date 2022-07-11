@@ -16,7 +16,7 @@ CRATES="
 	lazy_static-1.4.0
 	gio-0.7.0
 	cairo-rs-0.7.1
-	fragile-0.3.0
+	fragile-1.2.0
 	autocfg-1.1.0
 	gdk-pixbuf-0.7.0
 	pango-0.7.0
@@ -63,6 +63,7 @@ CRATES="
 	zbus-1.0.0
 	serde_derive-1.0.139
 	serde-1.0.139
+	slab-0.4.5
 "
 
 inherit cargo gnome2-utils meson toolchain-funcs xdg
