@@ -5,11 +5,11 @@ EAPI=8
 
 COMMIT="355d788a6b53bb6b723779c5f791b735f589479d"
 
-MY_PN="pine64-alsa-ucm"
 DESCRIPTION="ALSA ucm configuration files for the PinePhone (Pro)"
-HOMEPAGE="https://gitlab.manjaro.org/manjaro-arm/packages/community/pinephone"
-SRC_URI="https://gitlab.manjaro.org/manjaro-arm/packages/community/pinephone/${MY_PN}/-/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
-S="${WORKDIR}/${MY_PN}-alsa-ucm-${COMMIT}"
+HOMEPAGE="https://gitlab.manjaro.org/manjaro-arm/packages/community/pinephone/alsa-ucm-pinephone"
+SRC_URI="https://gitlab.manjaro.org/manjaro-arm/packages/community/pinephone/alsa-ucm-pinephone/-/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
+
+S="${WORKDIR}/alsa-ucm-pinephone-${COMMIT}"
 
 LICENSE="BSD"
 SLOT="0"
