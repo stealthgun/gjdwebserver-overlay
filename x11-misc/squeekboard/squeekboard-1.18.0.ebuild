@@ -96,8 +96,9 @@ BDEPEND="
 S="${WORKDIR}/${PN}-v${PV}"
 
 QA_FLAGS_IGNORED="/usr/bin/squeekboard-test-layout"
+
 src_configure() {
-	cargo_live_src_unpack
+	cargo_src_unpack
 }
 
 src_install() {
