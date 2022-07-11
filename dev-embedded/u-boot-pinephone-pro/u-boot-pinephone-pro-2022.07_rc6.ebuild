@@ -40,15 +40,15 @@ src_prepare() {
 		scripts/kconfig/Makefile \
 		tools/Makefile || die
 		
-		#Apply PinePhone Pro patches
-	        eapply "${FILESDIR}"/1001-pinephone-Add-volume_key-environment-variable.patch
-	        eapply "${FILESDIR}"/1002-Enable-led-on-boot-to-notify-user-of-boot-status.patch
-	        eapply "${FILESDIR}"/1003-mmc-sunxi-Add-support-for-DMA-transfers.patch
-	        eapply "${FILESDIR}"/1004-mmc-sunxi-DDR-DMA-support-for-SPL.patch
-	        eapply "${FILESDIR}"/1005-spl-ARM-Enable-CPU-caches.patch
-	        eapply "${FILESDIR}"/1006-common-expose-DRAM-clock-speed.patch
-	        eapply "${FILESDIR}"/1007-Improve-Allwinner-A64-timer-workaround.patch
-
+		#Apply PinePhone Pro patches        
+	        eapply "${FILESDIR}"/1001-Correct-boot-order-to-be-USB-SD-eMMC.patch
+	        eapply "${FILESDIR}"/1002-rockchip-Add-initial-support-for-the-PinePhone-Pro.patch
+	        eapply "${FILESDIR}"/1003-Configure-USB-power-settings-for-PinePhone-Pro.patch
+	        eapply "${FILESDIR}"/1004-mtd-spi-nor-ids-Add-GigaDevice-GD25LQ128E-entry.patch
+	        eapply "${FILESDIR}"/1005-Reconfigure-GPIO4_D3-as-input-on-PinePhone-Pro.patch
+	        eapply "${FILESDIR}"/2001-mmc-sdhci-allow-disabling-sdma-in-spl.patch
+	        eapply "${FILESDIR}"/3001-pinephone-pro-Remove-cargo-culted-iodomain-config.patch
+	        eapply "${FILESDIR}"/3002-pine64-pinephonePro-SPI-support.patch
 		}
 
 
@@ -62,7 +62,7 @@ src_compile() {
 	make PLAT=rk3399
 	cp build/rk3399/release/bl31/bl31.elf ${S}
 	
-	cd ${WORKDIR}
+	cd ${S}
 	
 	# Unset a few KBUILD variables. Bug #540476
 	unset KBUILD_OUTPUT KBUILD_SRC
@@ -82,14 +82,14 @@ src_compile() {
 	echo 'CONFIG_SPL_DM_SEQ_ALIAS=" y"' >> .config
 	echo 'CONFIG_SF_DEFAULT_BUS=" 1"' >> .config
 	echo 'CONFIG_SPL_MMC_SDHCI_SDMA=" n"' >> .config
-	echo 'CONFIG_SERIAL_PRESENT=" y"' >> .config
-	echo 'CONFIG_GZIP=" y"' >> .config
-	echo 'CONFIG_CMD_UNZIP=" y"' >> .config
-	echo 'CONFIG_CMD_EXT4=" y"' >> .config
-	echo 'CONFIG_SUPPORT_RAW_INITRD=" y"' >> .config
-	echo 'CONFIG_CMD_EXT4_WRITE" n"' >> .config
-	echo 'CONFIG_EXT4_WRITE" n"' >> .config
-	echo 'CONFIG_OF_LIBFDT_OVERLAY=" y"' >> .config
+#	echo 'CONFIG_SERIAL_PRESENT=" y"' >> .config
+#	echo 'CONFIG_GZIP=" y"' >> .config
+#	echo 'CONFIG_CMD_UNZIP=" y"' >> .config
+#	echo 'CONFIG_CMD_EXT4=" y"' >> .config
+#	echo 'CONFIG_SUPPORT_RAW_INITRD=" y"' >> .config
+#	echo 'CONFIG_CMD_EXT4_WRITE" n"' >> .config
+#	echo 'CONFIG_EXT4_WRITE" n"' >> .config
+#	echo 'CONFIG_OF_LIBFDT_OVERLAY=" y"' >> .config
 
 	
 	emake "${myemakeargs[@]}" EXTRAVERSION=-${PKGREL}

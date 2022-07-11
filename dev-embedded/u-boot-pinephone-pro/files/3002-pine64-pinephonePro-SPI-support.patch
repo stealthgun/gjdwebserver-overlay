@@ -1,0 +1,40 @@
+From 8945d49c2d60a3b26d215b2d6c45918ac9d143bd Mon Sep 17 00:00:00 2001
+From: Samuel Dionne-Riel <samuel@dionne-riel.com>
+Date: Sun, 30 Jan 2022 16:59:26 -0500
+Subject: [PATCH 6/7] pine64-pinephonePro: SPI support
+
+NOTE: Original patch modified a bit for the used version of the PPP DT.
+---
+diff --git a/arch/arm/dts/rk3399-pinephone-pro-u-boot.dtsi b/arch/arm/dts/rk3399-pinephone-pro-u-boot.dtsi
+index 9d44db59783..28bec0a6a70 100644
+--- a/arch/arm/dts/rk3399-pinephone-pro-u-boot.dtsi
++++ b/arch/arm/dts/rk3399-pinephone-pro-u-boot.dtsi
+@@ -42,3 +42,7 @@
+ 	max-frequency = <20000000>;
+ 	u-boot,dm-pre-reloc;
+ };
++
++&spiflash {
++	u-boot,dm-pre-reloc;
++};
+diff --git a/arch/arm/dts/rk3399-pinephone-pro.dts b/arch/arm/dts/rk3399-pinephone-pro.dts
+index e6c2df936fb..9a658f37c69 100644
+--- a/arch/arm/dts/rk3399-pinephone-pro.dts
++++ b/arch/arm/dts/rk3399-pinephone-pro.dts
+@@ -503,6 +503,16 @@
+ 	status = "okay";
+ };
+ 
++&spi1 {
++	status = "okay";
++
++	spiflash: flash@0 {
++		compatible = "jedec,spi-nor";
++		reg = <0>;
++		spi-max-frequency = <10000000>;
++	};
++};
++
+ &vopb {
+ 	status = "okay";
+ };
