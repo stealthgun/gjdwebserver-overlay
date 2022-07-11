@@ -63,6 +63,7 @@ CRATES="
 	zbus-1.0.0
 	serde_derive-1.0.139
 	serde-1.0.139
+	cc-1.0.73
 "
 
 inherit cargo gnome2-utils meson toolchain-funcs xdg
