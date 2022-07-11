@@ -64,6 +64,7 @@ CRATES="
 	serde_derive-1.0.139
 	serde-1.0.139
 	cc-1.0.73
+	winapi-0.3.9
 "
 
 inherit cargo gnome2-utils meson toolchain-funcs xdg
