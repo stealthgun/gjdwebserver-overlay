@@ -7,7 +7,6 @@ inherit toolchain-funcs
 
 PKGREL="4"
 FIRMWAREVERSION="2.7.0"
-CRUSTVERSION="0.5"
 COMMMIT="0cc846dafcf6f6270c6587d6fe79011834d6e49a"
 MY_P="u-boot-${COMMMIT}"
 DESCRIPTION="Das U-boot and utilities for working with Das U-Boot for the PinePhone Pro"
@@ -15,7 +14,6 @@ HOMEPAGE="https://www.denx.de/wiki/U-Boot/WebHome"
 SRC_URI="
 	https://source.denx.de/u-boot/u-boot/-/archive/${COMMMIT}/u-boot-${COMMMIT}.tar.gz -> u-boot-${PV}.tar.gz
 	https://git.trustedfirmware.org/TF-A/trusted-firmware-a.git/snapshot/trusted-firmware-a-${FIRMWAREVERSION}.tar.gz
-	https://github.com/crust-firmware/crust/archive/refs/tags/v${CRUSTVERSION}.tar.gz
 "
 
 S="${WORKDIR}/${MY_P}"
@@ -59,17 +57,12 @@ src_configure() {
 }
 
 src_compile() {
-	cd ${WORKDIR}/crust-${CRUSTVERSION}
-	make CROSS_COMPILE=or1k-elf- pinephone_defconfig
-	make CROSS_COMPILE=or1k-elf- build/scp/scp.bin
-	cp build/scp/scp.bin ${S}
-	
 	cd ${WORKDIR}/trusted-firmware-a-${FIRMWAREVERSION}
 	unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
 	make PLAT=rk3399
 	cp build/rk3399/release/bl31/bl31.elf ${S}
 	
-	cd ${S}
+	cd ${WORKDIR}
 	
 	# Unset a few KBUILD variables. Bug #540476
 	unset KBUILD_OUTPUT KBUILD_SRC
