@@ -58,8 +58,7 @@ src_configure() {
 
 src_compile() {
 	cd ${WORKDIR}/trusted-firmware-a-${FIRMWAREVERSION}
-	unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
-	make PLAT=rk3399
+	emake "${myemakeargs[@]}" PLAT=rk3399
 	cp build/rk3399/release/bl31/bl31.elf ${S}
 	
 	cd ${S}
@@ -85,12 +84,6 @@ src_compile() {
 	
 	emake "${myemakeargs[@]}" EXTRAVERSION=-${PKGREL}
 	
-	emake "${myemakeargs[@]}" \
-		NO_SDL=1 \
-		HOSTSTRIP=: \
-		STRIP=: \
-		CONFIG_ENV_OVERWRITE=y \
-		$(usex envtools envtools tools-all)	
 }
 
 src_test() { :; }
