@@ -24,7 +24,7 @@ CRATES="
 	atk-0.7.0
 	nix-0.17.0
 	void-1.0.2
-	cfg-if-0.1.10
+	cfg-if-1.0.0
 	linked-hash-map-0.5.6
 	hashbrown-0.12.2
 	unicode-width-0.1.9
@@ -69,17 +69,8 @@ CRATES="
 	winapi-0.3.9
 	winapi-i686-pc-windows-gnu-0.4.0
 	winapi-x86_64-pc-windows-gnu-0.4.0
-	xkbcommon-0.4.0
-	pkg-config-0.3.19
-	proc-macro2-1.0.27
-	quote-1.0.9
 	regex-1.3.9
 	regex-syntax-0.6.25
-	serde-1.0.126
-	serde_derive-1.0.126
-	serde_yaml-0.8.17
-	syn-1.0.73
-	clap-2.33.3
 	dtoa-0.4.8
 	instant-0.1.12
 "
