@@ -3,12 +3,12 @@
 
 EAPI=8
 
-COMMIT="ec0ef36b8b897ed1ae6bb0d0de13d5776f5d3659"
+COMMIT="355d788a6b53bb6b723779c5f791b735f589479d"
 
 MY_PN="pine64-alsa-ucm"
 DESCRIPTION="ALSA ucm configuration files for the PinePhone (Pro)"
-HOMEPAGE="https://gitlab.com/pine64-org/pine64-alsa-ucm"
-SRC_URI="https://gitlab.com/pine64-org/${MY_PN}/-/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
+HOMEPAGE="https://gitlab.manjaro.org/manjaro-arm/packages/community/pinephone"
+SRC_URI="https://gitlab.manjaro.org/manjaro-arm/packages/community/pinephone/${MY_PN}/-/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
 S="${WORKDIR}/${MY_PN}-alsa-ucm-${COMMIT}"
 
 LICENSE="BSD"
@@ -28,16 +28,16 @@ src_install() {
 	# PinePhone Configs
 	insinto /usr/share/alsa/ucm2/PinePhone/
 	insopts -m644
-	doins "${S}"/ucm2/PinePhone/HiFi.conf
-	doins "${S}"/ucm2/PinePhone/VoiceCall.conf
-	doins "${FILESDIR}"/PinePhone.conf
+	doins "${S}"/HiFi.conf
+	doins "${S}"/VoiceCall.conf
+	doins "${S}"/PinePhone.conf
 
 	# PinePhone Pro Configs
 	insinto /usr/share/alsa/ucm2/PinePhonePro/
 	insopts -m644
-	doins "${S}"/ucm2/PinePhonePro/HiFi.conf
-	doins "${S}"/ucm2/PinePhonePro/VoiceCall.conf
-	doins "${FILESDIR}"/PinePhonePro.conf
+	doins "${S}"/HiFi.conf
+	doins "${S}"/VoiceCall.conf
+	doins "${S}"/PinePhonePro.conf
 
 	# Create Symlinks
 	dosym ../../../PinePhone/PinePhone.conf /usr/share/alsa/ucm2/conf.d/simple-card/PinePhone.conf
