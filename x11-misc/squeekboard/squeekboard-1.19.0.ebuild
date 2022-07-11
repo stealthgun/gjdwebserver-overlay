@@ -25,6 +25,7 @@ CRATES="
 	nix-0.17.0
 	void-1.0.2
 	cfg-if-0.1.10
+	cfg-if-1.0.0
 	linked-hash-map-0.5.6
 	hashbrown-0.12.2
 	unicode-width-0.1.9
