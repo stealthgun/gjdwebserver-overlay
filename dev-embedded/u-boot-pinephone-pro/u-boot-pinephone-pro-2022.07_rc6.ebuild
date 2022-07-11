@@ -43,7 +43,7 @@ src_prepare() {
 		#Apply PinePhone Pro patches        
 	        eapply "${FILESDIR}"/1001-Correct-boot-order-to-be-USB-SD-eMMC.patch
 	        eapply "${FILESDIR}"/1002-rockchip-Add-initial-support-for-the-PinePhone-Pro.patch
-	        eapply "${FILESDIR}"/1003-Configure-USB-power-settings-for-PinePhone-Pro.patch
+	        #eapply "${FILESDIR}"/1003-Configure-USB-power-settings-for-PinePhone-Pro.patch
 	        eapply "${FILESDIR}"/1004-mtd-spi-nor-ids-Add-GigaDevice-GD25LQ128E-entry.patch
 	        eapply "${FILESDIR}"/1005-Reconfigure-GPIO4_D3-as-input-on-PinePhone-Pro.patch
 	        eapply "${FILESDIR}"/2001-mmc-sdhci-allow-disabling-sdma-in-spl.patch
