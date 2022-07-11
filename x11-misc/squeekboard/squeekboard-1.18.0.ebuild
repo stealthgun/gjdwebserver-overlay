@@ -97,10 +97,6 @@ S="${WORKDIR}/${PN}-v${PV}"
 
 QA_FLAGS_IGNORED="/usr/bin/squeekboard-test-layout"
 
-src_configure() {
-	cargo_src_unpack
-}
-
 src_install() {
 	CC="$(tc-getCC)"
 	meson_src_install
