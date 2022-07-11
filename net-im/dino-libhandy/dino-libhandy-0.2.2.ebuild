@@ -45,6 +45,8 @@ DEPEND="
 	sys-devel/gettext
 "
 
+S="${WORKDIR}/dino-${COMMIT}"
+
 src_prepare() {
 	cmake_src_prepare
 	vala_src_prepare
