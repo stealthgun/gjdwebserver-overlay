@@ -31,10 +31,15 @@ BDEPEND="
 	sys-devel/bison
 	sys-devel/flex
 	virtual/pkgconfig
+	sys-devel/crossdev
 "
 
 src_prepare() {
 	default
+	
+	#Create the correct crossdev for trusted-firmware
+	crossdev --target arm-none-eabi
+	
 	sed -i 's:\bpkg-config\b:${PKG_CONFIG}:g' \
 		scripts/kconfig/{g,m,n,q}conf-cfg.sh \
 		scripts/kconfig/Makefile \
@@ -83,7 +88,6 @@ src_compile() {
 	echo "CONFIG_SPL_MMC_SDHCI_SDMA'='n'" >> .config
 	
 	emake "${myemakeargs[@]}" EXTRAVERSION=-${PKGREL}
-	
 }
 
 src_test() { :; }
