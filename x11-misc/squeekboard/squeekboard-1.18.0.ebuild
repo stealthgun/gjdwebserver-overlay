@@ -97,6 +97,10 @@ S="${WORKDIR}/${PN}-v${PV}"
 
 QA_FLAGS_IGNORED="/usr/bin/squeekboard-test-layout"
 
+src_prepare() {
+	eapply "${FILESDIR}"/0001-Removing-online-deps-since-they-keep-breaking.patch
+}
+
 src_install() {
 	CC="$(tc-getCC)"
 	meson_src_install
