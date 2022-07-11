@@ -36,10 +36,7 @@ BDEPEND="
 
 src_prepare() {
 	default
-	
-	#Create the correct crossdev for trusted-firmware
-	crossdev --target arm-none-eabi
-	
+		
 	sed -i 's:\bpkg-config\b:${PKG_CONFIG}:g' \
 		scripts/kconfig/{g,m,n,q}conf-cfg.sh \
 		scripts/kconfig/Makefile \
@@ -116,6 +113,7 @@ src_install() {
 }
 
 pkg_postinst() {
+	einfo "In order to get the U-Boot to work you will need a crosscompiler for arm-none-eabi you can do this by running: crossdev --target arm-none-eabi (if not done allready) and then re-emerge this packages"
 	einfo "This U-Boot is only to be used for the PinePhone Pro."
 	einfo "After compiling a new Gentoo kernel, copy the resulting Image from /usr/src/linux/arch/arm64/boot/Image to the boot partition (replacing the existing Image)."	
   	einfo "New version of U-Boot firmware can be flashed to your microSD card or eMMc module."
