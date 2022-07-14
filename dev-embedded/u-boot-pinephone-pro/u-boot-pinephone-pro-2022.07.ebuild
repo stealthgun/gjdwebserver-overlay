@@ -7,7 +7,7 @@ inherit toolchain-funcs
 
 PKGREL="4"
 FIRMWAREVERSION="2.7.0"
-COMMMIT="0cc846dafcf6f6270c6587d6fe79011834d6e49a"
+COMMMIT="e092e3250270a1016c877da7bdd9384f14b1321e"
 MY_P="u-boot-${COMMMIT}"
 DESCRIPTION="Das U-boot and utilities for working with Das U-Boot for the PinePhone Pro"
 HOMEPAGE="https://www.denx.de/wiki/U-Boot/WebHome"
@@ -59,6 +59,8 @@ src_configure() {
 }
 
 src_compile() {
+	unset CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
+
 	cd ${WORKDIR}/trusted-firmware-a-${FIRMWAREVERSION}
 	emake "${myemakeargs[@]}" PLAT=rk3399
 	cp build/rk3399/release/bl31/bl31.elf ${S}
