@@ -68,14 +68,6 @@ src_compile() {
 	# Unset a few KBUILD variables. Bug #540476
 	unset KBUILD_OUTPUT KBUILD_SRC
 
-	local myemakeargs=(
-		AR="${AR}"
-		CC="${CC}"
-		HOSTCC="${BUILD_CC}"
-		HOSTCFLAGS="${CFLAGS} ${CPPFLAGS}"' $(HOSTCPPFLAGS)'
-		HOSTLDFLAGS="${LDFLAGS}"
-	)
-
 	emake "${myemakeargs[@]}" pinephone-pro-rk3399_defconfig
 	
 	echo "CONFIG_IDENT_STRING=' Gentoo Linux'" >> .config
