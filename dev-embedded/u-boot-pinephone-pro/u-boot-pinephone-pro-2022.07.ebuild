@@ -21,7 +21,7 @@ S="${WORKDIR}/${MY_P}"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~arm64"
-IUSE="envtools"
+IUSE=""
 
 
 RDEPEND="dev-libs/openssl:="
@@ -72,14 +72,22 @@ src_compile() {
 
 	emake "${myemakeargs[@]}" pinephone-pro-rk3399_defconfig
 	
+	local myemakeargs=(
+		V=1
+		AR="${AR}"
+		CC="${CC}"
+		HOSTCC="${BUILD_CC}"
+		HOSTCFLAGS="${BUILD_CFLAGS} ${BUILD_CPPFLAGS}"' $(HOSTCPPFLAGS)'
+		HOSTLDFLAGS="${BUILD_LDFLAGS}"
+	)
+	
 	echo "CONFIG_IDENT_STRING=' Gentoo Linux'" >> .config
 	echo "CONFIG_BOOTDELAY'='0'" >> .config
 	echo "CONFIG_SPL_DM_SEQ_ALIAS='y'" >> .config
 	echo "CONFIG_SF_DEFAULT_BUS='1'" >> .config
 	echo "CONFIG_SPL_MMC_SDHCI_SDMA'='n'" >> .config
 	
-	emake "${myemakeargs[@]}" EXTRAVERSION=-${PKGREL}
-}
+	emake "${myemakeargs[@]}" EXTRAVERSION=-${PKGREL}}
 
 src_test() { :; }
 
@@ -88,22 +96,7 @@ src_install() {
 	doins ${S}/u-boot.itb
 
 	insinto /boot/
-	doins ${S}/idbloader.img
-		
-	cd tools || die
-
-	if ! use envtools; then
-		dobin bmp_logo dumpimage fdtgrep gen_eth_addr img2srec mkenvimage mkimage
-	fi
-
-	dobin env/fw_printenv
-
-	dosym fw_printenv /usr/bin/fw_setenv
-
-	insinto /etc
-	doins env/fw_env.config
-
-	doman ../doc/mkimage.1
+	doins ${S}/idbloader.img	
 }
 
 pkg_postinst() {
