@@ -15,8 +15,8 @@ gpio set 105
 gpio set 154
 
 # Set root partition to the second partition of boot device
-<<your boot_uuid>> uuid_boot
-<<your rood_uuid>> uuid_root
+uuid_boot=""
+uuid_root=""
 
 setenv bootargs loglevel=4 console=ttyS2,1500000 console=tty0 earlycon=uart8250,mmio32,0xff1a0000 consoleblank=0 boot=PARTUUID=${uuid_boot} root=PARTUUID=${uuid_root} rw rootwait quiet audit=0 bootsplash.bootfile=bootsplash-themes/manjaro/bootsplash
 
