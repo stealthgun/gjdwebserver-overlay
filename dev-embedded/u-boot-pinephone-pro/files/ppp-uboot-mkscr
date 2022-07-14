@@ -1,0 +1,66 @@
+#!/bin/bash
+
+#
+# /usr/bin/ppp-uboot-mkscr
+# Utility that generates the U-Boot boot script.
+#
+
+# Source and destination file paths
+BOOT_TXT="/boot/boot.txt"
+BOOT_SCR="/boot/boot.scr"
+
+# Boot script description
+IMAGE_DESC="U-Boot boot script"
+
+# Determine the performed action
+if [[ ! -r ${BOOT_SCR} ]]; then
+  ACTION="Generating"
+else
+  ACTION="Re-generating"
+fi
+
+# Check that we're running as root
+if [[ ${EUID} != 0 ]]; then
+  echo "${ACTION} ${IMAGE_DESC} not possible, please execute this utility as root."
+  exit 1
+fi
+
+# Make sure that the required utility is available
+if [[ ! -x /usr/bin/mkimage ]]; then
+  echo "${ACTION} ${IMAGE_DESC} not possible, mkimage utility not found."
+  echo "Please emerge the u-boot-tools package, by running the following command:"
+  echo "  emerge dev-embedded/u-boot-tools"
+  exit 1
+fi
+
+# Check that the source file exists
+if [[ ! -r ${BOOT_TXT} ]]; then
+  echo "${ACTION} ${IMAGE_DESC} not possible, file ${BOOT_TXT} not found."
+  echo "Please emerge the u-boot-pinephone-pro package, by running the following command:"
+  echo "  emerge dev-embedded/u-boot-pinephone-pro"
+  exit 1
+fi
+
+# Is this a quiet execution?
+VERBOSE=true
+while getopts "q" SWITCH; do
+  if [[ ${SWITCH} = "q" ]]; then
+    VERBOSE=false
+  fi
+done
+
+# Generate the U-Boot boot script
+echo "${ACTION} ${IMAGE_DESC} ${BOOT_SCR}..."
+if [[ ${VERBOSE} = true ]]; then
+  mkimage -A arm -O linux -T script -C none -n "${IMAGE_DESC}" -d ${BOOT_TXT} ${BOOT_SCR}
+else
+  mkimage -A arm -O linux -T script -C none -n "${IMAGE_DESC}" -d ${BOOT_TXT} ${BOOT_SCR} > /dev/null 2>&1
+  if [[ $? = 0 ]]; then
+    echo "${ACTION} ${IMAGE_DESC} from ${BOOT_TXT} completed successfully."
+  else
+    echo "${ACTION} ${IMAGE_DESC} from ${BOOT_TXT} failed due to unknown reason."
+    echo "Please try generating the boot script again, or your phone may no longer boot properly."
+  fi
+fi
+
+# EOF

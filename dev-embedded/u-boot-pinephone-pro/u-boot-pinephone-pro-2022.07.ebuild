@@ -31,6 +31,7 @@ BDEPEND="
 	sys-devel/flex
 	virtual/pkgconfig
 	sys-devel/crossdev
+	dev-embedded/u-boot-tools
 "
 
 src_prepare() {
@@ -94,19 +95,20 @@ src_test() { :; }
 src_install() {
 	insinto /boot/
 	doins ${S}/u-boot.itb
-
-	insinto /boot/
 	doins ${S}/idbloader.img	
+	doins ${FILESDIR}/boot.txt
+	
+	dobin ${FILESDIR}/ppp-uboot-mkscr
 }
 
 pkg_postinst() {
 	einfo "In order to get the U-Boot to work you will need a crosscompiler for arm-none-eabi you can do this by running: crossdev --target arm-none-eabi (if not done allready) and then re-emerge this packages"
 	einfo "This U-Boot is only to be used for the PinePhone Pro."
+	einfo "Edit the /boot/boot.txt file with your uuid's and then run ppp-uboot-mkscr"
 	einfo "After compiling a new Gentoo kernel, copy the resulting Image from /usr/src/linux/arch/arm64/boot/Image to the boot partition (replacing the existing Image)."	
   	einfo "New version of U-Boot firmware can be flashed to your microSD card or eMMc module."
   	einfo "You can do that by running:"
   	einfo "# dd if=/boot/idbloader.img of=/dev/mmcblkX seek=64 conv=notrunc,fsync"
 	einfo "# dd if=/boot/u-boot.itb of=/dev/mmcblkX seek=16384 conv=notrunc,fsync"
 	einfo "Due to the Boot Priority for the PPP it is HIGHLY recommended to not put U-Boot on the eMMc because there is no easy way to recover is something went wrong."
-	einfo "If you want U-Boot tools installed you can emerge dev-embedded/u-boot-tools."
 }
