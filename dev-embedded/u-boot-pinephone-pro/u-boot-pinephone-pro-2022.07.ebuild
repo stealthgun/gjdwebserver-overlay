@@ -21,7 +21,6 @@ S="${WORKDIR}/${MY_P}"
 LICENSE="GPL-2"
 SLOT="0"
 KEYWORDS="~arm64"
-IUSE=""
 
 
 RDEPEND="dev-libs/openssl:="
@@ -87,7 +86,8 @@ src_compile() {
 	echo "CONFIG_SF_DEFAULT_BUS='1'" >> .config
 	echo "CONFIG_SPL_MMC_SDHCI_SDMA'='n'" >> .config
 	
-	emake "${myemakeargs[@]}" EXTRAVERSION=-${PKGREL}}
+	emake "${myemakeargs[@]}" EXTRAVERSION=-${PKGREL}
+	}
 
 src_test() { :; }
 
