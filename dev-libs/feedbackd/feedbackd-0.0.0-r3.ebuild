@@ -11,8 +11,8 @@ KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 IUSE="+introspection +vala"
 REQUIRED_USE="vala? ( introspection )"
 
-MY_COMMIT="74b178a363f1e0e4b84309f2a1b1c1c41bf97248"
-MY_THEME_COMMIT="68e029639e11a98c26949ffe87bcd6a025de1c55"
+MY_COMMIT="17c1c2aa24dbf3b9829bcfc3db38f633053c52f9"
+MY_THEME_COMMIT="8491037913537d31d663f1263d336f5adcae9541"
 
 DESCRIPTION="A daemon to provide haptic feedback on events"
 HOMEPAGE="https://source.puri.sm/Librem5/feedbackd"
