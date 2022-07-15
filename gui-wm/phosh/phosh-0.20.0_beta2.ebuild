@@ -7,7 +7,7 @@ inherit desktop gnome2-utils meson pam readme.gentoo-r1 systemd xdg
 
 MY_P="${PN}-v${PV}"
 LVC_COMMIT="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
-LCU_COMMIT="acfbb136bbf74514e0b9801ce6c1e8acf36350b6"
+LCU_COMMIT="d3a4fe96fac2f18a92b8ec0e7bdfb92ccb753e63"
 
 DESCRIPTION="A pure Wayland shell prototype for GNOME on mobile devices"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phosh/"
@@ -18,8 +18,7 @@ SRC_URI="
 "
 S="${WORKDIR}/${MY_P}"
 
-KEYWORDS=""
-#KEYWORDS="~amd64 ~arm64"
+KEYWORDS="~amd64 ~arm64"
 
 LICENSE="GPL-3"
 SLOT="0"
@@ -55,7 +54,7 @@ src_prepare() {
 	rm -r "${S}"/subprojects/libcall-ui || die
 	mv "${WORKDIR}"/libcall-ui-"${LCU_COMMIT}" "${S}"/subprojects/libcall-ui || die
 	
-	eapply "${FILESDIR}"/0001-Fix-for-polkit-120-and-higher.patch
+	eapply "${FILESDIR}"/0001-Gentoo-patch-for-polkit-120.patch
 }
 
 src_install() {

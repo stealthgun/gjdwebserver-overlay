@@ -1,0 +1,23 @@
+From 4cb433819d0e39b85a9e8785b32c65deae8a36db Mon Sep 17 00:00:00 2001
+From: Gerben Jan Dijkman <gjdijkman@gjdwebserver.nl>
+Date: Fri, 15 Jul 2022 16:19:57 +0200
+Subject: [PATCH] Gentoo patch for polkit 120
+
+---
+ src/polkit-auth-agent.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/polkit-auth-agent.h b/src/polkit-auth-agent.h
+index 426adc8..cf46441 100644
+--- a/src/polkit-auth-agent.h
++++ b/src/polkit-auth-agent.h
+@@ -21,7 +21,7 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC(PolkitSubject, g_object_unref)
+ #endif
+ 
+ /* libpolkit lacks these */
+-#if POLKIT_AGENT_MAJOR_VERSION == 0 && POLKIT_AGENT_MINOR_VERSION < 121
++#if POLKIT_AGENT_MAJOR_VERSION == 0 && POLKIT_AGENT_MINOR_VERSION < 120
+ G_DEFINE_AUTOPTR_CLEANUP_FUNC(PolkitAgentListener, g_object_unref)
+ #endif
+ 
+-- 
