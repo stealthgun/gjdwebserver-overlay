@@ -4,7 +4,7 @@ Before=ModemManager.service
 
 [Service]
 Type=simple
-ExecStart=/usr/bin/eg25manager
+ExecStart=/usr/bin/eg25-manager
 Restart=on-failure
 ProtectControlGroups=true
 ProtectHome=true
