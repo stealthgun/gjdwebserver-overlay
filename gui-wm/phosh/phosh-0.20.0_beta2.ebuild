@@ -55,6 +55,7 @@ src_prepare() {
 	mv "${WORKDIR}"/libcall-ui-"${LCU_COMMIT}" "${S}"/subprojects/libcall-ui || die
 	
 	eapply "${FILESDIR}"/0001-Gentoo-patch-for-polkit-120.patch
+	eapply "${FILESDIR}"/0002-build-Adjust-to-polkit-version-changes.patch
 }
 
 src_install() {
