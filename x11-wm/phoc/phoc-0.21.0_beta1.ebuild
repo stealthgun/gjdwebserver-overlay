@@ -42,7 +42,7 @@ RDEPEND="
 	x11-libs/xcb-util-wm
 	x11-wm/mutter
 	sys-auth/seatd
-	!gui-libs/wlroots
+	gui-libs/wlroots
 "
 
 BDEPEND="
@@ -57,7 +57,7 @@ S="${WORKDIR}/${MY_P}"
 src_prepare() {
 	default
 	rm -r "${S}"/subprojects/wlroots || die "Failed to remove bundled wlroots"
-	cp -r "${WORKDIR}/${WL_P}" "${S}"/subprojects/wlroots || die "Failed to copy right version of wlroots"
+#	cp -r "${WORKDIR}/${WL_P}" "${S}"/subprojects/wlroots || die "Failed to copy right version of wlroots"
 }
 
 src_configure() {
