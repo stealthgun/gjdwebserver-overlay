@@ -16,6 +16,7 @@ HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phoc"
 
 SRC_URI="
 	https://gitlab.gnome.org/World/Phosh/phoc/-/archive/${MY_PV}/${MY_P}.tar.gz
+	https://source.puri.sm/Librem5/wlroots/-/archive/${WL_COMMIT}/${WL_P}.tar.gz
 "
 
 LICENSE="GPL-3"
@@ -41,7 +42,7 @@ RDEPEND="
 	x11-libs/xcb-util-wm
 	x11-wm/mutter
 	sys-auth/seatd
-	=gui-libs/wlroots-0.15.1
+	!gui-libs/wlroots
 "
 
 BDEPEND="
@@ -56,6 +57,7 @@ S="${WORKDIR}/${MY_P}"
 src_prepare() {
 	default
 	rm -r "${S}"/subprojects/wlroots || die "Failed to remove bundled wlroots"
+#	cp -r "${WORKDIR}/${WL_P}" "${S}"/subprojects/wlroots || die "Failed to copy right version of wlroots"
 }
 
 src_configure() {
