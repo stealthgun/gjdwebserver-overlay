@@ -8,7 +8,7 @@ inherit meson xdg gnome2-utils
 MY_PV="v${PV}"
 MY_P="${PN}-${MY_PV}"
 
-WL_COMMIT="1f8bb9e0e3058fc31a14866dc52e8f83c1287a09"
+WL_COMMIT="cb07c8c11a2a1db243c47a7b4ee4f47e46a21c8f"
 WL_P="wlroots-${WL_COMMIT}"
 
 DESCRIPTION="Wlroots based Phone compositor"
