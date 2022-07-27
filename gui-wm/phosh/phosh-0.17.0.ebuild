@@ -54,7 +54,8 @@ src_prepare() {
 	mv "${WORKDIR}"/libcall-ui-"${LCU_COMMIT}" "${S}"/subprojects/libcall-ui || die
 	
 	eapply "${FILESDIR}"/0001-Fix-for-polkit-120-and-higher.patch
-}
+	eapply "${FILESDIR}"/0002-build-Adjust-to-polkit-version-changes.patch
+	
 
 src_install() {
 	default
