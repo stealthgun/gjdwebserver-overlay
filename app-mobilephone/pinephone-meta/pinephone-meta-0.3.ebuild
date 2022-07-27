@@ -10,7 +10,6 @@ DESCRIPTION="Meta-package for installing phosh on pinephone"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~arm64"
-IUSE="+eg25-manager"
 
 RDEPEND="
 	app-mobilephone/pinephone-modem-scripts

@@ -23,8 +23,7 @@ MEGI_TAG="orange-pi-5.18-20220615-1100"
 SRC_URI="https://github.com/megous/linux/archive/${MEGI_TAG}.tar.gz ${GENPATCHES_URI}"
 
 PATCHES=(
-	${FILESDIR}/patch-5.18.4-5
-	${FILESDIR}/patch-5.18.5-6
+
 )
 
 S="${WORKDIR}/linux-${MEGI_TAG}"

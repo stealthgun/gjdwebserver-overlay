@@ -4,8 +4,11 @@
 
 EAPI="8"
 ETYPE="sources"
-K_WANT_GENPATCHES="base extras"
-K_GENPATCHES_VER="4"
+K_NOUSENAME="yes"
+K_NOSETEXTRAVERSION="yes"
+K_SECURITY_UNSUPPORTED="1"
+K_WANT_GENPATCHES="base extras experimental"
+K_GENPATCHES_VER="9"
 
 inherit kernel-2
 detect_version
@@ -18,15 +21,24 @@ DEPEND="${RDEPEND}
 
 DESCRIPTION="Full sources for the Linux kernel with gentoo patchset and patches for the PinePhone"
 
-MEGI_PATCH_URI="https://xff.cz/kernels/${PV:0:4}/patches/all.patch"
-
-SRC_URI="${KERNEL_URI} ${GENPATCHES_URI} ${ARCH_URI} ${MEGI_PATCH_URI} -> all-${PV}.patch"
+MEGI_TAG="orange-pi-5.18-20220615-1100"
+SRC_URI="https://github.com/megous/linux/archive/${MEGI_TAG}.tar.gz ${GENPATCHES_URI}"
 
 PATCHES=(
-	#Megi patch set
-	${DISTDIR}/all-${PV}.patch
         # Drop Megi's Modem-Power
-        "${FILESDIR}"/dts-pinephone-drop-modem-power-node.patch
+	"${FILESDIR}"/0101-arm64-dts-pinephone-drop-modem-power-node.patch
+        "${FILESDIR}"/0102-arm64-dts-pinephone-pro-remove-modem-node.patch
+        # Reparent clocks to lower speed-occillator
+        "${FILESDIR}"/0103-ccu-sun50i-a64-reparent-clocks-to-lower-speed-oscillator.patch
+        # Quirk for Kernel-Bug 210681
+        "${FILESDIR}"/0104-quirk-kernel-org-bug-210681-firmware_rome_error.patch
+        # LED patches
+        "${FILESDIR}"/0105-leds-gpio-make-max_brightness-configurable.patch
+        "${FILESDIR}"/0106-panic-led.patch
+        # Bootsplash
+        "${FILESDIR}"/0201-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch
+        "${FILESDIR}"/0202-revert-fbcon-remove-no-op-fbcon_set_origin.patch
+        "${FILESDIR}"/0203-revert-fbcon-remove-soft-scrollback-code.patch
 )
 
 src_prepare() {

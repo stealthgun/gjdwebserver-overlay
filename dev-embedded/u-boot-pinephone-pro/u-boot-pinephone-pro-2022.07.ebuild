@@ -81,7 +81,7 @@ src_compile() {
 		HOSTLDFLAGS="${BUILD_LDFLAGS}"
 	)
 	
-	echo "CONFIG_IDENT_STRING=' Gentoo Linux'" >> .config
+	echo "CONFIG_IDENT_STRING='Gentoo Linux'" >> .config
 	echo "CONFIG_BOOTDELAY'='0'" >> .config
 	echo "CONFIG_SPL_DM_SEQ_ALIAS='y'" >> .config
 	echo "CONFIG_SF_DEFAULT_BUS='1'" >> .config
