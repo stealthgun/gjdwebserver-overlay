@@ -55,8 +55,8 @@ src_prepare() {
 	
 	eapply "${FILESDIR}"/0001-Fix-for-polkit-120-and-higher.patch
 	eapply "${FILESDIR}"/0002-build-Adjust-to-polkit-version-changes.patch
+}
 	
-
 src_install() {
 	default
 	meson_src_install
