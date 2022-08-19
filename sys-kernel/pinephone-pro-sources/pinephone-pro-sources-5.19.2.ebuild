@@ -17,7 +17,7 @@ DEPEND="${RDEPEND}
 
 DESCRIPTION="Full sources for the Linux kernel, with megi's patch for pinephone and gentoo patchset"
 
-MEGI_TAG="orange-pi-5.19-20220802-0940"
+MEGI_TAG="orange-pi-5.19-20220818-0237"
 SRC_URI="https://github.com/megous/linux/archive/${MEGI_TAG}.tar.gz"
 
 PATCHES=(
