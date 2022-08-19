@@ -38,11 +38,10 @@ PATCHES=(
 	${FILESDIR}/0101-arm64-dts-pinephone-drop-modem-power-node.patch
 	${FILESDIR}/0102-arm64-dts-pinephone-pro-remove-modem-node.patch
 	${FILESDIR}/0103-arm64-dts-rk3399-pinephone-pro-add-modem-RI-pin.patch
-	${FILESDIR}/0104-rk818_charger-use-type-battery-again.patch
 	${FILESDIR}/0201-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch
 	${FILESDIR}/0202-revert-fbcon-remove-no-op-fbcon_set_origin.patch
 	${FILESDIR}/0203-revert-fbcon-remove-soft-scrollback-code.patch
-	
+		
 	#Bootsplash
 	${FILESDIR}/0301-bootsplash.patch
 	${FILESDIR}/0302-bootsplash.patch
