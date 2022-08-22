@@ -43,9 +43,7 @@ RDEPEND="
 	!gui-libs/wlroots
 	dev-util/vulkan-headers
 	sys-auth/seatd
-	x11-libs/libxkbcommon
 	gui-libs/egl-gbm
-	x11-libs/libdrm
 "
 
 BDEPEND="
