@@ -32,10 +32,7 @@ RDEPEND="
 	dev-libs/wayland
 	dev-libs/wayland-protocols
 	gnome-base/gnome-desktop
-	systemd? (
-		!sys-apps/openrc
-		sys-apps/systemd
-	)
+	sys-apps/systemd
 	x11-libs/libdrm
 	x11-libs/pixman
 	x11-libs/xcb-util
@@ -45,6 +42,7 @@ RDEPEND="
 	sys-auth/seatd
 	!gui-libs/wlroots
 	dev-util/vulkan-headers
+	sys-auth/seatd
 "
 
 BDEPEND="
