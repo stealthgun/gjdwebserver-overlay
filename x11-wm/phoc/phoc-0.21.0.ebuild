@@ -8,15 +8,11 @@ inherit meson xdg gnome2-utils
 MY_PV="v${PV}"
 MY_P="${PN}-${MY_PV}"
 
-WL_COMMIT="1f8bb9e0e3058fc31a14866dc52e8f83c1287a09"
-WL_P="wlroots-${WL_COMMIT}"
-
 DESCRIPTION="Wlroots based Phone compositor"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phoc"
 
 SRC_URI="
 	https://gitlab.gnome.org/World/Phosh/phoc/-/archive/${MY_PV}/${MY_P}.tar.gz
-	https://source.puri.sm/Librem5/wlroots/-/archive/${WL_COMMIT}/${WL_P}.tar.gz
 "
 
 LICENSE="GPL-3"
@@ -40,7 +36,7 @@ RDEPEND="
 	x11-libs/xcb-util-renderutil
 	x11-wm/mutter
 	sys-auth/seatd
-	!gui-libs/wlroots
+	=gui-libs/wlroots-bin-1.15.1
 	dev-util/vulkan-headers
 	sys-auth/seatd
 	x11-libs/libxkbcommon
@@ -60,11 +56,11 @@ S="${WORKDIR}/${MY_P}"
 src_prepare() {
 	default
 	rm -r "${S}"/subprojects/wlroots || die "Failed to remove bundled wlroots"
-	cp -r "${WORKDIR}/${WL_P}" "${S}"/subprojects/wlroots || die "Failed to copy right version of wlroots"
 }
 
 src_configure() {
 	local emesonargs=(
+		-Dembed-wlroots=enabled --default-library=static
 		-Ddefault_library=shared
 		-Dtests=false
 	)
