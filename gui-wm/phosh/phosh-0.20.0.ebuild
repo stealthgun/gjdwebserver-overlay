@@ -58,6 +58,12 @@ src_prepare() {
 	mv "${WORKDIR}"/libcall-ui-"${LCU_COMMIT}" "${S}"/subprojects/libcall-ui || die
 	
 	eapply "${FILESDIR}"/0001-Gentoo-patch-for-polkit-120.patch
+	eapply "${FILESDIR}"/0001-system-prompt-allow-blank-passwords.patch
+	eapply "${FILESDIR}"/0002-fix-locale-issue.patch
+	eapply "${FILESDIR}"/0003-fix-locale-issue-in-service-file.patch
+	eapply "${FILESDIR}"/1008.patch
+	eapply "${FILESDIR}"/977.patch
+
 }
 
 src_install() {

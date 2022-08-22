@@ -1,0 +1,51 @@
+From 8aee7788de2cfead530a175a162ea37ab55f2b16 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Fri, 7 Jan 2022 20:10:26 +0100
+Subject: [PATCH] network-auth-prompt: Allow for WPA{,2} enterprise
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Guido Günther <guido.gunther@puri.sm>
+---
+ src/network-auth-prompt.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/src/network-auth-prompt.c b/src/network-auth-prompt.c
+index 9005bc0d3..bf6925b2a 100644
+--- a/src/network-auth-prompt.c
++++ b/src/network-auth-prompt.c
+@@ -154,6 +154,10 @@ network_connection_get_key_type (NMConnection *connection)
+ 
+   if (g_str_equal (key_mgmt, "none"))
+     return "wep-key0";
++  else if (g_str_equal (key_mgmt, "wpa-eap")) {
++    /* TODO: This is too simplistic as we have a cert password too */
++    return "password";
++  }
+ 
+   /* Assume WPA/WPA2 Personal */
+   return "psk";
+@@ -179,7 +183,9 @@ network_prompt_setup_dialog (PhoshNetworkAuthPrompt *self)
+                                 g_bytes_get_size (bytes));
+ 
+   if (self->security_type != NMU_SEC_WPA_PSK &&
++      self->security_type != NMU_SEC_WPA_ENTERPRISE &&
+       self->security_type != NMU_SEC_WPA2_PSK &&
++      self->security_type != NMU_SEC_WPA2_ENTERPRISE &&
+       self->security_type != NMU_SEC_STATIC_WEP) {
+     g_debug ("Network security method %d of %s not supported",
+              self->security_type, ssid);
+@@ -294,6 +300,9 @@ network_prompt_wpa_password_changed_cb (PhoshNetworkAuthPrompt *self)
+   } else if (self->security_type == NMU_SEC_STATIC_WEP) {
+     valid = nm_utils_wep_key_valid (password, NM_WEP_KEY_TYPE_PASSPHRASE);
+     valid |= nm_utils_wep_key_valid (password, NM_WEP_KEY_TYPE_KEY);
++  } else if (self->security_type == NMU_SEC_WPA_ENTERPRISE ||
++             self->security_type == NMU_SEC_WPA2_ENTERPRISE) {
++    valid = TRUE;
+   }
+ 
+   gtk_widget_set_sensitive (self->connect_button, valid);
+-- 
+GitLab
+
