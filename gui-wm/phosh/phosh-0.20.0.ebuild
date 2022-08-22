@@ -37,9 +37,12 @@ DEPEND="
 	gnome-base/gnome-keyring
 	gnome-base/gnome-shell
 	x11-wm/phoc
-	systemd? ( sys-apps/systemd )
+	sys-apps/systemd
 	sys-power/upower
 	app-misc/geoclue
+        net-libs/libnma
+        media-sound/callaudiod
+
 "
 RDEPEND="${DEPEND}"
 BDEPEND="
