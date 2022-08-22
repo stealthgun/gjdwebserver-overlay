@@ -8,8 +8,8 @@ inherit meson systemd
 COMMIT="ee70cf7d2f3927a5f9feae9171805249abd6c32d"
 
 DESCRIPTION="Daemon for managing the Quectel EG25 modem"
-HOMEPAGE="https://gitlab.com/mobian1/devices/eg25-manager"
-SRC_URI="https://gitlab.com/mobian1/devices/eg25-manager/-/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
+HOMEPAGE="https://gitlab.com/mobian1/eg25-manager"
+SRC_URI="https://gitlab.com/mobian1/eg25-manager/-/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
 
 KEYWORDS="~arm64"
 LICENSE="GPL-3"
