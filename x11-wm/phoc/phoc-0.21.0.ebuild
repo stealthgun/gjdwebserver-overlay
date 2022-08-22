@@ -60,8 +60,9 @@ src_prepare() {
 
 src_configure() {
 	local emesonargs=(
-		-Dembed-wlroots=enabled --default-library=static
-		-Ddefault_library=shared
+		#-Dembed-wlroots=enabled 
+		#-Ddefault-library=dynamic
+		#-Ddefault_library=static
 		-Dtests=false
 	)
 	meson_src_configure
