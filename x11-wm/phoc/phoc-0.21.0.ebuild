@@ -40,9 +40,11 @@ RDEPEND="
 	x11-libs/pixman
 	x11-libs/xcb-util
 	x11-libs/xcb-util-wm
+	x11-libs/xcb-util-renderutil
 	x11-wm/mutter
 	sys-auth/seatd
 	!gui-libs/wlroots
+	dev-util/vulkan-headers
 "
 
 BDEPEND="
