@@ -36,7 +36,7 @@ RDEPEND="
 	x11-libs/xcb-util-renderutil
 	x11-wm/mutter
 	sys-auth/seatd
-	=gui-libs/wlroots-1.15.1
+	=gui-libs/wlroots-0.15.1
 	dev-util/vulkan-headers
 	sys-auth/seatd
 	x11-libs/libxkbcommon
