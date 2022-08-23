@@ -17,7 +17,7 @@ DEPEND="${RDEPEND}
 
 DESCRIPTION="Full sources for the Linux kernel, with megi's patch for pinephone and gentoo patchset"
 
-MEGI_TAG="orange-pi-5.19-20220818-0237"
+MEGI_TAG="orange-pi-5.19-20220822-1337"
 SRC_URI="https://github.com/megous/linux/archive/${MEGI_TAG}.tar.gz"
 
 PATCHES=(
@@ -38,8 +38,8 @@ PATCHES=(
 	${FILESDIR}/0101-arm64-dts-pinephone-drop-modem-power-node.patch
 	${FILESDIR}/0102-arm64-dts-pinephone-pro-remove-modem-node.patch
 	${FILESDIR}/0103-arm64-dts-rk3399-pinephone-pro-add-modem-RI-pin.patch
-	${FILESDIR}/0201-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch
-	${FILESDIR}/0202-revert-fbcon-remove-no-op-fbcon_set_origin.patch
+	#${FILESDIR}/0201-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch
+	#${FILESDIR}/0202-revert-fbcon-remove-no-op-fbcon_set_origin.patch
 	#${FILESDIR}/0203-revert-fbcon-remove-soft-scrollback-code.patch
 		
 	#Bootsplash
