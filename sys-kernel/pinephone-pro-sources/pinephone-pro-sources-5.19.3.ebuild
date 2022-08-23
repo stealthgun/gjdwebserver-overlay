@@ -38,23 +38,6 @@ PATCHES=(
 	${FILESDIR}/0101-arm64-dts-pinephone-drop-modem-power-node.patch
 	${FILESDIR}/0102-arm64-dts-pinephone-pro-remove-modem-node.patch
 	${FILESDIR}/0103-arm64-dts-rk3399-pinephone-pro-add-modem-RI-pin.patch
-	#${FILESDIR}/0201-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch
-	#${FILESDIR}/0202-revert-fbcon-remove-no-op-fbcon_set_origin.patch
-	#${FILESDIR}/0203-revert-fbcon-remove-soft-scrollback-code.patch
-		
-	#Bootsplash
-	${FILESDIR}/0301-bootsplash.patch
-	${FILESDIR}/0302-bootsplash.patch
-	${FILESDIR}/0303-bootsplash.patch
-	${FILESDIR}/0304-bootsplash.patch
-	${FILESDIR}/0305-bootsplash.patch
-	${FILESDIR}/0306-bootsplash.patch
-	${FILESDIR}/0307-bootsplash.patch
-	${FILESDIR}/0308-bootsplash.patch
-	${FILESDIR}/0309-bootsplash.patch
-	${FILESDIR}/0310-bootsplash.patch
-	${FILESDIR}/0311-bootsplash.patch
-	${FILESDIR}/0312-bootsplash.patch
 )
 
 S="${WORKDIR}/linux-${MEGI_TAG}"
