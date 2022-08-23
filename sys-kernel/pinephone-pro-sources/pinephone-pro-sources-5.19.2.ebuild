@@ -40,7 +40,7 @@ PATCHES=(
 	${FILESDIR}/0103-arm64-dts-rk3399-pinephone-pro-add-modem-RI-pin.patch
 	${FILESDIR}/0201-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch
 	${FILESDIR}/0202-revert-fbcon-remove-no-op-fbcon_set_origin.patch
-	${FILESDIR}/0203-revert-fbcon-remove-soft-scrollback-code.patch
+	#${FILESDIR}/0203-revert-fbcon-remove-soft-scrollback-code.patch
 		
 	#Bootsplash
 	${FILESDIR}/0301-bootsplash.patch
