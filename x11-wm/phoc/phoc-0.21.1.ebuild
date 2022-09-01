@@ -8,11 +8,16 @@ inherit meson xdg gnome2-utils
 MY_PV="v${PV}"
 MY_P="${PN}-${MY_PV}"
 
+#WL_COMMIT="9b77a484d9581fb6ce4b0afcd44dd728709d8ba7"
+WL_COMMIT="1f8bb9e0e3058fc31a14866dc52e8f83c1287a09"
+WL_P="wlroots-${WL_COMMIT}"
+
 DESCRIPTION="Wlroots based Phone compositor"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phoc"
 
 SRC_URI="
 	https://gitlab.gnome.org/World/Phosh/phoc/-/archive/${MY_PV}/${MY_P}.tar.gz
+	https://source.puri.sm/Librem5/wlroots/-/archive/${WL_COMMIT}/${WL_P}.tar.gz
 "
 
 LICENSE="GPL-3"
@@ -27,20 +32,23 @@ RDEPEND="
 	dev-libs/libinput
 	dev-libs/wayland
 	dev-libs/wayland-protocols
+	gnome-base/dconf
+	gnome-base/gsettings-desktop-schemas
+	gnome-base/gnome-settings-daemon
 	gnome-base/gnome-desktop
+	dev-util/vulkan-headers
 	sys-apps/systemd
 	x11-libs/libdrm
 	x11-libs/pixman
+	x11-libs/libxcb
 	x11-libs/xcb-util
 	x11-libs/xcb-util-wm
 	x11-libs/xcb-util-renderutil
 	x11-wm/mutter
 	sys-auth/seatd
-	=gui-libs/wlroots-0.15.1
-	dev-util/vulkan-headers
+	!gui-libs/wlroots
 	sys-auth/seatd
-	x11-libs/libxkbcommon
-	gui-libs/egl-gbm
+	x11-apps/xkbcomp
 	x11-libs/libdrm
 "
 
@@ -56,13 +64,13 @@ S="${WORKDIR}/${MY_P}"
 src_prepare() {
 	default
 	rm -r "${S}"/subprojects/wlroots || die "Failed to remove bundled wlroots"
+	cp -r "${WORKDIR}/${WL_P}" "${S}"/subprojects/wlroots || die "Failed to copy right version of wlroots"
 }
 
 src_configure() {
 	local emesonargs=(
-		#-Dembed-wlroots=enabled 
-		#-Ddefault-library=dynamic
-		#-Ddefault_library=static
+		-Dembed-wlroots=enabled 
+		-Ddefault_library=static
 		-Dtests=false
 	)
 	meson_src_configure
