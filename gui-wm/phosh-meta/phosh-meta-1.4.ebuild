@@ -46,7 +46,7 @@ DEPEND="
 		sys-auth/rtkit
 		gnome-extra/sushi
 		media-gfx/eog
-		
+		x11-misc/phosh-mobile-settings
 		cawbird? (
 			net-im/cawbird
 		)
