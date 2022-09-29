@@ -6,11 +6,11 @@ VALA_USE_DEPEND="vapigen"
 
 inherit vala meson gnome2-utils xdg
 
-LCU_COMMIT="acfbb136bbf74514e0b9801ce6c1e8acf36350b6"
+LCU_COMMIT="619dd91561ad470db3d0e0e263ebc35d787afd2e"
 DESCRIPTION="Phone dialer and call handler"
 HOMEPAGE="https://gitlab.gnome.org/GNOME/calls"
 SRC_URI="
-	https://gitlab.gnome.org/GNOME/calls/-/archive/${PV}/calls-${PV}.tar.gz
+	https://gitlab.gnome.org/GNOME/calls/-/archive/v${PV}/calls-v${PV}.tar.gz
 	https://gitlab.gnome.org/World/Phosh/libcall-ui/-/archive/${LCU_COMMIT}/libcall-ui-${LCU_COMMIT}.tar.gz
 "
 
@@ -40,7 +40,7 @@ BDEPEND="
 		dev-util/wayland-scanner
 "
 
-S="${WORKDIR}/calls-${PV}"
+S="${WORKDIR}/calls-v${PV}"
 
 src_prepare() {
 	default
