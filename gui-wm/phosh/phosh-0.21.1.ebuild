@@ -7,7 +7,7 @@ inherit desktop gnome2-utils meson pam readme.gentoo-r1 systemd xdg
 
 MY_P="${PN}-v${PV}"
 LVC_COMMIT="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
-LCU_COMMIT="f81f46045ac85e5c5c93d9b5be673c0f20991927"
+LCU_COMMIT="7e2f9e2db6515fb9c4650010c2a9ecb9796957e3"
 
 DESCRIPTION="A pure Wayland shell prototype for GNOME on mobile devices"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phosh/"
@@ -42,7 +42,6 @@ DEPEND="
 	app-misc/geoclue
         net-libs/libnma
         media-sound/callaudiod
-
 "
 RDEPEND="${DEPEND}"
 BDEPEND="
