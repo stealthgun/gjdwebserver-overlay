@@ -15,6 +15,8 @@ KEYWORDS="~arm ~arm64"
 RDEPEND="
 	x11-wm/phoc
 	gui-wm/phosh
+	gui-libs/libadwaita
+	sys-apps/lm-sensors
 "
 
 BDEPEND="
