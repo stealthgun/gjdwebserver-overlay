@@ -10,7 +10,7 @@ SRC_URI=""
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm64 ~arm"
-IUSE="cawbird squeekboard chromium firefox geary lollypop owncloud nextcloud voicemail accessibility +bluetooth +classic cups"
+IUSE="cawbird squeekboard chromium firefox geary lollypop owncloud nextcloud voicemail accessibility +bluetooth +classic cups python"
 DEPEND="
 		>=dev-libs/glib-2.70.2:2
 		>=x11-libs/gdk-pixbuf-2.42.6:2
@@ -18,7 +18,7 @@ DEPEND="
 		>=x11-libs/gtk+-3.24.31:3[cups?]
 		>=dev-libs/atk-2.36.0
 		>=gnome-base/librsvg-2.52.5
-		>=gnome-base/gnome-desktop-${PV}:3
+		>=gnome-base/gnome-desktop-43:3
 
 		>=gnome-base/gvfs-1.48.1
 		>=gnome-base/dconf-0.40.0
