@@ -42,7 +42,7 @@ pkg_setup() {
 	xorg-3_pkg_setup
 }
 
-src_configure() {
-	xorg-3_src_configure
-}
+#src_configure() {
+	#xorg-3_src_configure
+#}
 
