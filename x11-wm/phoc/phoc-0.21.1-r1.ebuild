@@ -8,7 +8,6 @@ inherit meson xdg gnome2-utils
 MY_PV="v${PV}"
 MY_P="${PN}-${MY_PV}"
 
-#WL_COMMIT="9b77a484d9581fb6ce4b0afcd44dd728709d8ba7"
 WL_COMMIT="1f8bb9e0e3058fc31a14866dc52e8f83c1287a09"
 WL_P="wlroots-${WL_COMMIT}"
 
@@ -69,8 +68,6 @@ src_prepare() {
 
 src_configure() {
 	local emesonargs=(
-		-Dembed-wlroots=enabled 
-		-Ddefault_library=static
 		-Dtests=false
 	)
 	meson_src_configure
