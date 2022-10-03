@@ -7,7 +7,7 @@ inherit desktop gnome2-utils meson pam readme.gentoo-r1 systemd xdg
 
 MY_P="${PN}-v${PV}"
 LVC_COMMIT="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
-LCU_COMMIT="acfbb136bbf74514e0b9801ce6c1e8acf36350b6"
+LCU_COMMIT="7e2f9e2db6515fb9c4650010c2a9ecb9796957e3"
 
 DESCRIPTION="A pure Wayland shell prototype for GNOME on mobile devices"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phosh/"
@@ -19,6 +19,7 @@ SRC_URI="
 S="${WORKDIR}/${MY_P}"
 
 KEYWORDS="~amd64 ~arm64"
+
 LICENSE="GPL-3"
 SLOT="0"
 IUSE="+systemd"
@@ -36,9 +37,11 @@ DEPEND="
 	gnome-base/gnome-keyring
 	gnome-base/gnome-shell
 	x11-wm/phoc
-	systemd? ( sys-apps/systemd )
+	sys-apps/systemd
 	sys-power/upower
 	app-misc/geoclue
+        net-libs/libnma
+        media-sound/callaudiod
 "
 RDEPEND="${DEPEND}"
 BDEPEND="
@@ -53,15 +56,20 @@ src_prepare() {
 	rm -r "${S}"/subprojects/libcall-ui || die
 	mv "${WORKDIR}"/libcall-ui-"${LCU_COMMIT}" "${S}"/subprojects/libcall-ui || die
 	
-	eapply "${FILESDIR}"/0001-Fix-for-polkit-120-and-higher.patch
-	eapply "${FILESDIR}"/0002-build-Adjust-to-polkit-version-changes.patch
-}
+	#Polkit patch
+	eapply "${FILESDIR}"/0001-Gentoo-patch-for-polkit-120.patch
 	
+	#Phosh patches
+	eapply "${FILESDIR}"/0001-system-prompt-allow-blank-passwords.patch
+	eapply "${FILESDIR}"/0002-build-Adjust-to-polkit-version-changes.patch
+	eapply "${FILESDIR}"/0003-fix-locale-issue-in-service-file.patch
+
+}
+
 src_install() {
 	default
 	meson_src_install
 	newpamd "${FILESDIR}"/pam_phosh 'phosh'
-	systemd_newunit "${FILESDIR}"/phosh.service 'phosh.service'
 	domenu "${FILESDIR}"/sm.puri.OSK0.desktop
 
 	DOC_CONTENTS="To amend the existing password policy please see the man 5 passwdqc.conf
