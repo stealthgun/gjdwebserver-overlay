@@ -66,10 +66,19 @@ src_prepare() {
 
 }
 
+src_configure() {
+	local mycmakeargs=(	
+	-Dsystemd=true
+	)
+
+	cmake_src_configure
+}
+
 src_install() {
 	default
 	meson_src_install
 	newpamd "${FILESDIR}"/pam_phosh 'phosh'
+	systemd_newunit "${FILESDIR}"/phosh.service 'phosh.service'
 	domenu "${FILESDIR}"/sm.puri.OSK0.desktop
 
 	DOC_CONTENTS="To amend the existing password policy please see the man 5 passwdqc.conf
