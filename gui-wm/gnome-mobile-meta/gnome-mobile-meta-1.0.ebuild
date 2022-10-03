@@ -114,7 +114,7 @@ DEPEND="
 		)
 		
 		chromium? (
-			www-client/chromium-bin-debian
+			www-client/chromium
 		)
 		
 		firefox? (
