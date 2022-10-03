@@ -31,7 +31,7 @@ DEPEND="
 		
 		>=gnome-base/gdm-43.0
 
-		>=x11-wm/mutter-43
+		>=x11-wm/mutter-43[mobile]
 		>=gnome-base/gnome-shell-43[mobile]
 		>=media-fonts/cantarell-0.301
 
@@ -70,7 +70,7 @@ DEPEND="
 
 		bluetooth? ( >=net-wireless/gnome-bluetooth-3.34.5 )
 		
-		classic? ( >=gnome-extra/gnome-shell-extensions-40.0 )
+		classic? ( >=gnome-extra/gnome-shell-extensions-43.0 )
 	
 		gnome-extra/phosh-antispam
 		net-voip/gnome-calls

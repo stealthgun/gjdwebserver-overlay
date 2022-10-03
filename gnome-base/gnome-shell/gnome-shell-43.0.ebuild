@@ -9,7 +9,7 @@ inherit gnome.org gnome2-utils meson optfeature python-single-r1 virtualx xdg
 COMMIT="105051d4a12b7652ece8636a8975bc8bb00399e0"
 LVC_COMMIT="7a621180b46421e356b33972e3446775a504139c"
 
-DESCRIPTION="Provides core UI functions for the GNOME desktop this is a special version for mobile devices"
+DESCRIPTION="Provides core UI functions for the GNOME desktop, this is a special version for mobile devices"
 HOMEPAGE="https://wiki.gnome.org/Projects/GnomeShell https://gitlab.gnome.org/GNOME/gnome-shell"
 SRC_URI="
 	https://gitlab.gnome.org/verdre/gnome-shell/-/archive/${COMMIT}/gnome-shell-${COMMIT}.tar.gz
@@ -65,7 +65,8 @@ DEPEND="
 	>=x11-libs/libXfixes-5.0
 
 	gui-libs/gtk:4[introspection]
-
+	dev-lang/sassc
+	
 	${PYTHON_DEPS}
 	$(python_gen_cond_dep '
 		dev-python/pygobject:3[${PYTHON_USEDEP}]
