@@ -10,10 +10,68 @@ SRC_URI=""
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm64 ~arm"
-IUSE="cawbird squeekboard chromium firefox geary lollypop owncloud nextcloud voicemail"
-
+IUSE="cawbird squeekboard chromium firefox geary lollypop owncloud nextcloud voicemail accessibility +bluetooth +classic cups"
 DEPEND="
-		gnome-base/gnome-shell[mobile]
+		>=dev-libs/glib-2.70.2:2
+		>=x11-libs/gdk-pixbuf-2.42.6:2
+		>=x11-libs/pango-1.48.10
+		>=x11-libs/gtk+-3.24.31:3[cups?]
+		>=dev-libs/atk-2.36.0
+		>=gnome-base/librsvg-2.52.5
+		>=gnome-base/gnome-desktop-${PV}:3
+
+		>=gnome-base/gvfs-1.48.1
+		>=gnome-base/dconf-0.40.0
+
+		>=media-libs/gstreamer-1.16.2:1.0
+		>=media-libs/gst-plugins-base-1.16.2:1.0
+		>=media-libs/gst-plugins-good-1.16.2:1.0
+
+		python? ( >=dev-python/pygobject-3.42.0:3 )
+		
+		>=gnome-base/gdm-43.0
+
+		>=x11-wm/mutter-43
+		>=gnome-base/gnome-shell-43[mobile]
+		>=media-fonts/cantarell-0.301
+
+		>=x11-themes/gnome-backgrounds-40.0
+		x11-themes/sound-theme-freedesktop
+
+		accessibility? (
+			>=app-accessibility/at-spi2-atk-2.38.0
+			>=app-accessibility/at-spi2-core-2.40.0
+			>=app-accessibility/orca-40.0
+			>=gnome-extra/mousetweaks-3.32.0
+		)
+
+		>=gnome-base/gnome-session-40.1.1
+		>=gnome-base/gnome-settings-daemon-41.0[cups?]
+		>=gnome-base/gnome-control-center-41.2[cups?]
+		>=gnome-extra/gnome-color-manager-3.36.0
+
+		>=app-crypt/gcr-3.40.0
+		>=gnome-base/nautilus-41.1
+		>=gnome-base/gnome-keyring-40.0
+		>=gnome-extra/evolution-data-server-3.42.3
+
+		>=app-crypt/seahorse-41.0
+		>=app-editors/gedit-41
+		>=app-text/evince-41.3
+		>=gnome-extra/gnome-contacts-41.0
+		>=media-gfx/eog-41.1
+		>=media-video/totem-3.38.2
+		>=x11-terms/gnome-terminal-3.42.2
+
+		>=gnome-extra/gnome-user-docs-41.1
+		>=gnome-extra/yelp-41.2
+
+		>=x11-themes/adwaita-icon-theme-41.0
+
+		bluetooth? ( >=net-wireless/gnome-bluetooth-3.34.5 )
+		
+		classic? ( >=gnome-extra/gnome-shell-extensions-40.0 )
+	
 		gnome-extra/phosh-antispam
 		net-voip/gnome-calls
 		net-im/chatty
@@ -87,6 +145,7 @@ DEPEND="
 
 RDEPEND="${DEPEND}"
 BDEPEND=""
+PDEPEND=">=gnome-base/gvfs-1.48.0[udisks]"
 
 S="${WORKDIR}"
 
@@ -100,4 +159,8 @@ pkg_postinst() {
 			mv /usr/share/applications/$i.desktop /usr/share/applications-bak
 		fi
 	done
+	
+	# Remind people where to find our project information
+	elog "Please remember to look at https://wiki.gentoo.org/wiki/Project:GNOME"
+	elog "for information about the project and documentation."
 }
