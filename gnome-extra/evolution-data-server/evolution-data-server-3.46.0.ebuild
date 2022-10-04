@@ -117,7 +117,7 @@ src_configure() {
 		-DENABLE_LARGEFILE=ON
 		-DENABLE_VALA_BINDINGS=$(usex vala)
 		# Explicitly turn gtk4 off because gtk4webkit is not available yet
-		-DENABLE_GTK4=off
+		-DENABLE_GTK4=on
 	)
 
 	cmake_src_configure
