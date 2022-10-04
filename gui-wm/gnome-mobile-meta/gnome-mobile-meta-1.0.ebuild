@@ -3,14 +3,13 @@
 
 EAPI=7
 
-DESCRIPTION="Meta package for Phosh without squeekboard"
-HOMEPAGE="https://github.com/dreemurrs-embedded/Pine64-Arch"
+DESCRIPTION="Meta package for Gnome Mobile"
 SRC_URI=""
 
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm64 ~arm"
-IUSE="cawbird squeekboard chromium firefox geary lollypop owncloud nextcloud voicemail accessibility +bluetooth +classic cups python"
+IUSE="cawbird chromium firefox geary lollypop owncloud nextcloud voicemail accessibility +bluetooth +classic cups python"
 DEPEND="
 		>=dev-libs/glib-2.70.2:2
 		>=x11-libs/gdk-pixbuf-2.42.6:2
@@ -104,13 +103,11 @@ DEPEND="
 		sys-auth/rtkit
 		gnome-extra/sushi
 		media-gfx/eog
+		
 		cawbird? (
 			net-im/cawbird
 		)
 		
-		squeekboard? (
-			x11-misc/squeekboard
-		)
 		
 		chromium? (
 			www-client/chromium
