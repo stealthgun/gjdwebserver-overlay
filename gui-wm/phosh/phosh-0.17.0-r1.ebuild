@@ -63,11 +63,11 @@ src_prepare() {
 }
 
 src_configure() {
-	local mycmakeargs=(	
-	-Dsystemd=true
+	local emesonargs=(
+		-Dtests=false
+		-Dsystemd=true
 	)
-
-	cmake_src_configure
+	meson_src_configure
 }
 	
 src_install() {
