@@ -69,6 +69,8 @@ src_prepare() {
 src_configure() {
 	local emesonargs=(	
 	-Dsystemd=true
+	-Dtests=false
+	-Dphoc_tests=false
 	)
 
 	meson_src_configure

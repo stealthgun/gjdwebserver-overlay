@@ -71,6 +71,8 @@ src_configure() {
 		-Dtests=false
 		-Dxwayland=disabled
 		-Dgtk_doc=false
+		-Drenderers=gles2
+		-Dbackends=libinput
 	)
 	
 	meson_src_configure
