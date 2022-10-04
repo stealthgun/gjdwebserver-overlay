@@ -55,11 +55,14 @@ src_prepare() {
 
 	#Polkit fix
 	eapply "${FILESDIR}"/0001-Fix-for-polkit-120-and-higher.patch
+	eapply "${FILESDIR}"/0002-build-Adjust-to-polkit-version-changes.patch
 	
 	#Phosh patches
 	eapply "${FILESDIR}"/0001-system-prompt-allow-blank-passwords.patch
 	eapply "${FILESDIR}"/0002-fix-locale-issue.patch
 	eapply "${FILESDIR}"/0003-fix-locale-issue-in-service-file.patch
+
+
 }
 
 src_configure() {
