@@ -34,7 +34,7 @@ RDEPEND="
 	gnome-base/dconf
 	gnome-base/gsettings-desktop-schemas
 	gnome-base/gnome-settings-daemon
-	gnome-base/gnome-desktop
+	>=gnome-base/gnome-desktop-3.26
 	dev-util/vulkan-headers
 	sys-apps/systemd
 	x11-libs/libdrm
@@ -45,9 +45,8 @@ RDEPEND="
 	x11-libs/xcb-util-renderutil
 	x11-wm/mutter
 	sys-auth/seatd
-	sys-auth/seatd
 	x11-apps/xkbcomp
-	x11-libs/libdrm	
+	x11-libs/libxkbcommon
 	!gui-libs/wlroots
 "
 
@@ -70,6 +69,8 @@ src_configure() {
 	local emesonargs=(
 		-Dembed-wlroots=enabled 
 		-Dtests=false
+		-Dxwayland=disabled
+		-Dgtk_doc=false
 	)
 	
 	meson_src_configure
