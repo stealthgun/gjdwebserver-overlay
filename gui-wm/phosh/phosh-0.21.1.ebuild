@@ -70,7 +70,7 @@ src_configure() {
 	local emesonargs=(	
 	-Dsystemd=true
 	-Dtests=false
-	-Dphoc_tests=false
+	-Dphoc_tests=disabled
 	)
 
 	meson_src_configure
