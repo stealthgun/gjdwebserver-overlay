@@ -40,8 +40,11 @@ PATCHES=(
 	${FILESDIR}/5020_BMQ-and-PDS-io-scheduler-v5.19-r0.patch
 	${FILESDIR}/5021_BMQ-and-PDS-gentoo-defaults.patch
 
-	#PinePhone(Pro) Patches
+	# Drop Megi's Modem-Power
+	${FILESDIR}/0101-arm64-dts-pinephone-drop-modem-power-node.patch
 	${FILESDIR}/0102-arm64-dts-pinephone-pro-remove-modem-node.patch
+	
+	#PinePhone(Pro) Patches
 	${FILESDIR}/0103-arm64-dts-rk3399-pinephone-pro-add-modem-RI-pin.patch
 	${FILESDIR}/0103-ccu-sun50i-a64-reparent-clocks-to-lower-speed-oscillator.patch
 	${FILESDIR}/0104-PPP-Add-reset-resume-to-usb_wwan.patch
