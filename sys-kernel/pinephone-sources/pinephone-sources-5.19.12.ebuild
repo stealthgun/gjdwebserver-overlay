@@ -46,8 +46,6 @@ PATCHES=(
 	${FILESDIR}/0103-ccu-sun50i-a64-reparent-clocks-to-lower-speed-oscillator.patch
 	${FILESDIR}/0104-PPP-Add-reset-resume-to-usb_wwan.patch
 	${FILESDIR}/0104-quirk-kernel-org-bug-210681-firmware_rome_error.patch
-	${FILESDIR}/0104-Revert-usb-quirks-Add-USB_QUIRK_RESET-for-Quectel-EG25G.patch
-	${FILESDIR}/0104-rk818_charger-use-type-battery-again.patch
 	${FILESDIR}/0105-leds-gpio-make-max_brightness-configurable.patch
 	${FILESDIR}/0106-panic-led.patch
 	${FILESDIR}/0106-sound-rockchip-i2s-Dont-disable-mclk-on-suspend.patch
