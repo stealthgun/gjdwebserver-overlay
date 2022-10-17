@@ -51,10 +51,6 @@ PATCHES=(
 	${FILESDIR}/0105-leds-gpio-make-max_brightness-configurable.patch
 	${FILESDIR}/0106-panic-led.patch
 	${FILESDIR}/0106-sound-rockchip-i2s-Dont-disable-mclk-on-suspend.patch
-	${FILESDIR}/0201-revert-fbcon-remove-now-unusued-softback_lines-cursor-argument.patch
-	${FILESDIR}/0202-revert-fbcon-remove-no-op-fbcon_set_origin.patch
-	${FILESDIR}/0203-revert-fbcon-remove-soft-scrollback-code.patch
-
 )
 
 S="${WORKDIR}/linux-${MEGI_TAG}"
