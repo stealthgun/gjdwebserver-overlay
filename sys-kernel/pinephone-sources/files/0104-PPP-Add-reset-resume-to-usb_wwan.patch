@@ -1,0 +1,21 @@
+From 94ee175a91b2c132ca3068ee04cb2766c9f47cd7 Mon Sep 17 00:00:00 2001
+From: Hendrik Borghorst <hendrikborghorst@gmail.com>
+Date: Fri, 10 Jun 2022 15:36:29 +0200
+Subject: [PATCH] PPP: Add reset resume to usb_wwan
+
+---
+ drivers/usb/serial/option.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/drivers/usb/serial/option.c b/drivers/usb/serial/option.c
+index e60425bbf53764..08fb844c534bf6 100644
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -2176,6 +2176,7 @@ static struct usb_serial_driver option_1port_device = {
+ #ifdef CONFIG_PM
+ 	.suspend           = usb_wwan_suspend,
+ 	.resume            = usb_wwan_resume,
++	.reset_resume            = usb_wwan_resume,
+ #endif
+ };
+ 
