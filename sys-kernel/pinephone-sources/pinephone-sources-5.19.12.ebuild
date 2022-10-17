@@ -21,6 +21,12 @@ MEGI_TAG="orange-pi-5.19-20220909-1622"
 SRC_URI="https://github.com/megous/linux/archive/${MEGI_TAG}.tar.gz"
 
 PATCHES=(
+	#Patch kernel
+	${FILESDIR}/5.19.8-9.patch
+	${FILESDIR}/5.19.9-10.patch
+	${FILESDIR}/5.19.10-11.patch
+	${FILESDIR}/5.19.11-12.patch
+	
 	#Gentoo Patches
 	${FILESDIR}/1500_XATTR_USER_PREFIX.patch
 	${FILESDIR}/1510_fs-enable-link-security-restrictions-by-default.patch
@@ -34,7 +40,7 @@ PATCHES=(
 	${FILESDIR}/5020_BMQ-and-PDS-io-scheduler-v5.19-r0.patch
 	${FILESDIR}/5021_BMQ-and-PDS-gentoo-defaults.patch
 
-	#PinePhone Patches
+	#PinePhone(Pro) Patches
 	${FILESDIR}/0102-arm64-dts-pinephone-pro-remove-modem-node.patch
 	${FILESDIR}/0103-arm64-dts-rk3399-pinephone-pro-add-modem-RI-pin.patch
 	${FILESDIR}/0103-ccu-sun50i-a64-reparent-clocks-to-lower-speed-oscillator.patch
