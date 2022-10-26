@@ -60,6 +60,7 @@ CRATES="
   pkg-config-0.3.25
   fragile-0.3.0
   cc-1.0.73
+  quote-1.0.20
 "
 
 inherit cargo gnome2-utils meson toolchain-funcs xdg
