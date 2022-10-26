@@ -45,7 +45,7 @@ CRATES="
   gdk-pixbuf-0.7.0
   bitflags-1.2.1
   clap-2.33.4
-  fastrand-1.8.0
+  fastrand-1.7.0
   derivative-2.2.0
   autocfg-1.1.0
   serde_yaml-0.8.24
