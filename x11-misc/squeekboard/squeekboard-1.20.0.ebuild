@@ -39,7 +39,7 @@ CRATES="
   atk-0.7.0
   lazy_static-1.4.0
   indexmap-1.8.2
-  hashbrown-0.12.3
+  hashbrown-0.11.2
   pango-0.7.0
   glib-0.8.2
   gdk-pixbuf-0.7.0
