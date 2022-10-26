@@ -68,6 +68,7 @@ CRATES="
   regex-syntax-0.6.25
   dtoa-0.4.8
   instant-0.1.12
+  void-1.0.2
 "
 
 inherit cargo gnome2-utils meson toolchain-funcs xdg
