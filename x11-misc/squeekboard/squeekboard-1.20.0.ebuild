@@ -51,7 +51,7 @@ CRATES="
   serde_yaml-0.8.24
   xkbcommon-0.4.0
   unicode-width-0.1.9
-  unicode-ident-1.0.5
+  unicode-ident-1.0.1
   textwrap-0.11.0
   serde_repr-0.1.8
   serde_derive-1.0.137
