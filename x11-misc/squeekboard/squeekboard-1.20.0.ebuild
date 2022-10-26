@@ -48,7 +48,7 @@ CRATES="
   fastrand-1.8.0
   derivative-2.2.0
   autocfg-1.1.0
-  serde_yaml-0.8.26
+  serde_yaml-0.8.24
   xkbcommon-0.4.1
   unicode-width-0.1.10
   unicode-ident-1.0.5
