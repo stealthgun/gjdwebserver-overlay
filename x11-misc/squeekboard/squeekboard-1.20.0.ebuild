@@ -4,6 +4,7 @@
 EAPI=8
 
 CRATES="
+  cfg-if-0.1.10
   cfg-if-1.0.0
   ryu-1.0.10
   proc-macro-crate-0.1.5
