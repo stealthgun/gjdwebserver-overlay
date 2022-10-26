@@ -13,7 +13,7 @@ CRATES="
   zbus-1.0.0
   zvariant_derive-2.0.0
   toml-0.5.9
-  syn-1.0.103
+  syn-1.0.98
   byteorder-1.4.3
   zvariant-2.0.1
   enumflags2_derive-0.6.4
