@@ -38,7 +38,7 @@ CRATES="
   cairo-rs-0.7.1
   atk-0.7.0
   lazy_static-1.4.0
-  indexmap-1.9.1
+  indexmap-1.8.2
   hashbrown-0.12.3
   pango-0.7.0
   glib-0.8.2
