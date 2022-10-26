@@ -56,7 +56,7 @@ CRATES="
   serde_repr-0.1.8
   serde_derive-1.0.137
   serde-1.0.137
-  proc-macro2-1.0.47
+  proc-macro2-1.0.40
   pkg-config-0.3.25
   fragile-0.3.0
   cc-1.0.73
