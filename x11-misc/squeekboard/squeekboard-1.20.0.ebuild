@@ -5,7 +5,7 @@ EAPI=8
 
 CRATES="
   cfg-if-0.1.10
-  ryu-1.0.11
+  ryu-1.0.10
   proc-macro-crate-0.1.5
   scoped-tls-1.0.0
   yaml-rust-0.4.5
