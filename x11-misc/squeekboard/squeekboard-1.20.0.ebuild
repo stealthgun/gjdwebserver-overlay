@@ -54,8 +54,8 @@ CRATES="
   unicode-ident-1.0.5
   textwrap-0.11.0
   serde_repr-0.1.9
-  serde_derive-1.0.147
-  serde-1.0.147
+  serde_derive-1.0.137
+  serde-1.0.137
   proc-macro2-1.0.47
   pkg-config-0.3.26
 "
