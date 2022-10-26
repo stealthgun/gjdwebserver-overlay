@@ -57,7 +57,7 @@ CRATES="
   serde_derive-1.0.137
   serde-1.0.137
   proc-macro2-1.0.47
-  pkg-config-0.3.26
+  pkg-config-0.3.25
 "
 
 inherit cargo gnome2-utils meson toolchain-funcs xdg
