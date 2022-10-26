@@ -64,6 +64,10 @@ CRATES="
   winapi-0.3.9
   winapi-i686-pc-windows-gnu-0.4.0
   winapi-x86_64-pc-windows-gnu-0.4.0
+  regex-1.3.9
+  regex-syntax-0.6.25
+  dtoa-0.4.8
+  instant-0.1.12
 "
 
 inherit cargo gnome2-utils meson toolchain-funcs xdg
