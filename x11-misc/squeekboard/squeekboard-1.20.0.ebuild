@@ -53,7 +53,7 @@ CRATES="
   unicode-width-0.1.9
   unicode-ident-1.0.5
   textwrap-0.11.0
-  serde_repr-0.1.9
+  serde_repr-0.1.8
   serde_derive-1.0.137
   serde-1.0.137
   proc-macro2-1.0.47
