@@ -29,7 +29,7 @@ CRATES="
   gtk-sys-0.9.2
   gio-0.7.0
   cairo-sys-rs-0.9.2
-  libc-0.2.137
+  libc-0.2.126
   gtk-0.7.0
   gio-sys-0.9.1
   gdk-sys-0.9.1
