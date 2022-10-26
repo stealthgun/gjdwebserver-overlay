@@ -61,6 +61,9 @@ CRATES="
   fragile-0.3.0
   cc-1.0.73
   quote-1.0.20
+  winapi-0.3.9
+  winapi-i686-pc-windows-gnu-0.4.0
+  winapi-x86_64-pc-windows-gnu-0.4.0
 "
 
 inherit cargo gnome2-utils meson toolchain-funcs xdg
