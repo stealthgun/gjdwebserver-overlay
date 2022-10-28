@@ -1,0 +1,180 @@
+From 74c5f76718a93bf13d12e53432eb7348d4b91e28 Mon Sep 17 00:00:00 2001
+From: marcin <marcin@ipv8.pl>
+Date: Tue, 9 Aug 2022 07:02:06 +0200
+Subject: [PATCH] Port to libsoup-3.0
+
+---
+ src/dialogs/chatty-settings-dialog.c |  8 ++--
+ src/matrix/chatty-ma-account.c       |  5 +--
+ src/matrix/matrix-utils.c            | 58 ++++++++--------------------
+ src/matrix/matrix-utils.h            |  3 --
+ 4 files changed, 23 insertions(+), 51 deletions(-)
+
+diff --git a/src/dialogs/chatty-settings-dialog.c b/src/dialogs/chatty-settings-dialog.c
+index a2dbd1c..1b677d1 100644
+--- a/src/dialogs/chatty-settings-dialog.c
++++ b/src/dialogs/chatty-settings-dialog.c
+@@ -693,13 +693,13 @@ settings_homeserver_entry_changed (ChattySettingsDialog *self,
+   server = gtk_entry_get_text (entry);
+ 
+   if (server && *server) {
+-    g_autoptr(SoupURI) uri = NULL;
++    g_autoptr(GUri) uri = NULL;
+ 
+-    uri = soup_uri_new (gtk_entry_get_text (entry));
++    uri = g_uri_parse (gtk_entry_get_text (entry), SOUP_HTTP_URI_FLAGS, NULL);
+ 
+-    valid = SOUP_URI_VALID_FOR_HTTP (uri);
++    valid = !!uri;
+     /* We need an absolute path URI */
+-    valid = valid && *uri->host && g_str_equal (soup_uri_get_path (uri), "/");
++    valid = valid && *g_uri_get_host(uri) && g_str_equal (g_uri_get_path (uri), "/");
+   }
+ 
+   if (valid)
+diff --git a/src/matrix/chatty-ma-account.c b/src/matrix/chatty-ma-account.c
+index ba4838f..d9d8337 100644
+--- a/src/matrix/chatty-ma-account.c
++++ b/src/matrix/chatty-ma-account.c
+@@ -340,9 +340,8 @@ cm_account_sync_cb (ChattyMaAccount *self,
+              error->code, error->message);
+ 
+   if (error &&
+-      ((error->domain == SOUP_HTTP_ERROR &&
+-        error->code <= SOUP_STATUS_TLS_FAILED &&
+-        error->code > SOUP_STATUS_CANCELLED) ||
++      (error->domain == SOUP_TLD_ERROR ||
++       error->domain == G_TLS_ERROR ||
+        g_error_matches (error, G_IO_ERROR, G_IO_ERROR_NETWORK_UNREACHABLE) ||
+        g_error_matches (error, G_IO_ERROR, G_IO_ERROR_TIMED_OUT) ||
+        error->domain == G_RESOLVER_ERROR ||
+diff --git a/src/matrix/matrix-utils.c b/src/matrix/matrix-utils.c
+index 33c9c32..aec49f4 100644
+--- a/src/matrix/matrix-utils.c
++++ b/src/matrix/matrix-utils.c
+@@ -362,37 +362,6 @@ matrix_utils_json_object_get_array (JsonObject *object,
+   return NULL;
+ }
+ 
+-JsonObject *
+-matrix_utils_get_message_json_object (SoupMessage *message,
+-                                      const char  *member)
+-{
+-  g_autoptr(JsonParser) parser = NULL;
+-  g_autoptr(SoupBuffer) buffer = NULL;
+-  JsonObject *object = NULL;
+-  gboolean is_json;
+-
+-  if (!message || !message->response_body)
+-    return NULL;
+-
+-  buffer = soup_message_body_flatten (message->response_body);
+-  parser = json_parser_new ();
+-  is_json = json_parser_load_from_data (parser, buffer->data, buffer->length, NULL);
+-
+-  if (is_json) {
+-    JsonNode *root;
+-
+-    root = json_parser_get_root (parser);
+-
+-    if (root && JSON_NODE_HOLDS_OBJECT (root))
+-      object = json_node_get_object (root);
+-
+-    if (member && object)
+-      object = json_object_get_object_member (object, member);
+-  }
+-
+-  return object ? json_object_ref (object) : NULL;
+-}
+-
+ static gboolean
+ cancel_read_uri (gpointer user_data)
+ {
+@@ -446,16 +415,17 @@ matrix_utils_handle_ssl_error (SoupMessage *message)
+   GApplication *app;
+   GtkWidget *dialog;
+   GtkWindow *window = NULL;
+-  SoupURI *uri;
++  GUri *uri;
+   g_autofree char *msg = NULL;
+   const char *host;
+   GTlsCertificateFlags err_flags;
+   gboolean cancelled = FALSE;
+ 
+   if (!SOUP_IS_MESSAGE (message) ||
+-      !soup_message_get_https_status (message, &cert, &err_flags) ||
+-      !err_flags)
++      !(err_flags = soup_message_get_tls_peer_certificate_errors (message)))
+     return cancelled;
++  
++  cert = soup_message_get_tls_peer_certificate(message);
+ 
+   app = g_application_get_default ();
+   if (app)
+@@ -465,7 +435,7 @@ matrix_utils_handle_ssl_error (SoupMessage *message)
+     return cancelled;
+ 
+   uri = soup_message_get_uri (message);
+-  host = soup_uri_get_host (uri);
++  host = g_uri_get_host (uri);
+ 
+   switch (err_flags) {
+   case G_TLS_CERTIFICATE_UNKNOWN_CA:
+@@ -548,11 +518,8 @@ uri_file_read_cb (GObject      *object,
+     return;
+   }
+ 
+-  soup_message_get_https_status (message, NULL, &err_flags);
+-
+   if (message &&
+-      soup_message_get_https_status (message, NULL, &err_flags) &&
+-      err_flags) {
++      (err_flags = soup_message_get_tls_peer_certificate_errors (message))) {
+     guint timeout_id, timeout;
+ 
+     timeout = GPOINTER_TO_UINT (g_object_get_data (G_OBJECT (task), "timeout"));
+@@ -594,6 +561,14 @@ message_network_event_cb (SoupMessage        *msg,
+   g_object_set_data_full (user_data, "address", address, g_object_unref);
+ }
+ 
++static gboolean
++accept_certificate_callback (SoupMessage *msg, GTlsCertificate *certificate,
++                             GTlsCertificateFlags tls_errors, gpointer user_data)
++{
++    // Returning TRUE trusts it anyway.
++    return TRUE;
++}
++
+ void
+ matrix_utils_read_uri_async (const char          *uri,
+                              guint                timeout,
+@@ -640,9 +615,10 @@ matrix_utils_read_uri_async (const char          *uri,
+                            G_CALLBACK (message_network_event_cb), task,
+                            G_CONNECT_AFTER);
+   session = soup_session_new ();
+-  g_object_set (G_OBJECT (session), SOUP_SESSION_SSL_STRICT, FALSE, NULL);
++  /* Accept invalid certificates */
++  g_signal_connect (message, "accept-certificate", G_CALLBACK (accept_certificate_callback), NULL);
+ 
+-  soup_session_send_async (session, message, cancel,
++  soup_session_send_async (session, message, 0, cancel,
+                            uri_file_read_cb,
+                            g_steal_pointer (&task));
+ }
+diff --git a/src/matrix/matrix-utils.h b/src/matrix/matrix-utils.h
+index 7eff06a..2451581 100644
+--- a/src/matrix/matrix-utils.h
++++ b/src/matrix/matrix-utils.h
+@@ -43,9 +43,6 @@ JsonObject   *matrix_utils_json_object_get_object   (JsonObject    *object,
+ JsonArray    *matrix_utils_json_object_get_array    (JsonObject    *object,
+                                                      const char    *member);
+ 
+-JsonObject   *matrix_utils_get_message_json_object  (SoupMessage   *message,
+-                                                     const char    *member);
+-
+ void          matrix_utils_read_uri_async           (const char    *uri,
+                                                      guint          timeout,
+                                                      GCancellable  *cancellable,
+-- 
+2.37.1
+
