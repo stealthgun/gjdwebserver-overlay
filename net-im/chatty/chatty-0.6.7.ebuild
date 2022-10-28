@@ -20,7 +20,8 @@ SLOT="0"
 IUSE=""
 KEYWORDS="~arm64"
 
-DEPEND="	gnome-extra/evolution-data-server[phonenumber]
+DEPEND="	
+		<gnome-extra/evolution-data-server-3.46.0[phonenumber]
 		dev-libs/feedbackd
 		gui-libs/libhandy
 		x11-plugins/purple-mm-sms
