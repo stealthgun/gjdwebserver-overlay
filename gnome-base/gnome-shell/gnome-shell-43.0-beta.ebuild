@@ -23,7 +23,7 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}
 	?? ( elogind systemd )"
 RESTRICT="!test? ( test )"
 
-KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~riscv ~x86"
+KEYWORDS="~arm ~arm64"
 
 # libXfixes-5.0 needed for pointer barriers and #include <X11/extensions/Xfixes.h>
 DEPEND="
