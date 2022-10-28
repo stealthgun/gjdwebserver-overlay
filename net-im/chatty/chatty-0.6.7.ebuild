@@ -28,6 +28,7 @@ DEPEND="	gnome-extra/evolution-data-server[phonenumber]
 		dev-libs/libphonenumber
 		x11-libs/gtk+:3
 		net-im/jabber-base
+		x11-plugins/lurch
 "
 RDEPEND="${DEPEND}"
 BDEPEND="${DEPEND}"
@@ -39,7 +40,6 @@ src_prepare() {
 	eapply_user
 	rm -r "${S}"/subprojects/libgd || die
 	mv "${WORKDIR}"/libgd-"${LIBGD_COMMIT}" "${S}"/subprojects/libgd || die
-	rm -r "${S}"/tests || die	
 }
 
 pkg_postinst() {
