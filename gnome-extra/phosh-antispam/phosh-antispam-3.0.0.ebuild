@@ -16,7 +16,8 @@ KEYWORDS="~amd64 ~arm64"
 RDEPEND="
 	>=dev-libs/glib-2.44.0
 	>=x11-libs/gtk+-3.22.0
-	>=gui-libs/libhandy-1.0
+	>=gui-libs/libadwaita-1.2.0
+	>=net-voip/gnome-calls-41.0
 "
 
 DEPEND=""

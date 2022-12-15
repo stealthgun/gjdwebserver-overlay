@@ -8,6 +8,7 @@ inherit desktop gnome2-utils meson pam readme.gentoo-r1 systemd xdg
 MY_P="${PN}-v${PV}"
 LVC_COMMIT="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
 LCU_COMMIT="7e2f9e2db6515fb9c4650010c2a9ecb9796957e3"
+GMO_COMMIT="3035e22ff124ca7b80ac5a21fe114be442e4dde6"
 
 DESCRIPTION="A pure Wayland shell prototype for GNOME on mobile devices"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phosh/"
@@ -15,6 +16,7 @@ SRC_URI="
 	https://gitlab.gnome.org/World/Phosh/phosh/-/archive/v${PV}/${MY_P}.tar.gz
 	https://gitlab.gnome.org/GNOME/libgnome-volume-control/-/archive/${LVC_COMMIT}/libgnome-volume-control-${LVC_COMMIT}.tar.gz
 	https://gitlab.gnome.org/World/Phosh/libcall-ui/-/archive/${LCU_COMMIT}/libcall-ui-${LCU_COMMIT}.tar.gz
+	https://gitlab.gnome.org/guidog/gmobile/-/archive/${GMO_COMMIT}/gmobile-${GMO_COMMIT}.tar.gz
 "
 S="${WORKDIR}/${MY_P}"
 
@@ -55,6 +57,8 @@ src_prepare() {
 	mv "${WORKDIR}"/libgnome-volume-control-"${LVC_COMMIT}" "${S}"/subprojects/gvc || die
 	rm -r "${S}"/subprojects/libcall-ui || die
 	mv "${WORKDIR}"/libcall-ui-"${LCU_COMMIT}" "${S}"/subprojects/libcall-ui || die
+	rm -r "${S}"/subprojects/gmobile || die
+	mv "${WORKDIR}"/gmobile-"${GMO_COMMIT}" "${S}"/subprojects/gmobile || die
 	
 	#Polkit patch
 	eapply "${FILESDIR}"/0001-Gentoo-patch-for-polkit-120.patch
