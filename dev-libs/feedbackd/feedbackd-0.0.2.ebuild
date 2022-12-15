@@ -27,6 +27,7 @@ DEPEND="
 	media-libs/gsound
 	dev-libs/json-glib
 	dev-libs/libgudev:=
+	dev-libs/feedbackd-device-themes
 "
 RDEPEND="${DEPEND}
 	dev-libs/feedbackd-device-themes
