@@ -6,15 +6,12 @@ VALA_USE_DEPEND="vapigen"
 
 inherit vala meson udev
 
-GMO_COMMIT="1039e7808195d4de367ce2718481641ca8af2427"
-
+MY_PV="v${PV/_p/+git}"
+MY_P="${PN}-${MY_PV}"
 DESCRIPTION="A daemon to provide haptic feedback on events"
 HOMEPAGE="https://source.puri.sm/Librem5/feedbackd"
-SRC_URI="
-	https://source.puri.sm/Librem5/${PN}/-/archive/v${PV}/${PN}-v${PV}.tar.gz
-	https://gitlab.gnome.org/guidog/gmobile/-/archive/${GMO_COMMIT}/gmobile-${GMO_COMMIT}.tar.gz
-"
-S="${WORKDIR}/${PN}-v${PV}"
+SRC_URI="https://source.puri.sm/Librem5/${PN}/-/archive/${MY_PV}/${MY_P}.tar.gz -> ${P}.tar.gz"
+S="${WORKDIR}/${MY_P}"
 
 LICENSE="LGPL-3"
 KEYWORDS="~amd64 ~arm ~arm64 ~x86"
@@ -27,7 +24,6 @@ DEPEND="
 	media-libs/gsound
 	dev-libs/json-glib
 	dev-libs/libgudev:=
-	dev-libs/feedbackd-device-themes
 "
 RDEPEND="${DEPEND}
 	dev-libs/feedbackd-device-themes
@@ -42,20 +38,9 @@ src_prepare() {
 
 	use vala && vala_setup
 	sed -i 's/-G feedbackd/-G video/g' debian/feedbackd.udev || die
-	
-	rm -r "${S}"/subprojects/gmobile || die
-	mv "${WORKDIR}"/gmobile-"${GMO_COMMIT}" "${S}"/subprojects/gmobile || die
 }
 
 src_install() {
 	meson_src_install
 	udev_newrules "${S}/debian/feedbackd.udev" 90-feedbackd.rules
-}
-
-pkg_postinst() {
-	udev_reload
-}
-
-pkg_postrm() {
-	udev_reload
 }
