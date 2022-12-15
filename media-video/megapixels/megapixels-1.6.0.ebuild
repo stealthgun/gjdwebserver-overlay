@@ -27,6 +27,10 @@ DEPEND="
 RDEPEND="${DEPEND}"
 BDEPEND=""
 
+PATCHES=(
+	"${FILESDIR}"/8721f29e27f21111c439ee45f4ea76b56017d016.patch
+)	
+
 pkg_postinst() {
 	xdg_pkg_postinst
 	gnome2_schemas_update

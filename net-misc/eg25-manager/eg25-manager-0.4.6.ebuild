@@ -5,7 +5,7 @@ EAPI=7
 
 inherit meson systemd
 
-COMMIT="5b4f9bcc1205c4084049e8e627528e6e6beb3a98"
+COMMIT="e7790f941c053837e596dccd92ba97051a2d4cc1"
 
 DESCRIPTION="Daemon for managing the Quectel EG25 modem"
 HOMEPAGE="https://gitlab.com/mobian1/eg25-manager"

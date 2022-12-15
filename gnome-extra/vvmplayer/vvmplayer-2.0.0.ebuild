@@ -15,8 +15,8 @@ KEYWORDS="~amd64 ~arm64"
 
 RDEPEND="
 	>=dev-libs/glib-2.50
-	>=x11-libs/gtk+-3.22.0
-	>=gui-libs/libhandy-1.0
+	>=gui-libs/gtk-4.8.2
+	>=gui-libs/libadwaita-1.2.0
 	>=media-libs/gstreamer-1.16.0
 	gnome-extra/evolution-data-server
 	media-sound/callaudiod
