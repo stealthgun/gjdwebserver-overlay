@@ -6,9 +6,14 @@ VALA_USE_DEPEND="vapigen"
 
 inherit vala meson udev
 
+GMO_COMMIT="1039e7808195d4de367ce2718481641ca8af2427"
+
 DESCRIPTION="A daemon to provide haptic feedback on events"
 HOMEPAGE="https://source.puri.sm/Librem5/feedbackd"
-SRC_URI="https://source.puri.sm/Librem5/${PN}/-/archive/v${PV}/${PN}-v${PV}.tar.gz"
+SRC_URI="
+	https://source.puri.sm/Librem5/${PN}/-/archive/v${PV}/${PN}-v${PV}.tar.gz
+	https://gitlab.gnome.org/guidog/gmobile/-/archive/${GMO_COMMIT}/gmobile-${GMO_COMMIT}.tar.gz
+"
 S="${WORKDIR}/${PN}-v${PV}"
 
 LICENSE="LGPL-3"
@@ -36,6 +41,9 @@ src_prepare() {
 
 	use vala && vala_setup
 	sed -i 's/-G feedbackd/-G video/g' debian/feedbackd.udev || die
+	
+	rm -r "${S}"/subprojects/gmobile || die
+	mv "${WORKDIR}"/gmobile-"${GMO_COMMIT}" "${S}"/subprojects/gmobile || die
 }
 
 src_install() {
