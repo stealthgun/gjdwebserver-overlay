@@ -28,7 +28,9 @@ RDEPEND="${DEPEND}"
 BDEPEND=""
 
 PATCHES=(
-	"${FILESDIR}"/8721f29e27f21111c439ee45f4ea76b56017d016.patch
+	"${FILESDIR}"/06230f3a02cffdf8b683f85cb32fc256d73615d9.patch
+        "${FILESDIR}"/27a1e606d680295e0b4caceadf74ff5857ac16b2.patch
+        "${FILESDIR}"/d8b35bc223989cb165ba1b0716ab9f0ca9c43e53.patch
 )	
 
 pkg_postinst() {

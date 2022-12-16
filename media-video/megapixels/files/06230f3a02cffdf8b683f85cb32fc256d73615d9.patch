@@ -1,0 +1,23 @@
+From 06230f3a02cffdf8b683f85cb32fc256d73615d9 Mon Sep 17 00:00:00 2001
+From: kgmt0 <kritphong@teknik.io>
+Date: Sat, 2 Jul 2022 12:15:22 +0700
+Subject: [PATCH] device: Make mp_device_setup_link() support non-zero pad
+ indices
+
+---
+ src/device.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/device.c b/src/device.c
+index b4d5f80..9e2db00 100644
+--- a/src/device.c
++++ b/src/device.c
+@@ -197,7 +197,7 @@ mp_device_setup_link(MPDevice *device,
+         g_return_val_if_fail(sink_pad, false);
+ 
+         return mp_device_setup_entity_link(
+-                device, source_pad->entity_id, sink_pad->entity_id, 0, 0, enabled);
++                device, source_pad->entity_id, sink_pad->entity_id, source_pad->index, sink_pad->index, enabled);
+ }
+ 
+ bool

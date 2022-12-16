@@ -1,0 +1,130 @@
+From 27a1e606d680295e0b4caceadf74ff5857ac16b2 Mon Sep 17 00:00:00 2001
+From: kgmt0 <kritphong@teknik.io>
+Date: Thu, 1 Dec 2022 00:09:27 -0600
+Subject: [PATCH] Add media-formats and media-crops to the config file format
+
+---
+ src/camera_config.c | 61 +++++++++++++++++++++++++++++++++++++++++++++
+ src/camera_config.h | 23 +++++++++++++++++
+ 2 files changed, 84 insertions(+)
+
+diff --git a/src/camera_config.c b/src/camera_config.c
+index 6ff74d1..1102354 100644
+--- a/src/camera_config.c
++++ b/src/camera_config.c
+@@ -184,6 +184,67 @@ config_ini_handler(void *user,
+                                 ++cc->num_media_links;
+                         }
+                         g_strfreev(linkdefs);
++                } else if (strcmp(name, "media-formats") == 0) {
++                        struct mp_camera_config *cc = &cameras[index];
++                        char **formatdefs = g_strsplit(value, ",", 0);
++
++                        for (int i = 0; i < MP_MAX_FORMATS && formatdefs[i] != NULL;
++                             ++i) {
++                                char **entry = g_strsplit(formatdefs[i], ":", 5);
++                                char *name = entry[0];
++                                int pad = strtoint(entry[1], NULL, 10);
++                                char *format = entry[2];
++                                char *width = entry[3];
++                                char *height = entry[4];
++
++                                const size_t name_size =
++                                        sizeof(cc->media_formats[i].name);
++                                strncpy(cc->media_formats[i].name,
++                                        name,
++                                        name_size );
++
++                                cc->media_formats[i].pad = pad;
++
++                                cc->media_formats[i].mode.pixel_format =
++                                        mp_pixel_format_from_str(format);
++                                cc->media_formats[i].mode.width =
++                                        strtoint(width, NULL, 10);
++                                cc->media_formats[i].mode.height =
++                                        strtoint(height, NULL, 10);
++
++                                cc->num_media_formats++;
++
++                                g_strfreev(entry);
++                        }
++                } else if (strcmp(name, "media-crops") == 0) {
++                        char **formatdefs = g_strsplit(value, ",", 0);
++
++                        for (int i = 0; i < MP_MAX_CROPS && formatdefs[i] != NULL;
++                             ++i) {
++                                char **entry = g_strsplit(formatdefs[i], ":", 6);
++                                char *name = entry[0];
++                                int pad = strtoint(entry[1], NULL, 10);
++                                int top = strtoint(entry[2], NULL, 10);
++                                int left = strtoint(entry[3], NULL, 10);
++                                int width = strtoint(entry[4], NULL, 10);
++                                int height = strtoint(entry[5], NULL, 10);
++
++                                const size_t name_size =
++                                        sizeof(cc->media_crops[i].name);
++                                strncpy(cc->media_crops[i].name,
++                                        name,
++                                        name_size );
++
++                                cc->media_crops[i].pad = pad;
++                                cc->media_crops[i].top = top;
++                                cc->media_crops[i].left = left;
++                                cc->media_crops[i].width = width;
++                                cc->media_crops[i].height = height;
++
++                                cc->num_media_crops++;
++
++                                g_strfreev(entry);
++                        }
+                 } else if (strcmp(name, "colormatrix") == 0) {
+                         sscanf(value,
+                                "%f,%f,%f,%f,%f,%f,%f,%f,%f",
+diff --git a/src/camera_config.h b/src/camera_config.h
+index d53d36f..b1bd5a5 100644
+--- a/src/camera_config.h
++++ b/src/camera_config.h
+@@ -7,6 +7,8 @@
+ 
+ #define MP_MAX_CAMERAS 5
+ #define MP_MAX_LINKS 10
++#define MP_MAX_FORMATS 10
++#define MP_MAX_CROPS 10
+ 
+ struct mp_media_link_config {
+         char source_name[100];
+@@ -15,6 +17,21 @@ struct mp_media_link_config {
+         int target_port;
+ };
+ 
++struct mp_media_format_config {
++        char name[100];
++        int pad;
++        MPMode mode;
++};
++
++struct mp_media_crop_config {
++        char name[100];
++        int pad;
++        int left;
++        int top;
++        int width;
++        int height;
++};
++
+ struct mp_camera_config {
+         size_t index;
+ 
+@@ -30,6 +47,12 @@ struct mp_camera_config {
+         struct mp_media_link_config media_links[MP_MAX_LINKS];
+         int num_media_links;
+ 
++        struct mp_media_format_config media_formats[MP_MAX_FORMATS];
++        int num_media_formats;
++
++        struct mp_media_crop_config media_crops[MP_MAX_CROPS];
++        int num_media_crops;
++
+         float colormatrix[9];
+         float forwardmatrix[9];
+         float previewmatrix[9];
