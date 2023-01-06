@@ -10,7 +10,7 @@ SRC_URI=""
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm64 ~arm"
-IUSE="cawbird squeekboard chromium firefox geary lollypop owncloud nextcloud voicemail"
+IUSE="cawbird squeekboard chromium firefox geary lollypop owncloud nextcloud voicemail Tootle"
 
 DEPEND="
 		gui-wm/phosh
@@ -28,7 +28,6 @@ DEPEND="
 		gnome-extra/gnome-calendar
 		gnome-extra/gnome-clocks
 		gnome-extra/gnome-weather
-		gnome-extra/portfolio 
 		gnome-base/gnome-session
 		gnome-extra/gnome-system-monitor
 		media-gfx/gnome-screenshot
@@ -50,7 +49,10 @@ DEPEND="
 		cawbird? (
 			net-im/cawbird
 		)
-		
+		Tootle? (
+			net-im/Tootle
+		)
+			
 		squeekboard? (
 			x11-misc/squeekboard
 		)
