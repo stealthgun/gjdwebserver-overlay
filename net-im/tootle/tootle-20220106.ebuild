@@ -25,13 +25,17 @@ RDEPEND="
 	>=gui-libs/libadwaita-1.0
 	>=app-crypt/libsecret-0.20
 "
-DEPEND="${RDEPEND}"
 
+DEPEND="${RDEPEND}"
 
 BDEPEND="
 	$(vala_depend)
 	virtual/pkgconfig
 "
+src_prepare() {
+	default
+	vala_setup
+}
 
 pkg_postinst() {
 	gnome2_schemas_update
