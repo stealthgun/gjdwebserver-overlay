@@ -58,4 +58,15 @@ src_install() {
 		mkdir -p "${ED}"/usr/share/gtk-doc/html/ || die
 		mv "${ED}"/usr/share/doc/libfeedback-${SLOT} "${ED}"/usr/share/gtk-doc/html/ || die
 	fi
+
+	udev_newrules "${S}/debian/feedbackd.udev" 90-feedbackd.rules
+	systemd_newunit "${FILESDIR}"/org.sigxcpu.Feedback.service 'org.sigxcpu.Feedback.service'
+}
+
+pkg_postinst() {
+	udev_reload
+}
+
+pkg_postrm() {
+	udev_reload
 }

@@ -44,6 +44,7 @@ DEPEND="
 	app-misc/geoclue
         net-libs/libnma
         media-sound/callaudiod
+        media-libs/mesa[zink]
 "
 RDEPEND="${DEPEND}"
 BDEPEND="
@@ -86,6 +87,7 @@ src_install() {
 	newpamd "${FILESDIR}"/pam_phosh 'phosh'
 	systemd_newunit "${FILESDIR}"/phosh.service 'phosh.service'
 	domenu "${FILESDIR}"/sm.puri.OSK0.desktop
+	dobin "${FILESDIR}"/osk-wayland
 
 	DOC_CONTENTS="To amend the existing password policy please see the man 5 passwdqc.conf
 				page and then edit the /etc/security/passwdqc.conf file to change enforce=none
