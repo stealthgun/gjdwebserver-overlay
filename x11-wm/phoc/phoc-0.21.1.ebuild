@@ -67,10 +67,7 @@ src_prepare() {
 
 src_configure() {
 	local emesonargs=(
-		-Dembed-wlroots=enabled 
 		-Dtests=false
-		-Dxwayland=disabled
-		-Dgtk_doc=false
 	)
 	
 	meson_src_configure
