@@ -22,15 +22,17 @@ SRC_URI="
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
-IUSE="+introspection +systemd test"
+IUSE="+introspection +systemd test wayland"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
 	dev-libs/glib
 	dev-libs/gobject-introspection
 	dev-libs/libinput
-	dev-libs/wayland
-	dev-libs/wayland-protocols
+	wayland? (	dev-libs/wayland
+			dev-libs/wayland-protocols
+			
+		)
 	gnome-base/dconf
 	gnome-base/gsettings-desktop-schemas
 	gnome-base/gnome-settings-daemon
