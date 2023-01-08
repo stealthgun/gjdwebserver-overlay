@@ -17,41 +17,33 @@ DEPEND="${RDEPEND}
 
 DESCRIPTION="Full sources for the Linux kernel, with megi's patch for pinephone and gentoo patchset"
 
-MEGI_TAG="orange-pi-5.19-20220909-1622"
+MEGI_TAG="orange-pi-6.1-20230104-1712"
 SRC_URI="https://github.com/megous/linux/archive/${MEGI_TAG}.tar.gz"
 
 PATCHES=(
-	#Patch kernel
-	${FILESDIR}/5.19.8-9.patch
-	${FILESDIR}/5.19.9-10.patch
-	${FILESDIR}/5.19.10-11.patch
-	${FILESDIR}/5.19.11-12.patch
-	
+	#Kernel patch
+	${FILESDIR}/1003_linux-6.1.4.patch
+
 	#Gentoo Patches
 	${FILESDIR}/1500_XATTR_USER_PREFIX.patch
-	${FILESDIR}/1510_fs-enable-link-security-restrictions-by-default.patch
 	${FILESDIR}/1700_sparc-address-warray-bound-warnings.patch
 	${FILESDIR}/2000_BT-Check-key-sizes-only-if-Secure-Simple-Pairing-enabled.patch
 	${FILESDIR}/2900_tmp513-Fix-build-issue-by-selecting-CONFIG_REG.patch
+	${FILESDIR}/2910_bfp-mark-get-entry-ip-as--maybe-unused.patch
 	${FILESDIR}/2920_sign-file-patch-for-libressl.patch
 	${FILESDIR}/3000_Support-printing-firmware-info.patch
 	${FILESDIR}/4567_distro-Gentoo-Kconfig.patch
 	${FILESDIR}/5010_enable-cpu-optimizations-universal.patch
-	${FILESDIR}/5020_BMQ-and-PDS-io-scheduler-v5.19-r0.patch
-	${FILESDIR}/5021_BMQ-and-PDS-gentoo-defaults.patch
+	${FILESDIR}/5020_BMQ-and-PDS-io-scheduler-v6.1-r0.patch
+	${FILESDIR}/5021_sched-alt-missing-rq-lock-irq-function.patch
 
 	# Drop Megi's Modem-Power
 	${FILESDIR}/0101-arm64-dts-pinephone-drop-modem-power-node.patch
 	${FILESDIR}/0102-arm64-dts-pinephone-pro-remove-modem-node.patch
 	
-	#PinePhone(Pro) Patches
-	${FILESDIR}/0103-arm64-dts-rk3399-pinephone-pro-add-modem-RI-pin.patch
-	${FILESDIR}/0103-ccu-sun50i-a64-reparent-clocks-to-lower-speed-oscillator.patch
-	${FILESDIR}/0104-PPP-Add-reset-resume-to-usb_wwan.patch
-	${FILESDIR}/0104-quirk-kernel-org-bug-210681-firmware_rome_error.patch
-	${FILESDIR}/0105-leds-gpio-make-max_brightness-configurable.patch
-	${FILESDIR}/0106-panic-led.patch
-	${FILESDIR}/0106-sound-rockchip-i2s-Dont-disable-mclk-on-suspend.patch
+       	# PinePhonePro
+        ${FILESDIR}/0103-arm64-dts-rk3399-pinephone-pro-add-modem-RI-pin.patch
+
 )
 
 S="${WORKDIR}/linux-${MEGI_TAG}"
