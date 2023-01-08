@@ -7,7 +7,7 @@ PYTHON_COMPAT=( python3_{8..11} )
 inherit gnome.org gnome2-utils meson optfeature python-single-r1 virtualx xdg
 
 COMMIT="4ef0db259a1815d00656c3adab89df14f272067e"
-SRC_URI="https://gitlab.gnome.org/verdre/gnome-shell/-/archive/${COMMIT}/gnome-shell-${COMMIT}.tar.gz -> ${P}"
+SRC_URI="https://gitlab.gnome.org/verdre/gnome-shell/-/archive/${COMMIT}/gnome-shell-${COMMIT}.tar.gz -> ${P}.tar.gz"
 
 S=${WORKDIR}/gnome-shell-${COMMIT}
 
