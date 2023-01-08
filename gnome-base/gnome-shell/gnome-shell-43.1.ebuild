@@ -6,7 +6,7 @@ PYTHON_COMPAT=( python3_{8..11} )
 
 inherit gnome.org gnome2-utils meson optfeature python-single-r1 virtualx xdg
 
-COMMIT="4ef0db259a1815d00656c3adab89df14f272067e"
+COMMIT="b53a8823d8750ec7ebec7f7d87ea57f53e489ac9"
 SRC_URI="https://gitlab.gnome.org/verdre/gnome-shell/-/archive/${COMMIT}/gnome-shell-${COMMIT}.tar.gz -> ${P}.tar.gz"
 
 S=${WORKDIR}/gnome-shell-${COMMIT}
@@ -31,7 +31,7 @@ DEPEND="
 	>=dev-libs/gobject-introspection-1.49.1:=
 	>=dev-libs/gjs-1.73.1[cairo]
 	>=x11-libs/gtk+-3.15.0:3[introspection]
-	>=x11-wm/mutter-43.0:0/11[introspection,test?]
+	>=x11-wm/mutter-43.0:0/11[introspection,mobile,test?]
 	>=sys-auth/polkit-0.120_p20220509[introspection]
 	>=gnome-base/gsettings-desktop-schemas-42_beta[introspection]
 	>=x11-libs/startup-notification-0.11
