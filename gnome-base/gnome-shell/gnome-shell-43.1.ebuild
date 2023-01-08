@@ -7,7 +7,11 @@ PYTHON_COMPAT=( python3_{8..11} )
 inherit gnome.org gnome2-utils meson optfeature python-single-r1 virtualx xdg
 
 COMMIT="b53a8823d8750ec7ebec7f7d87ea57f53e489ac9"
-SRC_URI="https://gitlab.gnome.org/verdre/gnome-shell/-/archive/${COMMIT}/gnome-shell-${COMMIT}.tar.gz -> ${P}.tar.gz"
+LVC_COMMIT="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
+
+SRC_URI="https://gitlab.gnome.org/verdre/gnome-shell/-/archive/${COMMIT}/gnome-shell-${COMMIT}.tar.gz -> ${P}.tar.gz
+	 https://gitlab.gnome.org/GNOME/libgnome-volume-control/-/archive/${LVC_COMMIT}/libgnome-volume-control-${LVC_COMMIT}.tar.gz
+	 "
 
 S=${WORKDIR}/gnome-shell-${COMMIT}
 
@@ -139,6 +143,9 @@ PATCHES=(
 
 src_prepare() {
 	default
+	rm -r "${S}"/subprojects/gvc || die
+	mv "${WORKDIR}"/libgnome-volume-control-"${LVC_COMMIT}" "${S}"/subprojects/gvc || die
+		
 	xdg_environment_reset
 	# Hack in correct python shebang
 	sed -e "s:python\.full_path():'/usr/bin/env ${EPYTHON}':" -i src/meson.build || die
