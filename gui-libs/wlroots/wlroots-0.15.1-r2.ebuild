@@ -64,9 +64,9 @@ BDEPEND="
 
 PATCHES=( 
 	"${FILESDIR}"/wlroots-0.15.1-tinywl-dont-crash-upon-missing-keyboard.patch 
-	"${FILESDIR}"/13fcdba75cf5f21cfd49c1a05f4fa62f77619b40.patch 
-	"${FILESDIR}"/17b2b06633729f1826715c1d0b84614aa3cedb3a.patch 
-	"${FILESDIR}"/8dec751a6d84335fb04288b8efab6dd5c90288d3.patch 
+	#"${FILESDIR}"/13fcdba75cf5f21cfd49c1a05f4fa62f77619b40.patch 
+	#"${FILESDIR}"/17b2b06633729f1826715c1d0b84614aa3cedb3a.patch 
+	#"${FILESDIR}"/8dec751a6d84335fb04288b8efab6dd5c90288d3.patch 
 	"${FILESDIR}"/dd03d839ab56c3e5d7c607a8d76e58e0b75edb85.patch
 
 )
