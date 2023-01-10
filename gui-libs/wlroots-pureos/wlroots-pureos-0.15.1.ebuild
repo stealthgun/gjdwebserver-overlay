@@ -11,7 +11,6 @@ HOMEPAGE="https://gitlab.freedesktop.org/wlroots/wlroots"
 COMMIT="cb07c8c11a2a1db243c47a7b4ee4f47e46a21c8f"
 SRC_URI="https://source.puri.sm/Librem5/wlroots/-/archive/${COMMIT}/wlroots-${COMMIT}.tar.gz -> ${P}.tar.gz"
 KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~x86"
-SLOT="0/$(ver_cut 2)"i
 
 S=${WORKDIR}/wlroots-${COMMIT}
 
