@@ -1,0 +1,144 @@
+From 17b2b06633729f1826715c1d0b84614aa3cedb3a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Mon, 28 Feb 2022 13:49:32 +0100
+Subject: [PATCH] seat: Allow to cancel touches
+
+After cancelation we destroy the touch points associated with this
+surface as the Wayland spec says:
+
+No further events are sent to the clients from that particular gesture.
+Touch cancellation applies to all touch points currently active on this
+client's surface. The client is responsible for finalizing the touch
+points, future touch points on this surface may re-use the touch point
+ID.
+
+Closes: https://gitlab.freedesktop.org/wlroots/wlroots/-/issues/2999
+---
+ include/wlr/types/wlr_seat.h | 21 ++++++++++++++++--
+ types/seat/wlr_seat_touch.c  | 42 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 61 insertions(+), 2 deletions(-)
+
+diff --git a/include/wlr/types/wlr_seat.h b/include/wlr/types/wlr_seat.h
+index ebbcfd479..1946873ae 100644
+--- a/include/wlr/types/wlr_seat.h
++++ b/include/wlr/types/wlr_seat.h
+@@ -119,9 +119,11 @@ struct wlr_touch_grab_interface {
+ 	void (*enter)(struct wlr_seat_touch_grab *grab, uint32_t time_msec,
+ 			struct wlr_touch_point *point);
+ 	void (*frame)(struct wlr_seat_touch_grab *grab);
+-	// XXX this will conflict with the actual touch cancel which is different so
+-	// we need to rename this
++	// Cancel grab
+ 	void (*cancel)(struct wlr_seat_touch_grab *grab);
++	// Send wl_touch::cancel
++	void (*wl_cancel)(struct wlr_seat_touch_grab *grab,
++			struct wlr_surface *surface);
+ };
+ 
+ /**
+@@ -613,6 +615,14 @@ void wlr_seat_touch_send_up(struct wlr_seat *seat, uint32_t time_msec,
+ void wlr_seat_touch_send_motion(struct wlr_seat *seat, uint32_t time_msec,
+ 		int32_t touch_id, double sx, double sy);
+ 
++/**
++ * Notify the seat that this is a global gesture and the client should cancel
++ * processing it. The event will go to the client for the surface given.
++ * This function does not respect touch grabs: you probably want
++ * `wlr_seat_touch_notify_cancel()` instead.
++ */
++void wlr_seat_touch_send_cancel(struct wlr_seat *seat, struct wlr_surface *surface);
++
+ void wlr_seat_touch_send_frame(struct wlr_seat *seat);
+ 
+ /**
+@@ -639,6 +649,13 @@ void wlr_seat_touch_notify_up(struct wlr_seat *seat, uint32_t time_msec,
+ void wlr_seat_touch_notify_motion(struct wlr_seat *seat, uint32_t time_msec,
+ 		int32_t touch_id, double sx, double sy);
+ 
++/**
++ * Notify the seat that this is a global gesture and the client should
++ * cancel processing it. Defers to any grab of the touch device.
++ */
++void wlr_seat_touch_notify_cancel(struct wlr_seat *seat,
++		struct wlr_surface *surface);
++
+ void wlr_seat_touch_notify_frame(struct wlr_seat *seat);
+ 
+ /**
+diff --git a/types/seat/wlr_seat_touch.c b/types/seat/wlr_seat_touch.c
+index 65a8c7c06..abc17ae2c 100644
+--- a/types/seat/wlr_seat_touch.c
++++ b/types/seat/wlr_seat_touch.c
+@@ -41,6 +41,11 @@ static void default_touch_cancel(struct wlr_seat_touch_grab *grab) {
+ 	// cannot be cancelled
+ }
+ 
++static void default_touch_wl_cancel(struct wlr_seat_touch_grab *grab,
++		struct wlr_surface *surface) {
++	wlr_seat_touch_send_cancel(grab->seat, surface);
++}
++
+ const struct wlr_touch_grab_interface default_touch_grab_impl = {
+ 	.down = default_touch_down,
+ 	.up = default_touch_up,
+@@ -48,6 +53,7 @@ const struct wlr_touch_grab_interface default_touch_grab_impl = {
+ 	.enter = default_touch_enter,
+ 	.frame = default_touch_frame,
+ 	.cancel = default_touch_cancel,
++	.wl_cancel = default_touch_wl_cancel,
+ };
+ 
+ 
+@@ -238,6 +244,26 @@ void wlr_seat_touch_notify_frame(struct wlr_seat *seat) {
+ 	}
+ }
+ 
++void wlr_seat_touch_notify_cancel(struct wlr_seat *seat,
++		struct wlr_surface *surface) {
++	struct wlr_seat_touch_grab *grab = seat->touch_state.grab;
++	if (grab->interface->wl_cancel) {
++		grab->interface->wl_cancel(grab, surface);
++	}
++
++	struct wl_client *client = wl_resource_get_client(surface->resource);
++	struct wlr_seat_client *seat_client = wlr_seat_client_for_wl_client(seat, client);
++	if (seat_client == NULL) {
++		return;
++	}
++	struct wlr_touch_point *point, *tmp;
++	wl_list_for_each_safe(point, tmp, &seat->touch_state.touch_points, link) {
++		if (point->client == seat_client) {
++			touch_point_destroy(point);
++		}
++	}
++}
++
+ static void handle_point_focus_destroy(struct wl_listener *listener,
+ 		void *data) {
+ 	struct wlr_touch_point *point =
+@@ -376,6 +402,22 @@ void wlr_seat_touch_send_frame(struct wlr_seat *seat) {
+ 	}
+ }
+ 
++void wlr_seat_touch_send_cancel(struct wlr_seat *seat, struct wlr_surface *surface) {
++	struct wl_client *client = wl_resource_get_client(surface->resource);
++	struct wlr_seat_client *seat_client = wlr_seat_client_for_wl_client(seat, client);
++	if (seat_client == NULL) {
++		return;
++	}
++
++	struct wl_resource *resource;
++	wl_resource_for_each(resource, &seat_client->touches) {
++		if (seat_client_from_touch_resource(resource) == NULL) {
++			continue;
++		}
++		wl_touch_send_cancel(resource);
++	}
++}
++
+ int wlr_seat_touch_num_points(struct wlr_seat *seat) {
+ 	return wl_list_length(&seat->touch_state.touch_points);
+ }
+-- 
+GitLab
+
