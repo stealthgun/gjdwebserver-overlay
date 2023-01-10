@@ -8,8 +8,19 @@ inherit meson
 DESCRIPTION="Pluggable, composable, unopinionated modules for building a Wayland compositor with updates from pureos (for phoc)"
 HOMEPAGE="https://source.puri.sm/Librem5/wlroots"
 
-COMMIT="1f8bb9e0e3058fc31a14866dc52e8f83c1287a09"
-SRC_URI="https://source.puri.sm/Librem5/wlroots/-/archive/${COMMIT}/wlroots-${COMMIT}.tar.gz -> ${P}.tar.gz"
+#COMMIT="1f8bb9e0e3058fc31a14866dc52e8f83c1287a09"
+#SRC_URI="https://source.puri.sm/Librem5/wlroots/-/archive/${COMMIT}/wlroots-${COMMIT}.tar.gz -> ${P}.tar.gz"
+
+if [[ ${PV} == 9999 ]]; then
+	EGIT_REPO_URI="https://gitlab.freedesktop.org/${PN}/${PN}.git"
+	inherit git-r3
+	SLOT="0/9999"
+else
+	SRC_URI="https://gitlab.freedesktop.org/${PN}/${PN}/-/archive/${PV}/${P}.tar.gz"
+	KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~x86"
+	SLOT="0/$(ver_cut 2)"
+fi
+
 KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~x86"
 SLOT="0/$(ver_cut 2)"
 
@@ -51,7 +62,14 @@ BDEPEND="
 	virtual/pkgconfig
 "
 
-PATCHES=( "${FILESDIR}"/wlroots-0.15.1-tinywl-dont-crash-upon-missing-keyboard.patch )
+PATCHES=( 
+	"${FILESDIR}"/wlroots-0.15.1-tinywl-dont-crash-upon-missing-keyboard.patch 
+	"${FILESDIR}"/13fcdba75cf5f21cfd49c1a05f4fa62f77619b40.patch 
+	"${FILESDIR}"/17b2b06633729f1826715c1d0b84614aa3cedb3a.patch 
+	"${FILESDIR}"/8dec751a6d84335fb04288b8efab6dd5c90288d3.patch 
+	"${FILESDIR}"/dd03d839ab56c3e5d7c607a8d76e58e0b75edb85.patch
+
+)
 
 src_configure() {
 	# xcb-util-errors is not on Gentoo Repository (and upstream seems inactive?)
