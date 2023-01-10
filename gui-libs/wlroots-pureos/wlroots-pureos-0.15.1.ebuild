@@ -8,7 +8,7 @@ inherit meson
 DESCRIPTION="Pluggable, composable, unopinionated modules for building a Wayland compositor with updates from pureos (for phoc)"
 HOMEPAGE="https://source.puri.sm/Librem5/wlroots"
 
-COMMIT="cb07c8c11a2a1db243c47a7b4ee4f47e46a21c8f"
+COMMIT="1f8bb9e0e3058fc31a14866dc52e8f83c1287a09"
 SRC_URI="https://source.puri.sm/Librem5/wlroots/-/archive/${COMMIT}/wlroots-${COMMIT}.tar.gz -> ${P}.tar.gz"
 KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~x86"
 SLOT="0/$(ver_cut 2)"
