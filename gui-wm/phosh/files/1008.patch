@@ -1,0 +1,375 @@
+
+From 91637428127909ebabf3ea3ce7f6e251fd9e0382 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Tue, 18 Jan 2022 11:24:10 +0100
+Subject: [PATCH 1/2] app-grid-button: Add the adaptive property
+
+If false, the button will show an icon denoting desktop support only.
+---
+ data/icons/desktop-thin-small-symbolic.svg |  4 ++
+ src/app-grid-button.c                      | 63 +++++++++++++++++++++-
+ src/app-grid-button.h                      |  3 ++
+ src/phosh.gresources.xml                   |  1 +
+ src/ui/app-grid-button.ui                  | 25 +++++++--
+ 5 files changed, 89 insertions(+), 7 deletions(-)
+ create mode 100644 data/icons/desktop-thin-small-symbolic.svg
+
+diff --git a/data/icons/desktop-thin-small-symbolic.svg b/data/icons/desktop-thin-small-symbolic.svg
+new file mode 100644
+index 000000000..46111bd10
+--- /dev/null
++++ b/data/icons/desktop-thin-small-symbolic.svg
+@@ -0,0 +1,4 @@
++<svg width="8" height="8" version="1.1" viewBox="0 0 8 8" xmlns="http://www.w3.org/2000/svg">
++  <rect x="2" y="7" width="4" height="1" fill="#241f31"/>
++  <path d="m1.5 1c-0.82235 0-1.5 0.67765-1.5 1.5v2c0 0.82235 0.67765 1.5 1.5 1.5h5c0.82235 0 1.5-0.67765 1.5-1.5v-2c0-0.82235-0.67765-1.5-1.5-1.5zm0 1h5c0.28565 0 0.5 0.21435 0.5 0.5v2c0 0.28565-0.21435 0.5-0.5 0.5h-5c-0.28565 0-0.5-0.21435-0.5-0.5v-2c0-0.28565 0.21435-0.5 0.5-0.5z" color="#000000" fill="#241f31" stroke-dashoffset="26.4" stroke-linecap="square" stroke-linejoin="round"/>
++</svg>
+diff --git a/src/app-grid-button.c b/src/app-grid-button.c
+index f65c00b87..e66401772 100644
+--- a/src/app-grid-button.c
++++ b/src/app-grid-button.c
+@@ -22,12 +22,15 @@ struct _PhoshAppGridButtonPrivate {
+   GAppInfo *info;
+   gboolean is_favorite;
+   PhoshAppGridButtonMode mode;
++  gboolean adaptive;
+ 
+   gulong favorite_changed_watcher;
+ 
++  GtkWidget  *form_factor_desktop;
+   GtkWidget  *icon;
+   GtkWidget  *label;
+   GtkWidget  *popover;
++  GtkWidget  *title_box;
+   GtkGesture *gesture;
+ 
+   GMenu *menu;
+@@ -43,6 +46,7 @@ enum {
+   PROP_APP_INFO,
+   PROP_IS_FAVORITE,
+   PROP_MODE,
++  PROP_ADAPTIVE,
+   LAST_PROP
+ };
+ static GParamSpec *props[LAST_PROP];
+@@ -68,6 +72,9 @@ phosh_app_grid_button_set_property (GObject      *object,
+     case PROP_MODE:
+       phosh_app_grid_button_set_mode (self, g_value_get_enum (value));
+       break;
++    case PROP_ADAPTIVE:
++      phosh_app_grid_button_set_adaptive (self, g_value_get_boolean (value));
++      break;
+     default:
+       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+       break;
+@@ -93,6 +100,9 @@ phosh_app_grid_button_get_property (GObject    *object,
+     case PROP_MODE:
+       g_value_set_enum (value, phosh_app_grid_button_get_mode (self));
+       break;
++    case PROP_ADAPTIVE:
++      g_value_set_boolean (value, phosh_app_grid_button_get_adaptive (self));
++      break;
+     default:
+       G_OBJECT_WARN_INVALID_PROPERTY_ID (object, property_id, pspec);
+       break;
+@@ -229,14 +239,31 @@ phosh_app_grid_button_class_init (PhoshAppGridButtonClass *klass)
+                        G_PARAM_READWRITE |
+                        G_PARAM_EXPLICIT_NOTIFY);
+ 
++  /**
++   * PhoshAppGridButton:adaptive:
++   *
++   * Whether to set the button in adaptive mode.
++   *
++   * An icon will be shown when the app is expected to not adjust to a phone's
++   * screen size.
++   */
++  props[PROP_ADAPTIVE] =
++    g_param_spec_boolean ("adaptive", "", "",
++                          FALSE,
++                          G_PARAM_STATIC_STRINGS |
++                          G_PARAM_READWRITE |
++                          G_PARAM_EXPLICIT_NOTIFY);
++
+ 
+   g_object_class_install_properties (object_class, LAST_PROP, props);
+ 
+   gtk_widget_class_set_template_from_resource (widget_class, "/sm/puri/phosh/ui/app-grid-button.ui");
+ 
++  gtk_widget_class_bind_template_child_private (widget_class, PhoshAppGridButton, form_factor_desktop);
+   gtk_widget_class_bind_template_child_private (widget_class, PhoshAppGridButton, icon);
+   gtk_widget_class_bind_template_child_private (widget_class, PhoshAppGridButton, label);
+   gtk_widget_class_bind_template_child_private (widget_class, PhoshAppGridButton, popover);
++  gtk_widget_class_bind_template_child_private (widget_class, PhoshAppGridButton, title_box);
+ 
+   gtk_widget_class_bind_template_child_private (widget_class, PhoshAppGridButton, menu);
+   gtk_widget_class_bind_template_child_private (widget_class, PhoshAppGridButton, actions);
+@@ -555,10 +582,10 @@ phosh_app_grid_button_set_mode (PhoshAppGridButton     *self,
+ 
+   switch (mode) {
+     case PHOSH_APP_GRID_BUTTON_LAUNCHER:
+-      gtk_widget_set_visible (priv->label, TRUE);
++      gtk_widget_set_visible (priv->title_box, TRUE);
+       break;
+     case PHOSH_APP_GRID_BUTTON_FAVORITES:
+-      gtk_widget_set_visible (priv->label, FALSE);
++      gtk_widget_set_visible (priv->title_box, FALSE);
+       break;
+     default:
+       g_critical ("Invalid mode %i", mode);
+@@ -581,3 +608,35 @@ phosh_app_grid_button_get_mode (PhoshAppGridButton *self)
+ 
+   return priv->mode;
+ }
++
++
++void
++phosh_app_grid_button_set_adaptive (PhoshAppGridButton *self,
++                                        gboolean            adaptive)
++{
++  PhoshAppGridButtonPrivate *priv;
++
++  g_return_if_fail (PHOSH_IS_APP_GRID_BUTTON (self));
++  priv = phosh_app_grid_button_get_instance_private (self);
++
++  adaptive = !!adaptive;
++
++  if (priv->adaptive == adaptive)
++    return;
++
++  priv->adaptive = adaptive;
++
++  g_object_notify_by_pspec (G_OBJECT (self), props[PROP_ADAPTIVE]);
++}
++
++
++gboolean
++phosh_app_grid_button_get_adaptive (PhoshAppGridButton *self)
++{
++  PhoshAppGridButtonPrivate *priv;
++
++  g_return_val_if_fail (PHOSH_IS_APP_GRID_BUTTON (self), FALSE);
++  priv = phosh_app_grid_button_get_instance_private (self);
++
++  return priv->adaptive;
++}
+diff --git a/src/app-grid-button.h b/src/app-grid-button.h
+index 3e409f75c..7db4c3f51 100644
+--- a/src/app-grid-button.h
++++ b/src/app-grid-button.h
+@@ -51,5 +51,8 @@ gboolean               phosh_app_grid_button_is_favorite   (PhoshAppGridButton
+ void                   phosh_app_grid_button_set_mode      (PhoshAppGridButton     *self,
+                                                             PhoshAppGridButtonMode  mode);
+ PhoshAppGridButtonMode phosh_app_grid_button_get_mode      (PhoshAppGridButton     *self);
++void                   phosh_app_grid_button_set_adaptive  (PhoshAppGridButton     *self,
++                                                            gboolean                adaptive);
++gboolean               phosh_app_grid_button_get_adaptive  (PhoshAppGridButton     *self);
+ 
+ G_END_DECLS
+diff --git a/src/phosh.gresources.xml b/src/phosh.gresources.xml
+index 692f5e09d..7e53285f4 100644
+--- a/src/phosh.gresources.xml
++++ b/src/phosh.gresources.xml
+@@ -37,6 +37,7 @@
+     <file alias="auth-sim-locked-symbolic.svg">../data/icons/auth-sim-locked-symbolic.svg</file>
+     <file alias="auth-sim-missing-symbolic.svg">../data/icons/auth-sim-missing-symbolic.svg</file>
+     <file alias="camera-hardware-disabled-symbolic.svg">../data/icons/camera-hardware-disabled-symbolic.svg</file>
++    <file alias="desktop-thin-small-symbolic.svg">../data/icons/desktop-thin-small-symbolic.svg</file>
+     <file alias="eye-not-looking-symbolic.svg">../data/icons/eye-not-looking-symbolic.svg</file>
+     <file alias="eye-open-negative-filled-symbolic.svg">../data/icons/eye-open-negative-filled-symbolic.svg</file>
+     <file alias="feedback-quiet-symbolic.svg">../data/icons/feedback-quiet-symbolic.svg</file>
+diff --git a/src/ui/app-grid-button.ui b/src/ui/app-grid-button.ui
+index 98a017086..08fc0bdbc 100644
+--- a/src/ui/app-grid-button.ui
++++ b/src/ui/app-grid-button.ui
+@@ -48,12 +48,27 @@
+                   </packing>
+                 </child>
+                 <child>
+-                  <object class="PhoshFadingLabel" id="label">
+-                    <property name="visible">True</property>
+-                    <property name="can_focus">False</property>
+-                    <property name="no_show_all">True</property>
+-                    <property name="label" translatable="yes">App</property>
++                  <object class="GtkBox" id="title_box">
+                     <property name="halign">center</property>
++                    <property name="no-show-all">True</property>
++                    <property name="spacing">4</property>
++                    <property name="visible">True</property>
++                    <child>
++                      <object class="GtkImage" id="form_factor_desktop">
++                        <property name="icon-name">desktop-thin-small-symbolic</property>
++                        <property name="pixel-size">8</property>
++                        <property name="visible" bind-source="PhoshAppGridButton" bind-property="adaptive" bind-flags="sync-create|invert-boolean"/>
++                      </object>
++                    </child>
++                    <child>
++                      <object class="PhoshFadingLabel" id="label">
++                        <property name="visible">True</property>
++                        <property name="can_focus">False</property>
++                        <property name="no_show_all">True</property>
++                        <property name="label" translatable="yes">App</property>
++                        <property name="halign">center</property>
++                      </object>
++                    </child>
+                   </object>
+                   <packing>
+                     <property name="expand">False</property>
+-- 
+GitLab
+
+
+From b10f431e139e8c258aa93eff010be6847d90c333 Mon Sep 17 00:00:00 2001
+From: Adrien Plazas <kekun.plazas@laposte.net>
+Date: Wed, 26 Jan 2022 13:46:41 +0100
+Subject: [PATCH 2/2] app-grid: Show a desktop icon on non-adaptive apps
+
+This helps knowing which apps work everywhere and which ones only work
+on desktops.
+---
+ src/app-grid.c | 68 +++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 48 insertions(+), 20 deletions(-)
+
+diff --git a/src/app-grid.c b/src/app-grid.c
+index 276f08485..a6dd1a9a5 100644
+--- a/src/app-grid.c
++++ b/src/app-grid.c
+@@ -146,6 +146,45 @@ update_filter_adaptive_button (PhoshAppGrid *self)
+ }
+ 
+ 
++static gboolean
++app_is_adaptive (PhoshAppGrid *self, GDesktopAppInfo *info)
++{
++  PhoshAppGridPrivate *priv = phosh_app_grid_get_instance_private (self);
++  g_autofree char *mobile = NULL;
++  const char *id;
++
++  mobile = g_desktop_app_info_get_string (G_DESKTOP_APP_INFO (info),
++                                          "X-Purism-FormFactor");
++  if (mobile && strcasestr (mobile, "mobile;"))
++    return TRUE;
++
++  g_free (mobile);
++  mobile = g_desktop_app_info_get_string (G_DESKTOP_APP_INFO (info),
++                                          "X-KDE-FormFactor");
++  if (mobile && strcasestr (mobile, "handset;"))
++    return TRUE;
++
++  id = g_app_info_get_id (G_APP_INFO (info));
++  if (id && priv->force_adaptive && g_strv_contains ((const char * const*)priv->force_adaptive, id))
++    return TRUE;
++
++  return FALSE;
++}
++
++
++static void
++update_app_button_adaptive (GtkWidget *widget,
++                            gpointer   data)
++{
++  PhoshAppGridButton *button = PHOSH_APP_GRID_BUTTON (widget);
++  PhoshAppGrid *self = PHOSH_APP_GRID (data);
++  GAppInfo *info = phosh_app_grid_button_get_app_info (button);
++  gboolean adaptive = app_is_adaptive (self, G_DESKTOP_APP_INFO (info));
++
++  phosh_app_grid_button_set_adaptive (button, adaptive);
++}
++
++
+ static void
+ on_filter_setting_changed (PhoshAppGrid *self,
+                            GParamSpec   *pspec,
+@@ -158,7 +197,7 @@ on_filter_setting_changed (PhoshAppGrid *self,
+ 
+   priv = phosh_app_grid_get_instance_private (self);
+ 
+-  g_strfreev (priv->force_adaptive);
++  g_clear_pointer (&priv->force_adaptive, g_strfreev);
+   priv->force_adaptive = g_settings_get_strv (priv->settings,
+                                               "force-adaptive");
+   priv->filter_mode = g_settings_get_flags (priv->settings,
+@@ -168,6 +207,8 @@ on_filter_setting_changed (PhoshAppGrid *self,
+   gtk_widget_set_visible (priv->btn_adaptive, show);
+ 
+   gtk_filter_list_model_refilter (priv->model);
++
++  gtk_container_foreach (GTK_CONTAINER (priv->apps), update_app_button_adaptive, self);
+ }
+ 
+ 
+@@ -175,8 +216,6 @@ static gboolean
+ filter_adaptive (PhoshAppGrid *self, GDesktopAppInfo *info)
+ {
+   PhoshAppGridPrivate *priv = phosh_app_grid_get_instance_private (self);
+-  g_autofree char *mobile = NULL;
+-  const char *id;
+ 
+   if (!(priv->filter_mode & PHOSH_APP_FILTER_MODE_FLAGS_ADAPTIVE))
+     return TRUE;
+@@ -184,22 +223,7 @@ filter_adaptive (PhoshAppGrid *self, GDesktopAppInfo *info)
+   if (!priv->filter_adaptive)
+     return TRUE;
+ 
+-  mobile = g_desktop_app_info_get_string (G_DESKTOP_APP_INFO (info),
+-                                          "X-Purism-FormFactor");
+-  if (mobile && strcasestr (mobile, "mobile;"))
+-    return TRUE;
+-
+-  g_free (mobile);
+-  mobile = g_desktop_app_info_get_string (G_DESKTOP_APP_INFO (info),
+-                                          "X-KDE-FormFactor");
+-  if (mobile && strcasestr (mobile, "handset;"))
+-    return TRUE;
+-
+-  id = g_app_info_get_id (G_APP_INFO (info));
+-  if (id && g_strv_contains ((const char * const*)priv->force_adaptive, id))
+-    return TRUE;
+-
+-  return FALSE;
++  return app_is_adaptive (self, info);
+ }
+ 
+ 
+@@ -319,6 +343,7 @@ favorites_changed (GListModel   *list,
+ 
+   /* We don't show favorites in the main list, filter them out */
+   gtk_filter_list_model_refilter (priv->model);
++  gtk_container_foreach (GTK_CONTAINER (priv->apps), update_app_button_adaptive, self);
+ }
+ 
+ 
+@@ -332,6 +357,7 @@ create_launcher (gpointer item,
+                     G_CALLBACK (app_launched_cb), self);
+ 
+   gtk_widget_show (btn);
++  update_app_button_adaptive (btn, self);
+ 
+   return btn;
+ }
+@@ -410,7 +436,7 @@ phosh_app_grid_finalize (GObject *object)
+   PhoshAppGridPrivate *priv = phosh_app_grid_get_instance_private (self);
+ 
+   g_clear_pointer (&priv->search_string, g_free);
+-  g_strfreev (priv->force_adaptive);
++  g_clear_pointer (&priv->force_adaptive, g_strfreev);
+ 
+   G_OBJECT_CLASS (phosh_app_grid_parent_class)->finalize (object);
+ }
+@@ -447,6 +473,7 @@ do_search (PhoshAppGrid *self)
+   }
+ 
+   gtk_filter_list_model_refilter (priv->model);
++  gtk_container_foreach (GTK_CONTAINER (priv->apps), update_app_button_adaptive, self);
+ 
+   priv->debounce = 0;
+   return G_SOURCE_REMOVE;
+@@ -682,5 +709,6 @@ phosh_app_grid_set_filter_adaptive (PhoshAppGrid *self, gboolean enable)
+   update_filter_adaptive_button (self);
+ 
+   gtk_filter_list_model_refilter (priv->model);
++  gtk_container_foreach (GTK_CONTAINER (priv->apps), update_app_button_adaptive, self);
+   g_object_notify_by_pspec (G_OBJECT (self), props[PROP_FILTER_ADAPTIVE]);
+ }
+-- 
+GitLab

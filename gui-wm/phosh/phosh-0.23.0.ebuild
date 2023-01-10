@@ -68,6 +68,8 @@ src_prepare() {
 	eapply "${FILESDIR}"/0001-system-prompt-allow-blank-passwords.patch
 	eapply "${FILESDIR}"/0002-fix-locale-issue.patch
 	eapply "${FILESDIR}"/0003-fix-locale-issue-in-service-file.patch
+	eapply "${FILESDIR}"/977.patch
+	eapply "${FILESDIR}"/1008.patch
 
 }
 

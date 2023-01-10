@@ -46,7 +46,6 @@ RDEPEND="
 	x11-apps/xkbcomp
 	x11-libs/libxkbcommon
 	!gui-libs/wlroots
-	gui-libs/wlroots-pureos:0=
 "
 
 BDEPEND="
