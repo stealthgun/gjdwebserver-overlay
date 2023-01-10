@@ -16,24 +16,23 @@ SLOT="0/$(ver_cut 2)"
 S=${WORKDIR}/wlroots-${COMMIT}
 
 LICENSE="MIT"
-IUSE="+hwdata +seatd tinywl +udev vulkan x11-backend X"
+IUSE="tinywl vulkan x11-backend X"
 
 DEPEND="
 	>=dev-libs/libinput-1.14.0:0=
-	>=dev-libs/wayland-1.21.0
-	>=dev-libs/wayland-protocols-1.28
-	media-libs/mesa[egl(+),gles2]
-	hwdata? ( sys-apps/hwdata:= )
-	seatd? ( sys-auth/seatd:= )
-	udev? ( virtual/libudev )
+	>=dev-libs/wayland-1.20.0
+	>=dev-libs/wayland-protocols-1.24
+	media-libs/mesa[egl(+),gles2,gbm(+)]
+	sys-auth/seatd:=
+	virtual/libudev
 	vulkan? (
 		dev-util/glslang:0=
 		dev-util/vulkan-headers:0=
 		media-libs/vulkan-loader:0=
 	)
-	>=x11-libs/libdrm-2.4.114:0=
+	>=x11-libs/libdrm-2.4.109:0=
 	x11-libs/libxkbcommon
-	>=x11-libs/pixman-0.42.0:0=
+	x11-libs/pixman
 	x11-backend? ( x11-libs/libxcb:0= )
 	X? (
 		x11-base/xwayland
@@ -51,6 +50,8 @@ BDEPEND="
 	dev-util/wayland-scanner
 	virtual/pkgconfig
 "
+
+PATCHES=( "${FILESDIR}"/wlroots-0.15.1-tinywl-dont-crash-upon-missing-keyboard.patch )
 
 src_configure() {
 	# xcb-util-errors is not on Gentoo Repository (and upstream seems inactive?)
