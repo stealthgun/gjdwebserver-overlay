@@ -1,5 +1,25 @@
+From 17b2b06633729f1826715c1d0b84614aa3cedb3a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Mon, 28 Feb 2022 13:49:32 +0100
+Subject: [PATCH] seat: Allow to cancel touches
+
+After cancelation we destroy the touch points associated with this
+surface as the Wayland spec says:
+
+No further events are sent to the clients from that particular gesture.
+Touch cancellation applies to all touch points currently active on this
+client's surface. The client is responsible for finalizing the touch
+points, future touch points on this surface may re-use the touch point
+ID.
+
+Closes: https://gitlab.freedesktop.org/wlroots/wlroots/-/issues/2999
+---
+ include/wlr/types/wlr_seat.h | 21 ++++++++++++++++--
+ types/seat/wlr_seat_touch.c  | 42 ++++++++++++++++++++++++++++++++++++
+ 2 files changed, 61 insertions(+), 2 deletions(-)
+
 diff --git a/include/wlr/types/wlr_seat.h b/include/wlr/types/wlr_seat.h
-index ebbcfd479e2c8bec747f2ef37ca344eb8cb48645..1946873ae846dcb1b26596fa61962b08b1e57228 100644
+index ebbcfd479..1946873ae 100644
 --- a/include/wlr/types/wlr_seat.h
 +++ b/include/wlr/types/wlr_seat.h
 @@ -119,9 +119,11 @@ struct wlr_touch_grab_interface {
@@ -46,7 +66,7 @@ index ebbcfd479e2c8bec747f2ef37ca344eb8cb48645..1946873ae846dcb1b26596fa61962b08
  
  /**
 diff --git a/types/seat/wlr_seat_touch.c b/types/seat/wlr_seat_touch.c
-index 65a8c7c06c1d9ec35c68e0cb8e7b46ca3039fb3c..abc17ae2ce7a04bb1d533c794a754f30eb681375 100644
+index 65a8c7c06..abc17ae2c 100644
 --- a/types/seat/wlr_seat_touch.c
 +++ b/types/seat/wlr_seat_touch.c
 @@ -41,6 +41,11 @@ static void default_touch_cancel(struct wlr_seat_touch_grab *grab) {
@@ -119,3 +139,6 @@ index 65a8c7c06c1d9ec35c68e0cb8e7b46ca3039fb3c..abc17ae2ce7a04bb1d533c794a754f30
  int wlr_seat_touch_num_points(struct wlr_seat *seat) {
  	return wl_list_length(&seat->touch_state.touch_points);
  }
+-- 
+GitLab
+

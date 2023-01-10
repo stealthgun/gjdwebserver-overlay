@@ -1,5 +1,25 @@
+From dd03d839ab56c3e5d7c607a8d76e58e0b75edb85 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Fri, 25 Mar 2022 18:48:58 +0100
+Subject: [PATCH] xdg-activation: Deduplicate token creation code
+
+There were three places initializing a token:
+
+- wlr_xdg_activation_v1_add_token
+- wlr_xdg_activation_token_v1_create
+- activation_handle_get_activation_token
+
+The initialization of the token.destroy was missing in the first one. To
+prevent these functions from getting out of sync move the token creation
+into a common function.
+
+Fixes 4c59f7d4 ("xdg-activation: Allow to submit tokens")
+---
+ types/wlr_xdg_activation_v1.c | 42 +++++++++++++++++------------------
+ 1 file changed, 20 insertions(+), 22 deletions(-)
+
 diff --git a/types/wlr_xdg_activation_v1.c b/types/wlr_xdg_activation_v1.c
-index 02ba9e07f2b60857a3cdc1848f149c2d476161f7..c54364cccae258daea400724d4822bdb72f97fb5 100644
+index 02ba9e07f..c54364ccc 100644
 --- a/types/wlr_xdg_activation_v1.c
 +++ b/types/wlr_xdg_activation_v1.c
 @@ -248,15 +248,11 @@ static void activation_handle_destroy(struct wl_client *client,
@@ -81,3 +101,6 @@ index 02ba9e07f2b60857a3cdc1848f149c2d476161f7..c54364cccae258daea400724d4822bdb
  	token->token = strdup(token_str);
  
  	wl_list_insert(&activation->tokens, &token->link);
+-- 
+GitLab
+

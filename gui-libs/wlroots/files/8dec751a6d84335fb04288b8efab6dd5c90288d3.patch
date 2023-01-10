@@ -1,5 +1,20 @@
+From 8dec751a6d84335fb04288b8efab6dd5c90288d3 Mon Sep 17 00:00:00 2001
+From: Isaac Freund <ifreund@ifreund.xyz>
+Date: Fri, 9 Oct 2020 15:28:07 +0200
+Subject: [PATCH] layer-shell: error on 0 dimension without anchors
+
+The protocol requires clients to set opposing anchors when requesting
+a width or height of 0.
+
+The goal of this patch is not to break clients that rely on this
+behavior but to improve the consistency of the layer shell ecosystem
+through adherence to the protocol.
+---
+ types/wlr_layer_shell_v1.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
+
 diff --git a/types/wlr_layer_shell_v1.c b/types/wlr_layer_shell_v1.c
-index d83b22b8660273e13178c9d1899fd33c33d2a8d5..bc68111797552f06337eccd612c6230cfdac5f99 100644
+index d83b22b86..bc6811179 100644
 --- a/types/wlr_layer_shell_v1.c
 +++ b/types/wlr_layer_shell_v1.c
 @@ -307,6 +307,26 @@ static void layer_surface_role_commit(struct wlr_surface *wlr_surface) {
@@ -29,3 +44,6 @@ index d83b22b8660273e13178c9d1899fd33c33d2a8d5..bc68111797552f06337eccd612c6230c
  	if (surface->closed) {
  		// Ignore commits after the compositor has closed it
  		return;
+-- 
+GitLab
+
