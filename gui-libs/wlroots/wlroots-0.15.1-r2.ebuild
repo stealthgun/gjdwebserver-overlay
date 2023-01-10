@@ -24,7 +24,7 @@ fi
 KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~x86"
 SLOT="0/$(ver_cut 2)"
 
-S=${WORKDIR}/wlroots-${COMMIT}
+#S=${WORKDIR}/wlroots-${COMMIT}
 
 LICENSE="MIT"
 IUSE="tinywl vulkan x11-backend X"
