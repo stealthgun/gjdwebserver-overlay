@@ -59,8 +59,6 @@ PATCHES=(
 	
 )
 
-	"${FILESDIR}"/8dec751a6d84335fb04288b8efab6dd5c90288d3.patch
-
 src_configure() {
 	# xcb-util-errors is not on Gentoo Repository (and upstream seems inactive?)
 	local emesonargs=(
