@@ -44,7 +44,6 @@ DEPEND="
 	app-misc/geoclue
         net-libs/libnma
         media-sound/callaudiod
-        media-libs/mesa[zink]
 "
 RDEPEND="${DEPEND}"
 BDEPEND="

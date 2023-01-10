@@ -12,11 +12,8 @@ SRC_URI="https://gitlab.freedesktop.org/${PN}/${PN}/-/archive/${PV}/${P}.tar.gz"
 KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~x86"
 SLOT="0/$(ver_cut 2)"
 
-KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~x86"
-SLOT="0/$(ver_cut 2)"
-
 LICENSE="MIT"
-IUSE="tinywl vulkan x11-backend X +phoc"
+IUSE="tinywl vulkan x11-backend X"
 
 DEPEND="
 	>=dev-libs/libinput-1.14.0:0=
@@ -53,8 +50,8 @@ BDEPEND="
 
 PATCHES=( 
 	"${FILESDIR}"/wlroots-0.15.1-tinywl-dont-crash-upon-missing-keyboard.patch 
-	#"${FILESDIR}"/17b2b06633729f1826715c1d0b84614aa3cedb3a.patch
-	#"${FILESDIR}"/dd03d839ab56c3e5d7c607a8d76e58e0b75edb85.patch
+	"${FILESDIR}"/17b2b06633729f1826715c1d0b84614aa3cedb3a.patch
+	"${FILESDIR}"/dd03d839ab56c3e5d7c607a8d76e58e0b75edb85.patch
 	"${FILESDIR}"/9ed578d159.patch
 	
 )
