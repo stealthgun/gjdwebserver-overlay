@@ -20,17 +20,15 @@ SRC_URI="
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
-IUSE="+introspection +systemd test wayland"
+IUSE="+introspection +systemd test"
 RESTRICT="!test? ( test )"
 
 RDEPEND="
 	dev-libs/glib
 	dev-libs/gobject-introspection
 	dev-libs/libinput
-	wayland? (	dev-libs/wayland
-			dev-libs/wayland-protocols
-			
-		)
+	dev-libs/wayland
+	dev-libs/wayland-protocols
 	gnome-base/dconf
 	gnome-base/gsettings-desktop-schemas
 	gnome-base/gnome-settings-daemon
@@ -48,7 +46,7 @@ RDEPEND="
 	x11-apps/xkbcomp
 	x11-libs/libxkbcommon
 	!gui-libs/wlroots
-	>=gui-libs/wlroots-pureos-0.15.1
+	gui-libs/wlroots-pureos:0=
 "
 
 BDEPEND="

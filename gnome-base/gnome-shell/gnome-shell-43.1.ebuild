@@ -107,6 +107,7 @@ RDEPEND="${DEPEND}
 	x11-misc/xdg-utils
 
 	>=x11-themes/adwaita-icon-theme-3.26
+	dev-lang/sassc
 
 	networkmanager? (
 		net-misc/mobile-broadband-provider-info
