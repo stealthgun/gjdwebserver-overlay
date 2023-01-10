@@ -5,34 +5,38 @@ EAPI=8
 
 inherit meson
 
-DESCRIPTION="Pluggable, composable, unopinionated modules for building a Wayland compositor with updates from pureos (for phoc)"
-HOMEPAGE="https://source.puri.sm/Librem5/wlroots"
+DESCRIPTION="Pluggable, composable, unopinionated modules for building a Wayland compositor"
+HOMEPAGE="https://gitlab.freedesktop.org/wlroots/wlroots"
 
-SRC_URI="https://gitlab.freedesktop.org/${PN}/${PN}/-/archive/${PV}/${P}.tar.gz"
-KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~x86"
-SLOT="0/$(ver_cut 2)"
-
-KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~x86"
-SLOT="0/$(ver_cut 2)"
+if [[ ${PV} == 9999 ]]; then
+	EGIT_REPO_URI="https://gitlab.freedesktop.org/${PN}/${PN}.git"
+	inherit git-r3
+	SLOT="0/9999"
+else
+	SRC_URI="https://gitlab.freedesktop.org/${PN}/${PN}/-/archive/${PV}/${P}.tar.gz"
+	KEYWORDS="~amd64 ~arm64 ~loong ~ppc64 ~riscv ~x86"
+	SLOT="0/$(ver_cut 2)"
+fi
 
 LICENSE="MIT"
-IUSE="tinywl vulkan x11-backend X +phoc"
+IUSE="+hwdata +seatd tinywl +udev vulkan x11-backend X +phoc"
 
 DEPEND="
 	>=dev-libs/libinput-1.14.0:0=
-	>=dev-libs/wayland-1.20.0
-	>=dev-libs/wayland-protocols-1.24
-	media-libs/mesa[egl(+),gles2,gbm(+)]
-	sys-auth/seatd:=
-	virtual/libudev
+	>=dev-libs/wayland-1.21.0
+	>=dev-libs/wayland-protocols-1.28
+	media-libs/mesa[egl(+),gles2]
+	hwdata? ( sys-apps/hwdata:= )
+	seatd? ( sys-auth/seatd:= )
+	udev? ( virtual/libudev )
 	vulkan? (
 		dev-util/glslang:0=
 		dev-util/vulkan-headers:0=
 		media-libs/vulkan-loader:0=
 	)
-	>=x11-libs/libdrm-2.4.109:0=
+	>=x11-libs/libdrm-2.4.114:0=
 	x11-libs/libxkbcommon
-	x11-libs/pixman
+	>=x11-libs/pixman-0.42.0:0=
 	x11-backend? ( x11-libs/libxcb:0= )
 	X? (
 		x11-base/xwayland
@@ -50,9 +54,7 @@ BDEPEND="
 	dev-util/wayland-scanner
 	virtual/pkgconfig
 "
-
 PATCHES=( 
-	"${FILESDIR}"/wlroots-0.15.1-tinywl-dont-crash-upon-missing-keyboard.patch 
 	"${FILESDIR}"/dd03d839ab56c3e5d7c607a8d76e58e0b75edb85.patch
 )
 
