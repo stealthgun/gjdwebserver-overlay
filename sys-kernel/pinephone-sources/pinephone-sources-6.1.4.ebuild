@@ -43,7 +43,14 @@ PATCHES=(
 	
        	# PinePhonePro
         ${FILESDIR}/0103-arm64-dts-rk3399-pinephone-pro-add-modem-RI-pin.patch
-
+        
+        # Reparent clocks to lower speed-occillator
+        ${FILESDIR}/0103-ccu-sun50i-a64-reparent-clocks-to-lower-speed-oscillator.patch
+        # Quirk for Kernel-Bug 210681
+        ${FILESDIR}/0104-quirk-kernel-org-bug-210681-firmware_rome_error.patch
+        # LED patches
+        ${FILESDIR}/0105-leds-gpio-make-max_brightness-configurable.patch
+        ${FILESDIR}/0106-panic-led.patch
 )
 
 S="${WORKDIR}/linux-${MEGI_TAG}"
