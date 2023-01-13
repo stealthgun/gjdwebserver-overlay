@@ -10,7 +10,7 @@ DESCRIPTION="Mastodon client"
 HOMEPAGE="https://github.com/GeopJr/Tooth"
 SRC_URI="https://github.com/GeopJr/Tooth/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
 
-S="${WORKDIR}"/Thooth-${COMMIT}
+S="${WORKDIR}"/Tooth-${COMMIT}
 
 LICENSE="CC-BY-3.0 GPL-3+"
 SLOT="0"
