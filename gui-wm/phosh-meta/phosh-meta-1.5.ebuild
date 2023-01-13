@@ -10,7 +10,7 @@ SRC_URI=""
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm64 ~arm"
-IUSE="cawbird squeekboard chromium firefox geary lollypop owncloud nextcloud voicemail Tootle"
+IUSE="cawbird squeekboard chromium firefox geary lollypop owncloud nextcloud voicemail tooth"
 
 DEPEND="
 		gui-wm/phosh
@@ -49,8 +49,8 @@ DEPEND="
 		cawbird? (
 			net-im/cawbird
 		)
-		Tootle? (
-			net-im/Tootle
+		tooth? (
+			net-im/tooth
 		)
 			
 		squeekboard? (
@@ -58,7 +58,7 @@ DEPEND="
 		)
 		
 		chromium? (
-			www-client/chromium-bin-debian
+			www-client/chromium
 		)
 		
 		firefox? (
