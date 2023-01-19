@@ -40,6 +40,13 @@ src_prepare() {
 }
 
 src_configure() {
+	local emesonargs=(
+		$(meson_feature introspection)
+		$(meson_use gtk-doc gtk_doc)
+		$(meson_use man)
+		$(meson_use test tests)
+		$(meson_use vala vapi)
+	)
 	meson_src_configure
 }
 
