@@ -60,7 +60,8 @@ src_install() {
 	fi
 
 	udev_newrules "${S}/debian/feedbackd.udev" 90-feedbackd.rules
-	systemd_newunit "${FILESDIR}"/org.sigxcpu.Feedback.service 'org.sigxcpu.Feedback.service'
+	systemd_newunit "${FILESDIR}"/org.sigxcpu.Feedback .service 'org.sigxcpu.Feedback.service'
+	
 }
 
 pkg_postinst() {
