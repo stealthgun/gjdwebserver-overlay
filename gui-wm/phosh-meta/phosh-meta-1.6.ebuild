@@ -46,6 +46,7 @@ DEPEND="
 		gnome-extra/sushi
 		media-gfx/eog
 		x11-misc/phosh-mobile-settings
+		media-video/totem
 		cawbird? (
 			net-im/cawbird
 		)
