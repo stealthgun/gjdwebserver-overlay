@@ -21,6 +21,7 @@ RDEPEND="
 	>=media-plugins/alsa-plugins-1.2.6
 	>=media-libs/alsa-ucm-conf-1.2.6
 	>=media-video/pipewire-0.3.42
+	>=media-sound/bluez-alsa-3.1.0
 "
 DEPEND="${RDEPEND}"
 
