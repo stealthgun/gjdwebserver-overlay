@@ -18,6 +18,7 @@ IUSE="debug doc test udev"
 RDEPEND="
 	>=net-libs/gnutls-3.3:=
 	udev? ( virtual/libudev )
+	dev-python/ply
 "
 
 DEPEND="
