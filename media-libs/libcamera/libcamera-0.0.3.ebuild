@@ -10,8 +10,6 @@ DESCRIPTION="Camera support library for Linux"
 HOMEPAGE="http://libcamera.org"
 SRC_URI="https://github.com/libcamera-org/libcamera/archive/refs/tags/v${PV}.tar.gz"
 
-S="${WORKDIR}/v${PV}"
-
 LICENSE="LGPL-2.1+"
 SLOT="0"
 KEYWORDS="~arm64"
