@@ -28,7 +28,7 @@ DEPEND="
 "
 
 PATCHES=( 
-	"${FILESDIR}"/libcamera-devel-v6-2-5-ipa-rkisp1-add-FrameDurationLimits-control.diff
+	#"${FILESDIR}"/libcamera-devel-v6-2-5-ipa-rkisp1-add-FrameDurationLimits-control.diff
 	"${FILESDIR}"/libcamera-devel-v6-5-5-ipa-libcamera-add-support-for-ov8858-sensor.diff
 	)
 	
