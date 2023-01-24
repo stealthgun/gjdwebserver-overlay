@@ -13,8 +13,8 @@ SRC_URI="https://github.com/libcamera-org/libcamera/archive/refs/tags/v${PV}.tar
 S="${WORKDIR}/v${PV}"
 
 LICENSE="LGPL-2.1+"
-SLOT="0"
-KEYWORDS="*"
+LICENSE="BSD"
+KEYWORDS="~arm64"
 IUSE="debug doc test udev"
 
 RDEPEND="
