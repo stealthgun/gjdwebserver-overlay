@@ -1,0 +1,1029 @@
+From f77e28924e96f1377990a273b7a9c43e403f0a69 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Wed, 12 Oct 2022 10:59:40 +0200
+Subject: [PATCH 1/9] main: Untabify (MR 24)
+
+Don't mix tab and spaces. This makes untabifying after changes simpler.
+---
+ src/main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/src/main.c b/src/main.c
+index ea867ee..fd0a74c 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -373,9 +373,9 @@ preview_draw(GtkGLArea *area, GdkGLContext *ctx, gpointer data)
+                 GLfloat cos_rot = rotation_list[(4 + rotation_index - 1) % 4];
+                 GLfloat matrix[9] = {
+                         // clang-format off
+-			cos_rot,  sin_rot, 0,
+-			-sin_rot, cos_rot, 0,
+-			0,              0, 1,
++                        cos_rot,  sin_rot, 0,
++                        -sin_rot, cos_rot, 0,
++                        0,              0, 1,
+                         // clang-format on
+                 };
+                 glUniformMatrix3fv(blit_uniform_transform, 1, GL_FALSE, matrix);
+
+From aa6aca4765f267f76a0061a191c02c746178b6fe Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Fri, 14 Oct 2022 08:57:21 +0200
+Subject: [PATCH 2/9] ui: Use heading style for setting descrption (MR 24)
+
+---
+ data/camera.ui | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/data/camera.ui b/data/camera.ui
+index daea9c7..76cb820 100644
+--- a/data/camera.ui
++++ b/data/camera.ui
+@@ -258,6 +258,9 @@
+                             <property name="visible">True</property>
+                             <property name="halign">start</property>
+                             <property name="label">Postprocessor</property>
++                            <style>
++                              <class name="heading"/>
++                            </style>
+                           </object>
+                         </child>
+                         <child>
+
+From ca85be4e92600236c05492f2ca3fbe5ce4180095 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Wed, 12 Oct 2022 11:21:55 +0200
+Subject: [PATCH 3/9] ci: Add libfeedback-dev to build dependencies (MR 24)
+
+This will be used in the following commit
+---
+ .gitlab-ci.yml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/.gitlab-ci.yml b/.gitlab-ci.yml
+index 44e355e..98acabd 100644
+--- a/.gitlab-ci.yml
++++ b/.gitlab-ci.yml
+@@ -1,7 +1,7 @@
+ build:debian:
+   image: debian:bookworm-slim
+   before_script:
+-    - apt-get update && apt-get -y install gcc meson ninja-build git clang-format-14 libgtk-4-dev libtiff-dev libzbar-dev
++    - apt-get update && apt-get -y install gcc meson ninja-build git clang-format-14 libgtk-4-dev libtiff-dev libzbar-dev libfeedback-dev
+   script:
+     - meson build
+     - ninja -C build
+@@ -11,7 +11,7 @@ build:debian:
+ build:alpine:
+   image: alpine:edge
+   before_script:
+-    - apk add --no-cache build-base meson samurai gtk4.0-dev tiff-dev zbar-dev
++    - apk add --no-cache build-base meson samurai gtk4.0-dev tiff-dev zbar-dev feedbackd-dev
+   script:
+     - meson build
+     - ninja -C build
+
+From 0dbb5674450b27995764249abf4c9ecf82ae558a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Wed, 12 Oct 2022 10:49:26 +0200
+Subject: [PATCH 4/9] Use libfeedback to emit shutter sound (MR 24)
+
+This makes it simpler to notice that a picture was taken
+---
+ meson.build |  3 ++-
+ src/main.c  | 26 ++++++++++++++++++++++++--
+ 2 files changed, 26 insertions(+), 3 deletions(-)
+
+diff --git a/meson.build b/meson.build
+index a654aa4..5d17d3a 100644
+--- a/meson.build
++++ b/meson.build
+@@ -2,6 +2,7 @@ project('megapixels', 'c', version: '1.5.2')
+ 
+ gnome = import('gnome')
+ gtkdep = dependency('gtk4')
++libfeedback = dependency('libfeedback-0.0')
+ tiff = dependency('libtiff-4')
+ zbar = dependency('zbar')
+ threads = dependency('threads')
+@@ -50,7 +51,7 @@ executable('megapixels',
+   'src/zbar_pipeline.c',
+   resources,
+   include_directories: 'src/',
+-  dependencies: [gtkdep, libm, tiff, zbar, threads, epoxy],
++  dependencies: [gtkdep, libfeedback, libm, tiff, zbar, threads, epoxy],
+   install: true,
+   link_args: '-Wl,-ldl')
+ 
+diff --git a/src/main.c b/src/main.c
+index fd0a74c..57ca9d8 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -10,6 +10,8 @@
+ #include <errno.h>
+ #include <fcntl.h>
+ #include <gtk/gtk.h>
++#define LIBFEEDBACK_USE_UNSTABLE_API
++#include <libfeedback.h>
+ #include <limits.h>
+ #include <linux/kdev_t.h>
+ #include <linux/media.h>
+@@ -32,6 +34,8 @@
+ RENDERDOC_API_1_1_2 *rdoc_api = NULL;
+ #endif
+ 
++#define APP_ID "org.postmarketos.Megapixels"
++
+ enum user_control { USER_CONTROL_ISO, USER_CONTROL_SHUTTER };
+ 
+ static bool camera_is_initialized = false;
+@@ -75,6 +79,7 @@ GtkWidget *scanned_codes;
+ GtkWidget *preview_top_box;
+ GtkWidget *preview_bottom_box;
+ GtkWidget *flash_button;
++LfbEvent *capture_event;
+ 
+ GSettings *settings;
+ 
+@@ -516,6 +521,9 @@ run_capture_action(GSimpleAction *action, GVariant *param, gpointer user_data)
+ {
+         gtk_spinner_start(GTK_SPINNER(process_spinner));
+         gtk_stack_set_visible_child(GTK_STACK(open_last_stack), process_spinner);
++        if (capture_event)
++                lfb_event_trigger_feedback_async(capture_event, NULL, NULL, NULL);
++
+         mp_io_pipeline_capture();
+ }
+ 
+@@ -976,7 +984,6 @@ activate(GtkApplication *app, gpointer data)
+                      "gtk-application-prefer-dark-theme",
+                      TRUE,
+                      NULL);
+-
+         GdkDisplay *display = gdk_display_get_default();
+         GtkIconTheme *icon_theme = gtk_icon_theme_get_for_display(display);
+         gtk_icon_theme_add_resource_path(icon_theme, "/org/postmarketos/Megapixels");
+@@ -1108,6 +1115,17 @@ activate(GtkApplication *app, gpointer data)
+         gtk_widget_show(window);
+ }
+ 
++static void
++startup(GApplication *app, gpointer data)
++{
++        g_autoptr(GError) err = NULL;
++
++        if (lfb_init(APP_ID, &err))
++                capture_event = lfb_event_new("camera-shutter");
++        else
++                g_warning("Failed to init libfeedback: %s", err->message);
++}
++
+ static void
+ shutdown(GApplication *app, gpointer data)
+ {
+@@ -1115,6 +1133,9 @@ shutdown(GApplication *app, gpointer data)
+ #ifdef DEBUG
+         mp_io_pipeline_stop();
+         mp_flash_gtk_clean();
++
++        g_clear_object(&capture_event);
++        lfb_uninit();
+ #endif
+ }
+ 
+@@ -1141,8 +1162,9 @@ main(int argc, char *argv[])
+ 
+         setenv("LC_NUMERIC", "C", 1);
+ 
+-        GtkApplication *app = gtk_application_new("org.postmarketos.Megapixels", 0);
++        GtkApplication *app = gtk_application_new(APP_ID, 0);
+ 
++        g_signal_connect(app, "startup", G_CALLBACK(startup), NULL);
+         g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
+         g_signal_connect(app, "shutdown", G_CALLBACK(shutdown), NULL);
+ 
+
+From 5dd2ce30d07b6f39833fb28e99436567d2bd93cf Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Wed, 12 Oct 2022 21:15:00 +0200
+Subject: [PATCH 5/9] data: Make feedback support detectable for phosh (MR 24)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Settings apps that allow to tweak feedback per app need a way to detect
+if the app supports this. For phosh this happens via
+`X-Phosh-UsesFeedback` in the desktop file and results in the app
+showing up in the notification settings¹.
+
+1) https://gitlab.gnome.org/guidog/phosh-mobile-settings/-/raw/main/screenshots/feedback.png
+---
+ data/org.postmarketos.Megapixels.desktop | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/data/org.postmarketos.Megapixels.desktop b/data/org.postmarketos.Megapixels.desktop
+index e84effe..984d831 100644
+--- a/data/org.postmarketos.Megapixels.desktop
++++ b/data/org.postmarketos.Megapixels.desktop
+@@ -6,4 +6,5 @@ Type=Application
+ Categories=GTK;Photography;Graphics;
+ Icon=org.postmarketos.Megapixels
+ X-Purism-FormFactor=Workstation;Mobile;
++X-Phosh-UsesFeedback=true
+ StartupNotify=true
+
+From 9cb23ee0763058e9f8ab9343124398495122f39a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Fri, 14 Oct 2022 09:50:47 +0200
+Subject: [PATCH 6/9] Allow to toggle shutter sound on/off (MR 24)
+
+---
+ data/camera.ui | 31 +++++++++++++++++
+ src/main.c     | 94 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 125 insertions(+)
+
+diff --git a/data/camera.ui b/data/camera.ui
+index 76cb820..5686f81 100644
+--- a/data/camera.ui
++++ b/data/camera.ui
+@@ -282,6 +282,37 @@
+                             <property name="label">Save raw files</property>
+                           </object>
+                         </child>
++
++                        <child>
++                          <object class="GtkBox" id="feedback-box">
++                            <property name="orientation">vertical</property>
++                            <child>
++                              <object class="GtkLabel">
++                                <property name="halign">start</property>
++                                <property name="label">Feedback</property>
++                                <style>
++                                  <class name="heading"/>
++                                </style>
++                              </object>
++                            </child>
++                            <child>
++                              <object class="GtkBox" id="shutter-sound-box">
++                                <property name="orientation">horizontal</property>
++                                <property name="spacing">12</property>
++                                <child>
++                                  <object class="GtkLabel">
++                                    <property name="label" translatable="yes">Shutter sound</property>
++                                  </object>
++                                </child>
++                                <child>
++                                  <object class="GtkSwitch" id="shutter-sound-switch">
++                                  </object>
++                                </child>
++                              </object>
++                            </child>
++                          </object>
++                        </child>
++
+                       </object>
+                     </property>
+                   </object>
+diff --git a/src/main.c b/src/main.c
+index 57ca9d8..092b24c 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -82,6 +82,7 @@ GtkWidget *flash_button;
+ LfbEvent *capture_event;
+ 
+ GSettings *settings;
++GSettings *fb_settings;
+ 
+ int
+ remap(int value, int input_min, int input_max, int output_min, int output_max)
+@@ -977,6 +978,96 @@ on_screen_rotate(GDBusConnection *conn,
+         update_screen_rotation(conn);
+ }
+ 
++char *
++munge_app_id(const char *app_id)
++{
++        char *id = g_strdup(app_id);
++        int i;
++
++        if (g_str_has_suffix(id, ".desktop")) {
++                char *c = g_strrstr(id, ".desktop");
++                if (c)
++                        *c = '\0';
++        }
++
++        g_strcanon(id,
++                   "0123456789"
++                   "abcdefghijklmnopqrstuvwxyz"
++                   "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
++                   "-",
++                   '-');
++        for (i = 0; id[i] != '\0'; i++)
++                id[i] = g_ascii_tolower(id[i]);
++
++        return id;
++}
++
++/* Verbatim from feedbackd */
++#define FEEDBACKD_SCHEMA_ID "org.sigxcpu.feedbackd"
++#define FEEDBACKD_KEY_PROFILE "profile"
++#define FEEDBACKD_APP_SCHEMA FEEDBACKD_SCHEMA_ID ".application"
++#define FEEDBACKD_APP_PREFIX "/org/sigxcpu/feedbackd/application/"
++
++static gboolean
++fb_profile_to_state(GValue *value, GVariant *variant, gpointer user_data)
++{
++        const gchar *name;
++        gboolean state = FALSE;
++
++        name = g_variant_get_string(variant, NULL);
++
++        if (g_strcmp0(name, "full") == 0)
++                state = TRUE;
++
++        g_value_set_boolean(value, state);
++
++        return TRUE;
++}
++
++static GVariant *
++state_to_fb_profile(const GValue *value,
++                    const GVariantType *expected_type,
++                    gpointer user_data)
++{
++        gboolean state = g_value_get_boolean(value);
++
++        return g_variant_new_string(state ? "full" : "silent");
++}
++
++static void
++setup_fb_switch(GtkBuilder *builder)
++{
++        g_autofree char *path = NULL;
++        g_autofree char *munged_id = NULL;
++        g_autoptr(GSettingsSchema) schema = NULL;
++        GSettingsSchemaSource *schema_source =
++                g_settings_schema_source_get_default();
++        GtkWidget *shutter_sound_switch =
++                GTK_WIDGET(gtk_builder_get_object(builder, "shutter-sound-switch"));
++        GtkWidget *feedback_box =
++                GTK_WIDGET(gtk_builder_get_object(builder, "feedback-box"));
++
++        schema = g_settings_schema_source_lookup(
++                schema_source, FEEDBACKD_APP_SCHEMA, TRUE);
++        if (schema == NULL) {
++                gtk_widget_set_sensitive(feedback_box, FALSE);
++                return;
++        }
++
++        munged_id = munge_app_id(APP_ID);
++        path = g_strconcat(FEEDBACKD_APP_PREFIX, munged_id, "/", NULL);
++        fb_settings = g_settings_new_with_path(FEEDBACKD_APP_SCHEMA, path);
++        g_settings_bind_with_mapping(fb_settings,
++                                     FEEDBACKD_KEY_PROFILE,
++                                     shutter_sound_switch,
++                                     "active",
++                                     G_SETTINGS_BIND_DEFAULT,
++                                     fb_profile_to_state,
++                                     state_to_fb_profile,
++                                     NULL,
++                                     NULL);
++}
++
+ static void
+ activate(GtkApplication *app, gpointer data)
+ {
+@@ -1039,6 +1130,8 @@ activate(GtkApplication *app, gpointer data)
+         g_signal_connect(
+                 flash_button, "clicked", G_CALLBACK(flash_button_clicked), NULL);
+ 
++        setup_fb_switch(builder);
++
+         // Setup actions
+         create_simple_action(app, "capture", G_CALLBACK(run_capture_action));
+         create_simple_action(
+@@ -1134,6 +1227,7 @@ shutdown(GApplication *app, gpointer data)
+         mp_io_pipeline_stop();
+         mp_flash_gtk_clean();
+ 
++        g_clear_object(&fb_settings);
+         g_clear_object(&capture_event);
+         lfb_uninit();
+ #endif
+
+From e75eb375decfc84ca3e3fffc1b5e04bdd64439e9 Mon Sep 17 00:00:00 2001
+From: xad6 <xad6@posteo.net>
+Date: Mon, 15 Aug 2022 01:29:35 +0000
+Subject: [PATCH 7/9] detect rotation directly via X or Wayland
+
+Fixes #44
+
+This commit changes the way that screen rotation is detected. Instead of
+using Mutter's DBus interface, we now listen directly for X and Wayland
+events indicating the screen has been rotated (RRScreenChangeNotify and
+wl_output::geometry events). This has the advantage of working outside
+of Phosh.
+---
+ .gitlab-ci.yml |   4 +-
+ meson.build    |  14 ++-
+ src/main.c     | 236 +++++++++++++++++++++++++++++++++----------------
+ 3 files changed, 177 insertions(+), 77 deletions(-)
+
+diff --git a/.gitlab-ci.yml b/.gitlab-ci.yml
+index 98acabd..a738b25 100644
+--- a/.gitlab-ci.yml
++++ b/.gitlab-ci.yml
+@@ -1,7 +1,7 @@
+ build:debian:
+   image: debian:bookworm-slim
+   before_script:
+-    - apt-get update && apt-get -y install gcc meson ninja-build git clang-format-14 libgtk-4-dev libtiff-dev libzbar-dev libfeedback-dev
++    - apt-get update && apt-get -y install gcc meson ninja-build git clang-format-14 libgtk-4-dev libtiff-dev libzbar-dev libfeedback-dev libwayland-dev libx11-dev libxrandr-dev
+   script:
+     - meson build
+     - ninja -C build
+@@ -11,7 +11,7 @@ build:debian:
+ build:alpine:
+   image: alpine:edge
+   before_script:
+-    - apk add --no-cache build-base meson samurai gtk4.0-dev tiff-dev zbar-dev feedbackd-dev
++    - apk add --no-cache build-base meson samurai gtk4.0-dev tiff-dev zbar-dev feedbackd-dev wayland-dev libx11-dev libxrandr-dev
+   script:
+     - meson build
+     - ninja -C build
+diff --git a/meson.build b/meson.build
+index 5d17d3a..3b98f19 100644
+--- a/meson.build
++++ b/meson.build
+@@ -9,6 +9,18 @@ threads = dependency('threads')
+ # gl = dependency('gl')
+ epoxy      = dependency('epoxy')
+ 
++# We only build in support for Wayland/X11 if GTK did so
++optdeps = []
++if gtkdep.get_variable('targets').contains('wayland')
++  optdeps += dependency('gtk4-wayland')
++  optdeps += dependency('wayland-client')
++endif
++if gtkdep.get_variable('targets').contains('x11')
++  optdeps += dependency('gtk4-x11')
++  optdeps += dependency('x11')
++  optdeps += dependency('xrandr')
++endif
++
+ cc = meson.get_compiler('c')
+ libm = cc.find_library('m', required: false)
+ 
+@@ -51,7 +63,7 @@ executable('megapixels',
+   'src/zbar_pipeline.c',
+   resources,
+   include_directories: 'src/',
+-  dependencies: [gtkdep, libfeedback, libm, tiff, zbar, threads, epoxy],
++  dependencies: [gtkdep, libfeedback, libm, tiff, zbar, threads, epoxy] + optdeps,
+   install: true,
+   link_args: '-Wl,-ldl')
+ 
+diff --git a/src/main.c b/src/main.c
+index 092b24c..b2f983b 100644
+--- a/src/main.c
++++ b/src/main.c
+@@ -12,6 +12,15 @@
+ #include <gtk/gtk.h>
+ #define LIBFEEDBACK_USE_UNSTABLE_API
+ #include <libfeedback.h>
++#ifdef GDK_WINDOWING_WAYLAND
++#include <gdk/wayland/gdkwayland.h>
++#include <wayland-client.h>
++#endif
++#ifdef GDK_WINDOWING_X11
++#include <X11/Xlib.h>
++#include <X11/extensions/Xrandr.h>
++#include <gdk/x11/gdkx.h>
++#endif
+ #include <limits.h>
+ #include <linux/kdev_t.h>
+ #include <linux/media.h>
+@@ -918,66 +927,6 @@ update_ui_rotation()
+         }
+ }
+ 
+-static void
+-display_config_received(GDBusConnection *conn, GAsyncResult *res, gpointer user_data)
+-{
+-        g_autoptr(GError) error = NULL;
+-        g_autoptr(GVariant) result =
+-                g_dbus_connection_call_finish(conn, res, &error);
+-
+-        if (!result) {
+-                printf("Failed to get display configuration: %s\n", error->message);
+-                return;
+-        }
+-
+-        g_autoptr(GVariant) configs = g_variant_get_child_value(result, 1);
+-        if (g_variant_n_children(configs) == 0) {
+-                return;
+-        }
+-
+-        g_autoptr(GVariant) config = g_variant_get_child_value(configs, 0);
+-        g_autoptr(GVariant) rot_config = g_variant_get_child_value(config, 7);
+-        uint32_t rotation_index = g_variant_get_uint32(rot_config);
+-
+-        assert(rotation_index < 4);
+-        int new_rotation = rotation_index * 90;
+-
+-        if (new_rotation != device_rotation) {
+-                device_rotation = new_rotation;
+-                update_io_pipeline();
+-                update_ui_rotation();
+-        }
+-}
+-
+-static void
+-update_screen_rotation(GDBusConnection *conn)
+-{
+-        g_dbus_connection_call(conn,
+-                               "org.gnome.Mutter.DisplayConfig",
+-                               "/org/gnome/Mutter/DisplayConfig",
+-                               "org.gnome.Mutter.DisplayConfig",
+-                               "GetResources",
+-                               NULL,
+-                               NULL,
+-                               G_DBUS_CALL_FLAGS_NO_AUTO_START,
+-                               -1,
+-                               NULL,
+-                               (GAsyncReadyCallback)display_config_received,
+-                               NULL);
+-}
+-
+-static void
+-on_screen_rotate(GDBusConnection *conn,
+-                 const gchar *sender_name,
+-                 const gchar *object_path,
+-                 const gchar *interface_name,
+-                 const gchar *signal_name,
+-                 GVariant *parameters,
+-                 gpointer user_data)
+-{
+-        update_screen_rotation(conn);
+-}
+-
+ char *
+ munge_app_id(const char *app_id)
+ {
+@@ -1068,6 +1017,109 @@ setup_fb_switch(GtkBuilder *builder)
+                                      NULL);
+ }
+ 
++#ifdef GDK_WINDOWING_WAYLAND
++static void
++wl_handle_geometry(void *data,
++                   struct wl_output *wl_output,
++                   int32_t x,
++                   int32_t y,
++                   int32_t physical_width,
++                   int32_t physical_height,
++                   int32_t subpixel,
++                   const char *make,
++                   const char *model,
++                   int32_t transform)
++{
++        assert(transform < 4);
++        int new_rotation = transform * 90;
++
++        if (new_rotation != device_rotation) {
++                device_rotation = new_rotation;
++                update_io_pipeline();
++                update_ui_rotation();
++        }
++}
++
++static void
++wl_handle_mode(void *data,
++               struct wl_output *wl_output,
++               uint32_t flags,
++               int32_t width,
++               int32_t height,
++               int32_t refresh)
++{
++        // Do nothing
++}
++
++static const struct wl_output_listener output_listener = {
++        .geometry = wl_handle_geometry,
++        .mode = wl_handle_mode
++};
++
++static void
++wl_handle_global(void *data,
++                 struct wl_registry *wl_registry,
++                 uint32_t name,
++                 const char *interface,
++                 uint32_t version)
++{
++        if (strcmp(interface, wl_output_interface.name) == 0) {
++                struct wl_output *output =
++                        wl_registry_bind(wl_registry, name, &wl_output_interface, 1);
++                wl_output_add_listener(output, &output_listener, NULL);
++        }
++}
++
++static void
++wl_handle_global_remove(void *data, struct wl_registry *wl_registry, uint32_t name)
++{
++        // Do nothing
++}
++
++static const struct wl_registry_listener registry_listener = {
++        .global = wl_handle_global,
++        .global_remove = wl_handle_global_remove
++};
++#endif // GDK_WINDOWING_WAYLAND
++
++#ifdef GDK_WINDOWING_X11
++static gboolean
++xevent_handler(GdkDisplay *display, XEvent *xevent, gpointer data)
++{
++        Display *xdisplay = gdk_x11_display_get_xdisplay(display);
++        int event_base, error_base;
++        XRRQueryExtension(xdisplay, &event_base, &error_base);
++        if (xevent->type - event_base == RRScreenChangeNotify) {
++                Rotation xrotation =
++                        ((XRRScreenChangeNotifyEvent *)xevent)->rotation;
++                int new_rotation = 0;
++                switch (xrotation) {
++                case RR_Rotate_0:
++                        new_rotation = 0;
++                        break;
++                case RR_Rotate_90:
++                        new_rotation = 90;
++                        break;
++                case RR_Rotate_180:
++                        new_rotation = 180;
++                        break;
++                case RR_Rotate_270:
++                        new_rotation = 270;
++                        break;
++                }
++                if (new_rotation != device_rotation) {
++                        device_rotation = new_rotation;
++                        update_io_pipeline();
++                        update_ui_rotation();
++                }
++        }
++
++        // The return value of this function should always be FALSE; if it's
++        // TRUE, we prevent GTK/GDK from handling the event.
++        return FALSE;
++}
++#endif // GDK_WINDOWING_X11
++
+ static void
+ activate(GtkApplication *app, gpointer data)
+ {
+@@ -1184,22 +1236,58 @@ activate(GtkApplication *app, gpointer data)
+                         "active-id",
+                         G_SETTINGS_BIND_DEFAULT);
+ 
+-        // Listen for phosh rotation
+-        GDBusConnection *conn =
+-                g_application_get_dbus_connection(G_APPLICATION(app));
+-        g_dbus_connection_signal_subscribe(conn,
+-                                           NULL,
+-                                           "org.gnome.Mutter.DisplayConfig",
+-                                           "MonitorsChanged",
+-                                           "/org/gnome/Mutter/DisplayConfig",
+-                                           NULL,
+-                                           G_DBUS_SIGNAL_FLAGS_NONE,
+-                                           &on_screen_rotate,
+-                                           NULL,
+-                                           NULL);
+-        update_screen_rotation(conn);
++#ifdef GDK_WINDOWING_WAYLAND
++        // Listen for Wayland rotation
++        if (GDK_IS_WAYLAND_DISPLAY(display)) {
++                struct wl_display *wl_display =
++                        gdk_wayland_display_get_wl_display(display);
++                struct wl_registry *wl_registry =
++                        wl_display_get_registry(wl_display);
++                // The registry listener will bind to our wl_output and add our
++                // listeners
++                wl_registry_add_listener(wl_registry, &registry_listener, NULL);
++                // GTK will take care of dispatching wayland events for us.
++                // Wayland sends us a geometry event as soon as we bind to the
++                // wl_output, so we don't need to manually check the initial
++                // rotation here.
++        }
++#endif
++#ifdef GDK_WINDOWING_X11
++        // Listen for X rotation
++        if (GDK_IS_X11_DISPLAY(display)) {
++                g_signal_connect(
++                        display, "xevent", G_CALLBACK(xevent_handler), NULL);
++                // Set initial rotation
++                Display *xdisplay = gdk_x11_display_get_xdisplay(display);
++                int screen =
++                        XScreenNumberOfScreen(gdk_x11_display_get_xscreen(display));
++                Rotation xrotation;
++                XRRRotations(xdisplay, screen, &xrotation);
++                int new_rotation = 0;
++                switch (xrotation) {
++                case RR_Rotate_0:
++                        new_rotation = 0;
++                        break;
++                case RR_Rotate_90:
++                        new_rotation = 90;
++                        break;
++                case RR_Rotate_180:
++                        new_rotation = 180;
++                        break;
++                case RR_Rotate_270:
++                        new_rotation = 270;
++                        break;
++                }
++                if (new_rotation != device_rotation) {
++                        device_rotation = new_rotation;
++                        update_ui_rotation();
++                }
++        }
++#endif
+ 
+         // Initialize display flash
++        GDBusConnection *conn =
++                g_application_get_dbus_connection(G_APPLICATION(app));
+         mp_flash_gtk_init(conn);
+ 
+         mp_io_pipeline_start();
+
+From 1dc3d3d45535d2c37d3743775f3ab4768c8186c5 Mon Sep 17 00:00:00 2001
+From: Sebastian Krzyszkowiak <sebastian.krzyszkowiak@puri.sm>
+Date: Fri, 21 Jan 2022 15:03:32 +0100
+Subject: [PATCH 8/9] device: Always use a pair of driver and subdev names to
+ find the device (MR 9)
+
+Otherwise Megapixels fails to find the correct device on systems where
+there are multiple media devices handled by the same driver, like imx8mq.
+---
+ src/device.c        | 12 ++++---
+ src/device.h        |  5 +--
+ src/io_pipeline.c   | 12 ++++---
+ tools/camera_test.c | 84 ++++++++++++++++++++-------------------------
+ 4 files changed, 57 insertions(+), 56 deletions(-)
+
+diff --git a/src/device.c b/src/device.c
+index ac9744b..b4d5f80 100644
+--- a/src/device.c
++++ b/src/device.c
+@@ -74,11 +74,12 @@ xioctl(int fd, int request, void *arg)
+ }
+ 
+ MPDevice *
+-mp_device_find(const char *driver_name)
++mp_device_find(const char *driver_name, const char *dev_name)
+ {
+         MPDeviceList *list = mp_device_list_new();
+ 
+-        MPDevice *found_device = mp_device_list_find_remove(&list, driver_name);
++        MPDevice *found_device =
++                mp_device_list_find_remove(&list, driver_name, dev_name);
+ 
+         mp_device_list_free(list);
+ 
+@@ -476,7 +477,9 @@ mp_device_list_free(MPDeviceList *device_list)
+ }
+ 
+ MPDevice *
+-mp_device_list_find_remove(MPDeviceList **list, const char *driver_name)
++mp_device_list_find_remove(MPDeviceList **list,
++                           const char *driver_name,
++                           const char *dev_name)
+ {
+         MPDevice *found_device = NULL;
+         int length = strlen(driver_name);
+@@ -485,7 +488,8 @@ mp_device_list_find_remove(MPDeviceList **list, const char *driver_name)
+                 MPDevice *device = mp_device_list_get(*list);
+                 const struct media_device_info *info = mp_device_get_info(device);
+ 
+-                if (strncmp(info->driver, driver_name, length) == 0) {
++                if (strncmp(info->driver, driver_name, length) == 0 &&
++                    mp_device_find_entity(device, dev_name)) {
+                         found_device = mp_device_list_remove(list);
+                         break;
+                 }
+diff --git a/src/device.h b/src/device.h
+index a0e86fc..1894c67 100644
+--- a/src/device.h
++++ b/src/device.h
+@@ -12,7 +12,7 @@ mp_find_device_path(struct media_v2_intf_devnode devnode, char *path, int length
+ 
+ typedef struct _MPDevice MPDevice;
+ 
+-MPDevice *mp_device_find(const char *driver_name);
++MPDevice *mp_device_find(const char *driver_name, const char *dev_name);
+ MPDevice *mp_device_open(const char *path);
+ MPDevice *mp_device_new(int fd);
+ void mp_device_close(MPDevice *device);
+@@ -74,7 +74,8 @@ MPDeviceList *mp_device_list_new();
+ void mp_device_list_free(MPDeviceList *device_list);
+ 
+ MPDevice *mp_device_list_find_remove(MPDeviceList **device_list,
+-                                     const char *driver_name);
++                                     const char *driver_name,
++                                     const char *dev_name);
+ MPDevice *mp_device_list_remove(MPDeviceList **device_list);
+ 
+ MPDevice *mp_device_list_get(const MPDeviceList *device_list);
+diff --git a/src/io_pipeline.c b/src/io_pipeline.c
+index 1e46f97..58d9861 100644
+--- a/src/io_pipeline.c
++++ b/src/io_pipeline.c
+@@ -54,6 +54,7 @@ struct camera_info {
+ 
+ struct device_info {
+         const char *media_dev_name; // owned by camera config
++        const char *dev_name; // owned by camera config
+ 
+         MPDevice *device;
+ 
+@@ -132,8 +133,10 @@ setup_camera(MPDeviceList **device_list, const struct mp_camera_config *config)
+         // Find device info
+         size_t device_index = 0;
+         for (; device_index < num_devices; ++device_index) {
+-                if (strcmp(config->media_dev_name,
+-                           devices[device_index].media_dev_name) == 0) {
++                if ((strcmp(config->media_dev_name,
++                            devices[device_index].media_dev_name) == 0) &&
++                    (strcmp(config->dev_name, devices[device_index].dev_name) ==
++                     0)) {
+                         break;
+                 }
+         }
+@@ -144,8 +147,9 @@ setup_camera(MPDeviceList **device_list, const struct mp_camera_config *config)
+                 // Initialize new device
+                 struct device_info *info = &devices[device_index];
+                 info->media_dev_name = config->media_dev_name;
+-                info->device = mp_device_list_find_remove(device_list,
+-                                                          info->media_dev_name);
++                info->dev_name = config->dev_name;
++                info->device = mp_device_list_find_remove(
++                        device_list, info->media_dev_name, info->dev_name);
+                 if (!info->device) {
+                         g_printerr("Could not find /dev/media* node matching '%s'\n",
+                                    info->media_dev_name);
+diff --git a/tools/camera_test.c b/tools/camera_test.c
+index 11c0477..aa80121 100644
+--- a/tools/camera_test.c
++++ b/tools/camera_test.c
+@@ -19,22 +19,18 @@ get_time()
+ int
+ main(int argc, char *argv[])
+ {
+-        if (argc != 2 && argc != 3) {
+-                printf("Usage: %s <media_device_name> [<sub_device_name>]\n",
+-                       argv[0]);
++        if (argc != 3) {
++                printf("Usage: %s <media_device_name> <sub_device_name>\n", argv[0]);
+                 return 1;
+         }
+ 
+         char *video_name = argv[1];
+-        char *subdev_name = NULL;
+-        if (argc == 3) {
+-                subdev_name = argv[2];
+-        }
++        char *subdev_name = argv[2];
+ 
+         double find_start = get_time();
+ 
+         // First find the device
+-        MPDevice *device = mp_device_find(video_name);
++        MPDevice *device = mp_device_find(video_name, subdev_name);
+         if (!device) {
+                 printf("Device not found\n");
+                 return 1;
+@@ -73,50 +69,46 @@ main(int argc, char *argv[])
+         }
+ 
+         int subdev_fd = -1;
+-        if (subdev_name) {
+-                const struct media_v2_entity *entity =
+-                        mp_device_find_entity(device, subdev_name);
+-                if (!entity) {
+-                        printf("Unable to find sub-device\n");
+-                        return 1;
+-                }
++        const struct media_v2_entity *entity =
++                mp_device_find_entity(device, subdev_name);
++        if (!entity) {
++                printf("Unable to find sub-device\n");
++                return 1;
++        }
+ 
+-                const struct media_v2_pad *source_pad =
+-                        mp_device_get_pad_from_entity(device, entity->id);
+-                const struct media_v2_pad *sink_pad =
+-                        mp_device_get_pad_from_entity(device, video_entity_id);
+-
+-                // Disable other links
+-                const struct media_v2_entity *entities =
+-                        mp_device_get_entities(device);
+-                for (int i = 0; i < mp_device_get_num_entities(device); ++i) {
+-                        if (entities[i].id != video_entity_id &&
+-                            entities[i].id != entity->id) {
+-                                const struct media_v2_pad *pad =
+-                                        mp_device_get_pad_from_entity(
+-                                                device, entities[i].id);
+-                                mp_device_setup_link(
+-                                        device, pad->id, sink_pad->id, false);
+-                        }
++        const struct media_v2_pad *source_pad =
++                mp_device_get_pad_from_entity(device, entity->id);
++        const struct media_v2_pad *sink_pad =
++                mp_device_get_pad_from_entity(device, video_entity_id);
++
++        // Disable other links
++        const struct media_v2_entity *entities = mp_device_get_entities(device);
++        for (int i = 0; i < mp_device_get_num_entities(device); ++i) {
++                if (entities[i].id != video_entity_id &&
++                    entities[i].id != entity->id) {
++                        const struct media_v2_pad *pad =
++                                mp_device_get_pad_from_entity(device,
++                                                              entities[i].id);
++                        mp_device_setup_link(device, pad->id, sink_pad->id, false);
+                 }
++        }
+ 
+-                // Then enable ours
+-                mp_device_setup_link(device, source_pad->id, sink_pad->id, true);
++        // Then enable ours
++        mp_device_setup_link(device, source_pad->id, sink_pad->id, true);
+ 
+-                const struct media_v2_interface *iface =
+-                        mp_device_find_entity_interface(device, entity->id);
++        const struct media_v2_interface *iface =
++                mp_device_find_entity_interface(device, entity->id);
+ 
+-                char buf[256];
+-                if (!mp_find_device_path(iface->devnode, buf, 256)) {
+-                        printf("Unable to find sub-device path\n");
+-                        return 1;
+-                }
++        char buf[256];
++        if (!mp_find_device_path(iface->devnode, buf, 256)) {
++                printf("Unable to find sub-device path\n");
++                return 1;
++        }
+ 
+-                subdev_fd = open(buf, O_RDWR);
+-                if (subdev_fd == -1) {
+-                        printf("Unable to open sub-device\n");
+-                        return 1;
+-                }
++        subdev_fd = open(buf, O_RDWR);
++        if (subdev_fd == -1) {
++                printf("Unable to open sub-device\n");
++                return 1;
+         }
+ 
+         double open_end = get_time();
+
+From 444cacfa6ca4bbc7251d7d843b6e524d3831fcaf Mon Sep 17 00:00:00 2001
+From: Martijn Braam <martijn@brixit.nl>
+Date: Mon, 21 Nov 2022 21:35:25 +0100
+Subject: [PATCH 9/9] Workaround for camera enumeration (MR 9)
+
+The setup_camera() function removes found media devices
+from the device list on run but somehow avoids this on
+the pinephone due more bugs in the software. This makes
+it run with a clean list for every camera to fix this.
+
+The proper fix is dropping the whole setup_camera()
+procedure in the future.
+---
+ src/io_pipeline.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
+
+diff --git a/src/io_pipeline.c b/src/io_pipeline.c
+index 58d9861..8434420 100644
+--- a/src/io_pipeline.c
++++ b/src/io_pipeline.c
+@@ -277,18 +277,16 @@ setup_camera(MPDeviceList **device_list, const struct mp_camera_config *config)
+ static void
+ setup(MPPipeline *pipeline, const void *data)
+ {
+-        MPDeviceList *device_list = mp_device_list_new();
+-
+         for (size_t i = 0; i < MP_MAX_CAMERAS; ++i) {
+                 const struct mp_camera_config *config = mp_get_camera_config(i);
+                 if (!config) {
+                         break;
+                 }
+ 
++                MPDeviceList *device_list = mp_device_list_new();
+                 setup_camera(&device_list, config);
++                mp_device_list_free(device_list);
+         }
+-
+-        mp_device_list_free(device_list);
+ }
+ 
+ static void

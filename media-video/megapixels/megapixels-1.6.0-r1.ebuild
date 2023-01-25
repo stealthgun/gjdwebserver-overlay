@@ -28,10 +28,19 @@ RDEPEND="${DEPEND}"
 BDEPEND=""
 
 PATCHES=(
+	"${FILESDIR}"/8df7905...444cacf.patch
 	"${FILESDIR}"/06230f3a02cffdf8b683f85cb32fc256d73615d9.patch
         "${FILESDIR}"/27a1e606d680295e0b4caceadf74ff5857ac16b2.patch
         "${FILESDIR}"/d8b35bc223989cb165ba1b0716ab9f0ca9c43e53.patch
 )	
+
+src_configure() {
+	# 6.1 changes selfie cam name
+    	# https://github.com/megous/linux/commit/59ee4accb3997098c7b65fbf529ef3033ab1fd5a
+	sed -i -e 's/m00_f_ov8858/ov8858/g' 'config/pine64,pinephone-pro.ini'
+
+	meson_src_configure
+}
 
 pkg_postinst() {
 	xdg_pkg_postinst
