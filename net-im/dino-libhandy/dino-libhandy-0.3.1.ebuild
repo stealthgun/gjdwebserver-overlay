@@ -32,6 +32,7 @@ RDEPEND="
 	x11-libs/gdk-pixbuf:2
 	x11-libs/gtk+:3
 	x11-libs/pango
+	>=gui-libs/libadwaita-1.2.0
 	gpg? ( app-crypt/gpgme:= )
 	http? ( net-libs/libsoup:2.4 )
 	omemo? (
@@ -49,6 +50,8 @@ BDEPEND="
 	sys-devel/gettext
 	$(vala_depend)
 "
+
+S="${WORKDIR}/dino-${COMMIT}"
 
 src_configure() {
 	vala_setup
