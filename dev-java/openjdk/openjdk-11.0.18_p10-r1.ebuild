@@ -54,7 +54,7 @@ KEYWORDS="~amd64 ~arm ~arm64 ~ppc64 ~riscv ~x86"
 IUSE="alsa big-endian cups debug doc examples headless-awt +javafx +jbootstrap selinux source system-bootstrap systemtap"
 
 REQUIRED_USE="
-	javafx ( alsa !headless-awt )
+	alsa !headless-awt
 	!system-bootstrap? ( jbootstrap )
 "
 
@@ -101,7 +101,7 @@ DEPEND="
 	x11-libs/libXrender
 	x11-libs/libXt
 	x11-libs/libXtst
-	javafx? ( dev-java/openjfx:${SLOT}= )
+	dev-java/openjfx:${SLOT}=
 	system-bootstrap? (
 		|| (
 			dev-java/openjdk-bin:${SLOT}[gentoo-vm(+)]
