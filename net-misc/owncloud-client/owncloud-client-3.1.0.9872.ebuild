@@ -15,7 +15,7 @@ LICENSE="CC-BY-3.0 GPL-2"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64 ~x86"
 IUSE="dolphin gnome-keyring nautilus test"
-RESTRICT="!test? ( test )"
+RESTRICT="!test? ( test ) network-sandbox"
 
 RDEPEND=">=dev-db/sqlite-3.4:3
 	dev-libs/qtkeychain[gnome-keyring?,qt5(+)]
