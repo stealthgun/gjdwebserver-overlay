@@ -15,7 +15,7 @@ RESTRICT="!test? ( test )"
 
 KEYWORDS="~amd64 ~arm64"
 
-COMMIT="e35df88d4a00c3a34f2b4d9fb7f10bb5d877bd29"
+COMMIT="e833a924b5a66048506b4e0b0885ce2e35cac6fc"
 SRC_URI="https://github.com/dino/dino/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
 
 RDEPEND="
