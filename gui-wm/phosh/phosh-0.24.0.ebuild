@@ -8,7 +8,7 @@ inherit desktop gnome2-utils meson pam readme.gentoo-r1 systemd xdg
 MY_P="${PN}-v${PV}"
 LVC_COMMIT="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
 LCU_COMMIT="7e2f9e2db6515fb9c4650010c2a9ecb9796957e3"
-GMO_COMMIT="3035e22ff124ca7b80ac5a21fe114be442e4dde6"
+GMO_COMMIT="6504fa124438b79a2ad5687ac3ebef6d7a2c0823"
 
 DESCRIPTION="A pure Wayland shell prototype for GNOME on mobile devices"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phosh/"
