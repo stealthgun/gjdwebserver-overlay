@@ -12,7 +12,7 @@ SRC_URI="https://github.com/libcamera-org/libcamera/archive/refs/tags/v${PV}.tar
 
 LICENSE="LGPL-2.1+"
 SLOT="0"
-KEYWORDS="~arm64"
+KEYWORDS="~x86 ~amd64 ~arm64 ~arm"
 IUSE="debug doc test udev"
 
 RDEPEND="
@@ -25,13 +25,7 @@ DEPEND="
 	${RDEPEND}
 	dev-libs/openssl
 	$(python_gen_any_dep 'dev-python/pyyaml[${PYTHON_USEDEP}]')
-"
-
-PATCHES=( 
-	#"${FILESDIR}"/libcamera-devel-v6-2-5-ipa-rkisp1-add-FrameDurationLimits-control.diff
-	"${FILESDIR}"/libcamera-devel-v6-5-5-ipa-libcamera-add-support-for-ov8858-sensor.diff
-	)
-	
+"	
 	
 src_configure() {
 	local emesonargs=(
