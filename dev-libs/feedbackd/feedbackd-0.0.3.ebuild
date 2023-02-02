@@ -6,7 +6,7 @@ VALA_USE_DEPEND="vapigen"
 
 inherit vala meson udev
 
-GMO_COMMIT="1039e7808195d4de367ce2718481641ca8af2427"
+GMO_COMMIT="d483537aee4778b114ce5d50c4c8a9f8d58337ed"
 
 DESCRIPTION="A daemon to provide haptic feedback on events"
 HOMEPAGE="https://source.puri.sm/Librem5/feedbackd"
