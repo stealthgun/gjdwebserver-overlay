@@ -102,7 +102,7 @@ RDEPEND="
 	flatpak? (
 		dev-libs/glib
 	)
-	libcamera?(
+	libcamera? (
 		media-libs/libcamera
 	)		
 	gstreamer? (
