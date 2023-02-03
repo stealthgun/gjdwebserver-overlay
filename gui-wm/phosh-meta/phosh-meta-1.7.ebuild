@@ -47,7 +47,7 @@ DEPEND="
 		media-gfx/eog
 		x11-misc/phosh-mobile-settings
 		media-video/totem
-		media-video/pipewire[libcamera]
+		>=media-video/pipewire-0.3.65[libcamera]
 		cawbird? (
 			net-im/cawbird
 		)
