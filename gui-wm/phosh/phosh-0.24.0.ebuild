@@ -61,7 +61,7 @@ src_prepare() {
 	mv "${WORKDIR}"/gmobile-"${GMO_COMMIT}" "${S}"/subprojects/gmobile || die
 	
 	#Polkit patch
-	eapply "${FILESDIR}"/0001-Gentoo-patch-for-polkit-120.patch
+	#eapply "${FILESDIR}"/0001-Gentoo-patch-for-polkit-120.patch
 	
 	#Phosh patches
 	eapply "${FILESDIR}"/0001-system-prompt-allow-blank-passwords.patch
