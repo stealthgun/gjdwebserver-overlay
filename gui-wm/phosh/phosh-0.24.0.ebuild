@@ -60,12 +60,8 @@ src_prepare() {
 	rm -r "${S}"/subprojects/gmobile || die
 	mv "${WORKDIR}"/gmobile-"${GMO_COMMIT}" "${S}"/subprojects/gmobile || die
 	
-	#Polkit patch
-	#eapply "${FILESDIR}"/0001-Gentoo-patch-for-polkit-120.patch
-	
 	#Phosh patches
 	eapply "${FILESDIR}"/0001-system-prompt-allow-blank-passwords.patch
-	eapply "${FILESDIR}"/0002-fix-locale-issue.patch
 	eapply "${FILESDIR}"/0003-fix-locale-issue-in-service-file.patch
 	eapply "${FILESDIR}"/977.patch
 	eapply "${FILESDIR}"/1008.patch
