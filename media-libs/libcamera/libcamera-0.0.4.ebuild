@@ -25,11 +25,7 @@ DEPEND="
 	${RDEPEND}
 	dev-libs/openssl
 	$(python_gen_any_dep 'dev-python/pyyaml[${PYTHON_USEDEP}]')
-"	
-
-PATCHES=( 
-	"${FILESDIR}"/libcamera-devel-v6-5-5-ipa-libcamera-add-support-for-ov8858-sensor.diff
-	)	
+"		
 	
 src_configure() {
 	local emesonargs=(
