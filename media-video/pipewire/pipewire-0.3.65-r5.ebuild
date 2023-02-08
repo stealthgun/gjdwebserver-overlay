@@ -255,7 +255,7 @@ multilib_src_configure() {
 		-Dtest=disabled # fakesink and fakesource plugins
 		$(meson_native_use_feature lv2)
 		$(meson_native_use_feature v4l v4l2)
-		$(meson_native_use_bool libcamera)
+		$(meson_native_use_feature libcamera)
 		$(meson_native_use_feature readline)
 		$(meson_native_use_feature ssl raop)
 		-Dvideoconvert=enabled # Matches upstream
