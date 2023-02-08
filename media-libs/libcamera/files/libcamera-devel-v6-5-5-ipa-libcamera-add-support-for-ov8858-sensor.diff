@@ -1,0 +1,47 @@
+diff --git a/src/ipa/libipa/camera_sensor_helper.cpp b/src/ipa/libipa/camera_sensor_helper.cpp
+index 35056bec..f2040cbd 100644
+--- a/src/ipa/libipa/camera_sensor_helper.cpp
++++ b/src/ipa/libipa/camera_sensor_helper.cpp
+@@ -476,6 +476,17 @@ public:
+ };
+ REGISTER_CAMERA_SENSOR_HELPER("ov5693", CameraSensorHelperOv5693)
+ 
++class CameraSensorHelperOv8858 : public CameraSensorHelper
++{
++public:
++	CameraSensorHelperOv8858()
++	{
++		gainType_ = AnalogueGainLinear;
++		gainConstants_.linear = { 1, 0, 0, 16 };
++	}
++};
++REGISTER_CAMERA_SENSOR_HELPER("m00_f_ov8858", CameraSensorHelperOv8858)
++
+ class CameraSensorHelperOv8865 : public CameraSensorHelper
+ {
+ public:
+diff --git a/src/libcamera/camera_sensor_properties.cpp b/src/libcamera/camera_sensor_properties.cpp
+index e5f27f06..d0757c15 100644
+--- a/src/libcamera/camera_sensor_properties.cpp
++++ b/src/libcamera/camera_sensor_properties.cpp
+@@ -146,6 +146,20 @@ const CameraSensorProperties *CameraSensorProperties::get(const std::string &sen
+ 				 */
+ 			},
+ 		} },
++		{ "m00_f_ov8858", {
++			.unitCellSize = { 1200, 1200 },
++			.testPatternModes = {
++				{ controls::draft::TestPatternModeOff, 0 },
++				{ controls::draft::TestPatternModeColorBars, 1 },
++				/*
++				 * No best corresponding test pattern for:
++				 * 1: "Vertical Color Bar Type 1",
++				 * 2: "Vertical Color Bar Type 2",
++				 * 3: "Vertical Color Bar Type 3",
++				 * 4: "Vertical Color Bar Type 4"
++				 */
++			},
++		} },
+ 		{ "ov8865", {
+ 			.unitCellSize = { 1400, 1400 },
+ 			.testPatternModes = {
