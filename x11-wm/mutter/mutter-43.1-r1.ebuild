@@ -11,7 +11,7 @@ HOMEPAGE="https://gitlab.gnome.org/GNOME/mutter/"
 LICENSE="GPL-2+"
 SLOT="0/$(($(ver_cut 1) - 32))" # 0/libmutter_api_version - ONLY gnome-shell (or anything using mutter-clutter-<api_version>.pc) should use the subslot
 
-COMMIT="3be9031ee8233b1b09ea6b18c9c0a587d8ba6aa9"
+COMMIT="e6db996f6927095301e58ea11f444e634b914b93"
 SRC_URI="https://gitlab.gnome.org/verdre/mutter/-/archive/${COMMIT}/mutter-${COMMIT}.tar.gz -> ${P}.tar.gz"
 
 S=${WORKDIR}/mutter-${COMMIT}
