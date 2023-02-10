@@ -22,6 +22,7 @@ DEPEND="
 	media-libs/libraw
 	media-gfx/dcraw
 	media-gfx/imagemagick
+	media-gfx/argyllcms
 "
 
 RDEPEND="${DEPEND}"
