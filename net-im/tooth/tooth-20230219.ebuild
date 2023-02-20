@@ -5,7 +5,7 @@ EAPI=8
 
 inherit gnome2-utils meson vala xdg
 
-COMMIT="78a183fdae838bccd5ae7ec869948af3b4c5100a"
+COMMIT="cba807893069bf680adb74dfb66b637a9c868fdf"
 DESCRIPTION="Mastodon client"
 HOMEPAGE="https://github.com/GeopJr/Tooth"
 SRC_URI="https://github.com/GeopJr/Tooth/archive/${COMMIT}.tar.gz -> ${P}.tar.gz"
