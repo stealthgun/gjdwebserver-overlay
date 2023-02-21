@@ -1,0 +1,18 @@
+commit c89bac20537ae63779fef5403b21f9af9b435223
+Author: Gerben Jan Dijkman <gjdijkman@gjdwebserver.nl>
+Date:   Tue Feb 21 15:12:55 2023 +0100
+
+    Removed for Gentoo Linux
+
+diff --git a/src/meson.build b/src/meson.build
+index f46e5d1..0cca8d5 100644
+--- a/src/meson.build
++++ b/src/meson.build
+@@ -28,7 +28,6 @@ camera_deps = [
+ 
+ camera_sources += camera_gresources
+ 
+-commit_hash = run_command('git', ['rev-parse', '--short=8', 'HEAD'], check: true).stdout().strip()
+ camera_c_args = [
+   '-DHANDY_USE_UNSTABLE_API',
+   '-DCAMERA_APPLICATION_ID="@0@"'.format(application_id),

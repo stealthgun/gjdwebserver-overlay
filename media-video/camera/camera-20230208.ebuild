@@ -25,6 +25,10 @@ DEPEND="
 RDEPEND="${DEPEND}"
 BDEPEND=""
 
+PATCHES=(
+	"${FILESDIR}"/gentoo-linux-patch.patch
+)
+
 S="${WORKDIR}/camera-${COMMIT}"
 
 src_prepare() {
