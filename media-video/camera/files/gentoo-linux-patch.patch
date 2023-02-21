@@ -1,23 +1,19 @@
-commit 598638fa96280b522da66ebf44d9d8129a9fa378
+commit 9358fd3820988953a7d3ee60680a109ee62d3232
 Author: Gerben Jan Dijkman <gjdijkman@gjdwebserver.nl>
-Date:   Tue Feb 21 15:18:14 2023 +0100
+Date:   Tue Feb 21 15:29:43 2023 +0100
 
     Removed for Gentoo Linux
 
 diff --git a/src/meson.build b/src/meson.build
-index f46e5d1..937cdc8 100644
+index f46e5d1..28c582a 100644
 --- a/src/meson.build
 +++ b/src/meson.build
-@@ -28,12 +28,10 @@ camera_deps = [
+@@ -28,7 +28,7 @@ camera_deps = [
  
  camera_sources += camera_gresources
  
 -commit_hash = run_command('git', ['rev-parse', '--short=8', 'HEAD'], check: true).stdout().strip()
++commit_hash = '0'
  camera_c_args = [
    '-DHANDY_USE_UNSTABLE_API',
    '-DCAMERA_APPLICATION_ID="@0@"'.format(application_id),
-   '-DCAMERA_BUILD_VERSION="@0@"'.format(meson.project_version()),
--  '-DCAMERA_BUILD_COMMIT="@0@"'.format(commit_hash),
-   '-DLOCALEDIR="@0@"'.format(localedir),
-   '-DGETTEXT_PACKAGE="net.flyingpimonster.Camera"',
- ]
