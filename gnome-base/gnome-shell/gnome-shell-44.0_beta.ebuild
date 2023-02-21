@@ -35,7 +35,7 @@ DEPEND="
 	>=dev-libs/gobject-introspection-1.49.1:=
 	>=dev-libs/gjs-1.73.1[cairo]
 	>=x11-libs/gtk+-3.15.0:3[introspection]
-	>=x11-wm/mutter-43.0:0/11[introspection,mobile,test?]
+	>=x11-wm/mutter-44.0:0/11[introspection,mobile,test?]
 	>=sys-auth/polkit-0.120_p20220509[introspection]
 	>=gnome-base/gsettings-desktop-schemas-42_beta[introspection]
 	>=x11-libs/startup-notification-0.11
