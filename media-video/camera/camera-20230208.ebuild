@@ -20,7 +20,7 @@ REQUIRED_USE="vala? ( introspection )"
 DEPEND="
 	>=x11-libs/gtk+-3.0
 	>=gui-libs/libadwaita-1.2.0
-	media-lib/aperture
+	media-libs/aperture
 "
 RDEPEND="${DEPEND}"
 BDEPEND=""
