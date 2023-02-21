@@ -38,6 +38,14 @@ src_prepare() {
 
 }
 
+src_configure() {
+	local emesonargs=(	
+	-DCAMERA_BUILD_COMMIT=${COMMIT}
+	)
+
+	meson_src_configure
+}
+
 pkg_postinst() {
 	xdg_pkg_postinst
 	gnome2_schemas_update
