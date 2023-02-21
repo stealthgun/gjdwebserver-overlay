@@ -17,7 +17,11 @@ KEYWORDS="~amd64 ~arm64"
 IUSE="+introspection +vala"
 REQUIRED_USE="vala? ( introspection )"
 
-DEPEND=""
+DEPEND="
+	>=x11-libs/gtk+-3.0
+	>=gui-libs/libadwaita-1.2.0
+	media-lib/aperture
+"
 RDEPEND="${DEPEND}"
 BDEPEND=""
 
@@ -37,5 +41,4 @@ pkg_postinst() {
 
 pkg_postrm() {
 	xdg_pkg_postrm
-	gnome2_schemas_update
 }
