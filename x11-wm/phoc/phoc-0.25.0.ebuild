@@ -8,11 +8,13 @@ inherit meson xdg gnome2-utils
 MY_PV="v${PV}"
 MY_P="${PN}-${MY_PV}"
 
+GMO_COMMIT="f4d4e5740c3e4b2de40864ab8a9e7b7f957d6aec"
 DESCRIPTION="Wlroots based Phone compositor"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phoc"
 
 SRC_URI="
 	https://gitlab.gnome.org/World/Phosh/phoc/-/archive/${MY_PV}/${MY_P}.tar.gz
+	https://gitlab.gnome.org/guidog/gmobile/-/archive/${GMO_COMMIT}/gmobile-${GMO_COMMIT}.tar.gz
 "
 
 LICENSE="GPL-3"
@@ -58,6 +60,9 @@ S="${WORKDIR}/${MY_P}"
 src_prepare() {
 	default
 	rm -r "${S}"/subprojects/wlroots || die "Failed to remove bundled wlroots"
+
+	rm -r "${S}"/subprojects/gmobile || die
+	mv "${WORKDIR}"/gmobile-"${GMO_COMMIT}" "${S}"/subprojects/gmobile || die
 }
 
 src_configure() {
