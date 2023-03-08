@@ -17,15 +17,15 @@ DEPEND="${RDEPEND}
 
 DESCRIPTION="Full sources for the Linux kernel, with megi's patch for pinephone and gentoo patchset"
 
-MEGI_TAG="orange-pi-6.1-20230104-1712"
+MEGI_TAG="orange-pi-6.2-20230307-1859"
 SRC_URI="https://github.com/megous/linux/archive/${MEGI_TAG}.tar.gz"
 
 PATCHES=(
 	#Kernel patch
-	${FILESDIR}/1003_linux-6.1.4.patch
 
 	#Gentoo Patches
 	${FILESDIR}/1500_XATTR_USER_PREFIX.patch
+	${FILESDIR}/1510_fs-enable-link-security-restrictions-by-default.patch
 	${FILESDIR}/1700_sparc-address-warray-bound-warnings.patch
 	${FILESDIR}/2000_BT-Check-key-sizes-only-if-Secure-Simple-Pairing-enabled.patch
 	${FILESDIR}/2900_tmp513-Fix-build-issue-by-selecting-CONFIG_REG.patch
@@ -34,8 +34,6 @@ PATCHES=(
 	${FILESDIR}/3000_Support-printing-firmware-info.patch
 	${FILESDIR}/4567_distro-Gentoo-Kconfig.patch
 	${FILESDIR}/5010_enable-cpu-optimizations-universal.patch
-	${FILESDIR}/5020_BMQ-and-PDS-io-scheduler-v6.1-r0.patch
-	${FILESDIR}/5021_sched-alt-missing-rq-lock-irq-function.patch
 
 	# Drop Megi's Modem-Power
 	${FILESDIR}/0101-arm64-dts-pinephone-drop-modem-power-node.patch
