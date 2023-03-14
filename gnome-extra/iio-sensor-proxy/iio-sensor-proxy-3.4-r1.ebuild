@@ -34,7 +34,7 @@ DEPEND="
 
 PATCHES=( 
 	"${FILESDIR}"/5a1a5df532a7b272dbacbfc5ce8c26834c6c19c7.patch
-}
+)
 
 src_install() {
 	meson_src_install
