@@ -13,6 +13,8 @@ LICENSE="CC-BY-3.0 GPL-3+"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 
+S="${WORKDIR}/Tuba-v${PV}"
+
 RDEPEND="
 	>=dev-libs/glib-2.30
 	>=dev-libs/json-glib-1.4.4
