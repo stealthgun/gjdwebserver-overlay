@@ -7,7 +7,7 @@ inherit gnome2-utils meson vala xdg
 
 DESCRIPTION="Mastodon client"
 HOMEPAGE="https://github.com/GeopJr/Tuba"
-SRC_URI="https://github.com/GeopJr/${PN}/-/archive/v${PV}/${PN}-v${PV}.tar.gz"
+SRC_URI="https://github.com/GeopJr/${PN}/archive/refs/tags/v${PV}.tar.gz"
 
 LICENSE="CC-BY-3.0 GPL-3+"
 SLOT="0"
