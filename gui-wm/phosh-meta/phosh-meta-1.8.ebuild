@@ -10,7 +10,7 @@ SRC_URI=""
 LICENSE="MIT"
 SLOT="0"
 KEYWORDS="~amd64 ~x86 ~arm64 ~arm"
-IUSE="squeekboard chromium firefox geary lollypop owncloud nextcloud voicemail tooth"
+IUSE="squeekboard chromium firefox geary lollypop owncloud nextcloud voicemail tuba"
 
 DEPEND="
 		gui-wm/phosh
@@ -21,6 +21,7 @@ DEPEND="
 		app-editors/gedit
 		app-misc/gnote
 		media-video/megapixels
+		media-video/camera
 		gnome-base/gnome-control-center
 		gnome-base/gnome-keyring
 		gnome-extra/gnome-contacts
@@ -48,8 +49,8 @@ DEPEND="
 		x11-misc/phosh-mobile-settings
 		media-video/totem
 		>=media-video/pipewire-0.3.65[libcamera]
-		tooth? (
-			net-im/tooth
+		tuba? (
+			net-im/tuba
 		)
 			
 		squeekboard? (
