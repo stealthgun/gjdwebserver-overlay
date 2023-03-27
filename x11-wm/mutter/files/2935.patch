@@ -1,0 +1,14 @@
+diff --git a/src/backends/meta-backend.c b/src/backends/meta-backend.c
+index d278e6a85fda8947d2c8728f749147b97f14c973..595fbd42cb851b0f1869451e76fdbffea5836de7 100644
+--- a/src/backends/meta-backend.c
++++ b/src/backends/meta-backend.c
+@@ -134,8 +134,8 @@ struct _MetaBackendPrivate
+ #endif
+   MetaSettings *settings;
+   MetaDbusSessionWatcher *dbus_session_watcher;
+-#ifdef HAVE_REMOTE_DESKTOP
+   MetaRemoteAccessController *remote_access_controller;
++#ifdef HAVE_REMOTE_DESKTOP
+   MetaScreenCast *screen_cast;
+   MetaRemoteDesktop *remote_desktop;
+ #endif
