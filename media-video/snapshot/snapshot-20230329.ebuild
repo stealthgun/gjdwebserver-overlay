@@ -21,6 +21,8 @@ HOMEPAGE="https://gitlab.gnome.org/msandova/snapshot"
 SRC_URI="https://gitlab.gnome.org/msandova/snapshot/-/archive/${COMMIT}/snapshot-${COMMIT}.tar.gz -> ${P}.tar.gz "
 SRC_URI+=" $(cargo_crate_uris ${CRATES})"
 
+RESTRICT="network-sandbox"
+
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
