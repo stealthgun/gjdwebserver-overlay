@@ -203,9 +203,7 @@ CRATES="
   atomic_refcell-0.1.9
 "
 
-VALA_USE_DEPEND="vapigen"
-
-inherit cargo vala meson gnome2-utils toolchain-funcs xdg
+inherit cargo gnome2-utils meson toolchain-funcs xdg
 
 COMMIT="7aa6b9f7e48665739f718d615a4ee7cfa6fd282b"
 DESCRIPTION="Gnome Camera Application"
@@ -216,13 +214,10 @@ SRC_URI+=" $(cargo_crate_uris ${CRATES})"
 LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm64"
-IUSE="+introspection +vala"
-REQUIRED_USE="vala? ( introspection )"
 
 DEPEND="
 	>=x11-libs/gtk+-3.0
 	>=gui-libs/libadwaita-1.2.0
-	media-libs/aperture
 "
 RDEPEND="${DEPEND}"
 BDEPEND=""
@@ -230,12 +225,6 @@ BDEPEND=""
 
 S="${WORKDIR}/snapshot-${COMMIT}"
 
-src_prepare() {
-	default
-	eapply_user
-	use vala
-
-}
 
 pkg_postinst() {
 	xdg_pkg_postinst
@@ -244,4 +233,5 @@ pkg_postinst() {
 
 pkg_postrm() {
 	xdg_pkg_postrm
+	gnome2_schemas_update
 }
