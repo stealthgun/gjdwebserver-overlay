@@ -104,7 +104,7 @@ RDEPEND="
 	flatpak? (
 		dev-libs/glib
 	)
-	libcamera? (
+	ibcamera? (
 		media-libs/libcamera
 	)
 	gstreamer? (
