@@ -45,7 +45,7 @@ RDEPEND="
 
 		oauth? (
 			>=net-libs/webkit-gtk-2.34.0:4.1
-			>=net-libs/webkit-gtk-2.36.0:5
+			>=net-libs/webkit-gtk-2.39.90:6
 		)
 	)
 	gnome-online-accounts? ( >=net-libs/gnome-online-accounts-3.8:= )
