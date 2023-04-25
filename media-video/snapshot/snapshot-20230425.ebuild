@@ -5,9 +5,9 @@ EAPI=8
 
 inherit gnome2-utils meson toolchain-funcs xdg
 
-COMMIT="682b0b983a56c2776318484b9e4e1835fe05ebce"
+COMMIT="de7dc2f4e41f433598531f08f33821ee58634684"
 DESCRIPTION="Gnome Camera Application"
-HOMEPAGE="hhttps://gitlab.gnome.org/Incubator/snapshot"
+HOMEPAGE="https://gitlab.gnome.org/Incubator/snapshot"
 SRC_URI="https://gitlab.gnome.org/Incubator/snapshot/-/archive/${COMMIT}/snapshot-${COMMIT}.tar.gz -> ${P}.tar.gz "
 
 RESTRICT="network-sandbox"
