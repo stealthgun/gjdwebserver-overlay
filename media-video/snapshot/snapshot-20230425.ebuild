@@ -18,7 +18,7 @@ KEYWORDS="~amd64 ~arm64"
 
 DEPEND="
 	>=x11-libs/gtk+-3.0
-	>=gui-libs/libadwaita-1.2.0
+	>=gui-libs/libadwaita-1.4.0
 	>=media-libs/gstreamer-1.20.0
 "
 RDEPEND="${DEPEND}"
