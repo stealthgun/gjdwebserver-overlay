@@ -68,12 +68,12 @@ pkg_postinst() {
 	einfo "# make Image modules"
 	einfo "# make DTC_FLAGS="-@" dtbs"
 	einfo "# cp arch/arm64/boot/Image /boot"
-	einfo "# make INSTALL_MOD_PATH=/ modules_intall"
+	einfo "# make INSTALL_MOD_PATH=/ modules_install"
 	einfo "# make INSTALL_DTBS_PATH=/boot/dtbs dtbs_install"
 	einfo "You will need to create and initramfs afterwards."
 	einfo "If you use dracut you can run:"
-	einfo "# dracut -m \"rootfs-block base\" --host-only --kver 5.19.12-pinehone-gentoo-arm64"
-	einfo "Change 5.19.12-pinehone-gentoo-arm64 to your kernel version installed in /lib/modules"
+	einfo "# dracut -m \"rootfs-block base\" --host-only --kver 6.3.0-gentoo-arm64"
+	einfo "Change 6.3.0-pinehone-gentoo-arm64 to your kernel version installed in /lib/modules"
 }
 
 pkg_postrm() {
