@@ -8,7 +8,7 @@ inherit meson xdg gnome2-utils
 MY_PV="v${PV}"
 MY_P="${PN}-${MY_PV}"
 
-GMO_COMMIT="d483537aee4778b114ce5d50c4c8a9f8d58337ed"
+GMO_COMMIT="f4d4e5740c3e4b2de40864ab8a9e7b7f957d6aec"
 DESCRIPTION="Wlroots based Phone compositor"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phoc"
 
