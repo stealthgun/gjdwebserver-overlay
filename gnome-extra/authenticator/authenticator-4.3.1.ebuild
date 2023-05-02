@@ -5,6 +5,7 @@ EAPI=8
 
 inherit gnome2-utils meson toolchain-funcs xdg
 
+COMMIT="77963b4714065939a86b329fe611d57d182a573e"
 DESCRIPTION="Generate Two-Factor Codes"
 HOMEPAGE="https://gitlab.gnome.org/World/Authenticator"
 SRC_URI="https://gitlab.gnome.org/World/${PN}/-/archive/${PV}/${PN}-${PV}.tar.gz"
@@ -15,7 +16,7 @@ LICENSE="GPL-3"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 
-S="${WORKDIR}/Authenticator-${PV}"
+S="${WORKDIR}/Authenticator-${PV}-${COMMIT}"
 
 RDEPEND="
 
