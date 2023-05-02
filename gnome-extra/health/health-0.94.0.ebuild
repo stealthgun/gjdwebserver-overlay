@@ -5,7 +5,8 @@ EAPI=8
 
 inherit gnome2-utils meson vala xdg
 
-DESCRIPTION="Mastodon client"
+COMMIT="d664384370bb55f0e46a78da094c567a5a7e97c6"
+DESCRIPTION="Track your fitness goals"
 HOMEPAGE="https://gitlab.gnome.org/World/Health/"
 SRC_URI="https://gitlab.gnome.org/World/${PN}/-/archive/0.94.0/${PN}-${PV}.tar.gz"
 
@@ -13,7 +14,7 @@ LICENSE="CC-BY-3.0 GPL-3+"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 
-S="${WORKDIR}/${PN}-${PV}"
+S="${WORKDIR}/${PN}-${PV}-${COMMIT}"
 
 RDEPEND="
 	>=dev-libs/glib-2.30
