@@ -18,7 +18,7 @@ S="${WORKDIR}/Health-${PV}-${COMMIT}"
 
 RDEPEND="
 	dev-libs/glib
-	dev-libs/dev-util/blueprint-compiler
+	dev-util/blueprint-compiler
 	dev-perl/Locale-Msgfmt
 	dev-libs/appstream
 "
