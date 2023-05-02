@@ -19,7 +19,12 @@ KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 S="${WORKDIR}/Authenticator-${PV}-${COMMIT}"
 
 RDEPEND="
-
+	dev-libs/glib
+	x11-libs/gdk-pixbuf
+	>=gui-libs/gtk-4.0.0
+	>=gui-libs/libadwaita-1.0.0
+	dev-util/cmake
+	media-gfx/zbar
 "
 
 DEPEND="${RDEPEND}"
