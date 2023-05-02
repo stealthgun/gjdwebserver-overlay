@@ -1,0 +1,15 @@
+diff --git a/data/ui/setup_window.blp b/data/ui/setup_window.blp
+index 798719db9b92beff8a40d76364036fab008152a3..e162f7814291fefaef552175352ed0c2d4fa5cd4 100644
+--- a/data/ui/setup_window.blp
++++ b/data/ui/setup_window.blp
+@@ -305,8 +305,8 @@ template HealthSetupWindow : Adw.ApplicationWindow {
+         }
+ 
+         Adw.Clamp {
+-          maximum-size: "400";
+-          tightening-threshold: "200";
++          maximum-size: 400;
++          tightening-threshold: 200;
+           valign: center;
+           vexpand: true;
+           hexpand: true;
