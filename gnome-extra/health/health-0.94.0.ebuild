@@ -14,7 +14,7 @@ LICENSE="CC-BY-3.0 GPL-3+"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 
-S="${WORKDIR}/${PN}-${PV}-${COMMIT}"
+S="${WORKDIR}/Health-${PV}-${COMMIT}"
 
 RDEPEND="
 	>=dev-libs/glib-2.30
