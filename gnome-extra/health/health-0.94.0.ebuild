@@ -17,14 +17,10 @@ KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 S="${WORKDIR}/Health-${PV}-${COMMIT}"
 
 RDEPEND="
-	>=dev-libs/glib-2.30
-	>=dev-libs/json-glib-1.4.4
-	>=dev-libs/libxml2-2.9.10
-	>=dev-libs/libgee-0.8.5
-	>=net-libs/libsoup-2.64
-	>=gui-libs/gtk-4.3.0
-	>=gui-libs/libadwaita-1.0
-	>=app-crypt/libsecret-0.20
+	dev-libs/glib
+	dev-libs/dev-util/blueprint-compiler
+	dev-perl/Locale-Msgfmt
+	dev-libs/appstream
 "
 
 DEPEND="${RDEPEND}"
