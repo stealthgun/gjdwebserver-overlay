@@ -27,6 +27,7 @@ RDEPEND="
 DEPEND="${RDEPEND}"
 
 PATCHES=(
+	${FILESDIR}/180.patch
 	${FILESDIR}/190.patch
 )
 
