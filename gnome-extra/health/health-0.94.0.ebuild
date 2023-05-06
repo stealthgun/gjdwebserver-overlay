@@ -8,7 +8,7 @@ inherit gnome2-utils meson toolchain-funcs xdg
 COMMIT="d664384370bb55f0e46a78da094c567a5a7e97c6"
 DESCRIPTION="Track your fitness goals"
 HOMEPAGE="https://gitlab.gnome.org/World/Health/"
-SRC_URI="https://gitlab.gnome.org/World/${PN}/-/archive/0.94.0/${PN}-${PV}.tar.gz"
+SRC_URI="https://gitlab.gnome.org/World/${PN}/-/archive/${PV}/${PN}-${PV}.tar.gz"
 
 RESTRICT="network-sandbox"
 
@@ -22,6 +22,8 @@ RDEPEND="
 	dev-libs/glib
 	dev-util/blueprint-compiler
 	dev-libs/appstream
+	gui-libs/gtk
+	dev-util/gtk-update-icon-cache
 "
 
 DEPEND="${RDEPEND}"
