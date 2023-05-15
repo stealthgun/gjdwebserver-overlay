@@ -21,7 +21,6 @@ DEPEND="
 		app-editors/gedit
 		app-misc/gnote
 		media-video/megapixels
-		media-video/snapshot
 		gnome-base/gnome-control-center
 		gnome-base/gnome-keyring
 		gnome-extra/gnome-contacts
