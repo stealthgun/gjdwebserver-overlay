@@ -19,8 +19,9 @@ RDEPEND="
 	>=net-libs/gnutls-3.3:=
 	udev? ( virtual/libudev )
 	dev-python/ply
-	dev-python/jinja
-	dev-python/pyaml
+	>=dev-python/jinja-2.0.0
+	dev-python/pyyaml
+	dev-libs/libyaml
 "
 
 DEPEND="
