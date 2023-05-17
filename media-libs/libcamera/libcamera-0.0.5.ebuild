@@ -18,16 +18,14 @@ IUSE="debug doc test udev"
 RDEPEND="
 	>=net-libs/gnutls-3.3:=
 	udev? ( virtual/libudev )
-	dev-python/ply
-	>=dev-python/jinja-2.0.0
-	dev-python/pyyaml
-	dev-libs/libyaml
 "
 
 DEPEND="
 	${RDEPEND}
 	dev-libs/openssl
 	$(python_gen_any_dep 'dev-python/pyyaml[${PYTHON_USEDEP}]')
+	$(python_gen_any_dep 'dev-python/ply[${PYTHON_USEDEP}]')
+	$(python_gen_any_dep 'dev-python/jinja[${PYTHON_USEDEP}]')
 "		
 	
 src_configure() {
