@@ -29,9 +29,9 @@ BDEPEND="
 "
 
 src_configure() {
-	#local emesonargs=(
-	#	"-Dxcb-errors=release"
-	#)
+	local mycmakeargs=(
+		-DCMAKE_BUILD_TYPE=Release
+	)
 
 	cmake_src_configure
 }
