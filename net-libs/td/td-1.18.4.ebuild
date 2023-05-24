@@ -33,5 +33,5 @@ src_configure() {
 	#	"-Dxcb-errors=release"
 	#)
 
-	cmake_src_compile
+	cmake_src_configure
 }
