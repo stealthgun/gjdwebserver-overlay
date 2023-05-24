@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit meson
+inherit cmake
 
 COMMIT="8517026415e75a8eec567774072cbbbbb52376c1"
 
@@ -33,5 +33,5 @@ src_configure() {
 	#	"-Dxcb-errors=release"
 	#)
 
-	meson_src_configure
+	cmake_src_compile
 }
