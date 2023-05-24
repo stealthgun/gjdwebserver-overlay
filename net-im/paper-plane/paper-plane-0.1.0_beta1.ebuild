@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit gnome2-utils meson vala xdg
+inherit gnome2-utils meson
 
 DESCRIPTION="Telegram client"
 HOMEPAGE="https://github.com/paper-plane-developers/"
@@ -19,34 +19,31 @@ KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 S="${WORKDIR}/paper-plane-0.1.0-beta.1"
 #S="${WORKDIR}/${PN}-${PV}"
 
-#>=gui-libs/libadwaita-1.4.0
-RDEPEND="
-	
+
+DEPEND="
+	>=gui-libs/libadwaita-1.4.0	
 	>=gui-libs/gtk-4.10.0
 	media-libs/gst-plugins-good
 	media-plugins/gst-plugins-libav
+	=net-libs/td-1.8.14
 "
 
-DEPEND="${RDEPEND}"
+RDEPEND="${DEPEND}"
 
-BDEPEND="
-	$(vala_depend)
-	virtual/pkgconfig
-"
+BDEPEND="${DEPEND}"
 src_prepare() {
-	default
-	vala_setup
+	local emesonargs=(
+		"-Dtg_api_id=ID"
+		"-Dtg_api_hash=HASH"
+	)
 	
-	#-Dtg_api_id=ID 
-	#-Dtg_api_hash=HASH
+	meson_src_configure
 }
 
 pkg_postinst() {
 	gnome2_schemas_update
-	xdg_pkg_postinst
 }
 
 pkg_postrm() {
 	gnome2_schemas_update
-	xdg_pkg_postrm
 }
