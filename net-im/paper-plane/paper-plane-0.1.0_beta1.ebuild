@@ -16,9 +16,15 @@ LICENSE="CC-BY-3.0 GPL-3+"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 
-S="${WORKDIR}/Tuba-${PV}"
+S="${WORKDIR}/paper-plane-0.1.0-beta.1"
+#S="${WORKDIR}/${PN}-${PV}"
 
+#>=gui-libs/libadwaita-1.4.0
 RDEPEND="
+	
+	>=gui-libs/gtk-4.10.0
+	media-libs/gst-plugins-good
+	media-plugins/gst-plugins-libav
 "
 
 DEPEND="${RDEPEND}"
@@ -30,6 +36,9 @@ BDEPEND="
 src_prepare() {
 	default
 	vala_setup
+	
+	#-Dtg_api_id=ID 
+	#-Dtg_api_hash=HASH
 }
 
 pkg_postinst() {
