@@ -8,7 +8,7 @@ inherit gnome.org meson python-any-r1 vala virtualx
 
 DESCRIPTION="Building blocks for modern adaptive GNOME applications"
 HOMEPAGE="https://gnome.pages.gitlab.gnome.org/libadwaita/ https://gitlab.gnome.org/GNOME/libadwaita"
-SRC="https://gitlab.gnome.org/GNOME/libadwaita/-/archive/f0dd780a40707044edc45fc4c6129e4c88fe2d38/libadwaita-f0dd780a40707044edc45fc4c6129e4c88fe2d38.tar.gz"
+SRC_URI="https://gitlab.gnome.org/GNOME/libadwaita/-/archive/f0dd780a40707044edc45fc4c6129e4c88fe2d38/libadwaita-f0dd780a40707044edc45fc4c6129e4c88fe2d38.tar.gz"
 
 LICENSE="LGPL-2.1+"
 SLOT="1"
