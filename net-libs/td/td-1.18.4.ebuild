@@ -14,7 +14,7 @@ SRC_URI="https://github.com/tdlib/td/archive/${COMMIT}.tar.gz"
 KEYWORDS="~amd64 ~arm64 ~arm ~x86"
 SLOT="0"
 
-S="${WORKDIR}/tdlib-${COMMIT}"
+S="${WORKDIR}/td-${COMMIT}"
 
 DEPEND="
 
