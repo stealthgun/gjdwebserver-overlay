@@ -21,7 +21,7 @@ S="${WORKDIR}/libadwaita-f0dd780a40707044edc45fc4c6129e4c88fe2d38"
 
 RDEPEND="
 	>=dev-libs/glib-2.72:2
-	>=gui-libs/gtk-4.9.5:4[introspection?]
+	>=gui-libs/gtk-4.11.2:4[introspection?]
 	dev-libs/fribidi
 	introspection? ( >=dev-libs/gobject-introspection-1.54:= )
 	dev-lang/sassc
