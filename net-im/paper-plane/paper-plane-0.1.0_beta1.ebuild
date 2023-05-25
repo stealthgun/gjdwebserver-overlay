@@ -148,8 +148,11 @@ CRATES="
   color_quant-1.1.0
   clang-sys-1.6.1
   cairo-sys-rs-0.17.0
-  libadwaita-0.3.1
 "
+
+declare -A GIT_CRATES=(
+       [libadwaita]="https://gitlab.gnome.org/World/Rust/libadwaita-rs?branch=v0.3-adaptive-states-and-more#e6ec4f54"
+)
 
 inherit gnome2-utils meson cargo
 
@@ -183,6 +186,7 @@ DEPEND="
 RDEPEND="${DEPEND}"
 BDEPEND="${DEPEND}"
 
+
 src_prepare() {
 	default
 	local emesonargs=(
@@ -190,12 +194,6 @@ src_prepare() {
 		"-Dtg_api_hash=5721a74e34aeb9d45c09a9ff51f14fdf"
 	)	
 }
-
-src_configure() {
-	cargo_src_configure --frozen
-	meson_src_configure
-}
-
 
 pkg_postinst() {
 	gnome2_schemas_update
