@@ -151,8 +151,7 @@ CRATES="
 "
 
 declare -A GIT_CRATES=(
-       [libadwaita]="https://gitlab.gnome.org/World/Rust/libadwaita-rs/-/archive/e6ec4f54f96362877175866ea864c8a5ecf31b5f/libadwaita-rs-e6ec4f54f96362877175866ea864c8a5ecf31b5f.tar.gz"
-       [adw]="https://gitlab.gnome.org/World/Rust/libadwaita-rs/-/archive/e6ec4f54f96362877175866ea864c8a5ecf31b5f/libadwaita-rs-e6ec4f54f96362877175866ea864c8a5ecf31b5f.tar.gz"
+       [libadwaita]="https://gitlab.gnome.org/World/Rust/libadwaita-rs/-/archive/e6ec4f54f96362877175866ea864c8a5ecf31b5f/libadwaita-rs-e6ec4f54f96362877175866ea864c8a5ecf31b5f.tar.gz;e6ec4f54f96362877175866ea864c8a5ecf31b5f"
 )
 
 inherit gnome2-utils meson cargo
