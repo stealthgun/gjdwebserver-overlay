@@ -187,7 +187,7 @@ RDEPEND="${DEPEND}"
 BDEPEND="${DEPEND}"
 
 cargo_src_install(){
-	cargo_src_install --path cli
+	cargo_src_install --path .
 }
 
 src_prepare() {
