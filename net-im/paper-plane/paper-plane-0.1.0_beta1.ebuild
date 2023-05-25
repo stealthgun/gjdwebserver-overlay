@@ -33,8 +33,8 @@ RDEPEND="${DEPEND}"
 BDEPEND="${DEPEND}"
 src_prepare() {
 	local emesonargs=(
-		"-Dtg_api_id=ID"
-		"-Dtg_api_hash=HASH"
+		"-Dtg_api_id=25355557"
+		"-Dtg_api_hash=5721a74e34aeb9d45c09a9ff51f14fdf"
 	)
 	
 	meson_src_configure
