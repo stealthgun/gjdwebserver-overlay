@@ -181,17 +181,21 @@ DEPEND="
 "
 
 RDEPEND="${DEPEND}"
-
 BDEPEND="${DEPEND}"
+
 src_prepare() {
 	default
 	local emesonargs=(
 		"-Dtg_api_id=25355557"
 		"-Dtg_api_hash=5721a74e34aeb9d45c09a9ff51f14fdf"
 	)	
-	meson_src_configure
-
 }
+
+src_configure() {
+	cargo_src_configure --frozen
+	meson_src_configure
+}
+
 
 pkg_postinst() {
 	gnome2_schemas_update
