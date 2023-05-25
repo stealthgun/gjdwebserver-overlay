@@ -16,6 +16,8 @@ LICENSE="CC-BY-3.0 GPL-3+"
 SLOT="0"
 KEYWORDS="~amd64 ~arm ~arm64 ~x86"
 
+RESTRICT="network-sandbox"
+
 S="${WORKDIR}/paper-plane-0.1.0-beta.1"
 #S="${WORKDIR}/${PN}-${PV}"
 
