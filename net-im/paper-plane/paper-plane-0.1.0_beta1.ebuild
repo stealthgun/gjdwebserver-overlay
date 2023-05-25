@@ -21,7 +21,7 @@ S="${WORKDIR}/paper-plane-0.1.0-beta.1"
 
 
 DEPEND="
-	>=gui-libs/libadwaita-1.4.0	
+	>=gui-libs/libadwaita-1.4.0_alpha
 	>=gui-libs/gtk-4.10.0
 	media-libs/gst-plugins-good
 	media-plugins/gst-plugins-libav
