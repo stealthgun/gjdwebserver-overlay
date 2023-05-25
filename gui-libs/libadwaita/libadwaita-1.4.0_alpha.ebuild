@@ -59,11 +59,3 @@ src_configure() {
 src_test() {
 	virtx meson_src_test --timeout-multiplier 2
 }
-
-src_install() {
-	meson_src_install
-
-	insinto /usr/share/gtk-doc/html
-	# This will install libadwaita API docs unconditionally, but this is intentional
-	doins -r "${S}"/doc/libadwaita-1
-}
