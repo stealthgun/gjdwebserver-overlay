@@ -101,7 +101,7 @@ inherit gnome2-utils meson cargo
 DESCRIPTION="Telegram client"
 HOMEPAGE="https://github.com/paper-plane-developers/"
 SRC_URI="https://github.com/paper-plane-developers/${PN}/archive/refs/tags/v0.1.0-beta.1.tar.gz"
-SRC_URI="$(cargo_crate_uris)"
+SRC_URI+="$(cargo_crate_uris)"
 
 #allready added for final release
 #SRC_URI="https://github.com/paper-plane-developers/${PN}/archive/refs/tags/v${PV}.tar.gz"
