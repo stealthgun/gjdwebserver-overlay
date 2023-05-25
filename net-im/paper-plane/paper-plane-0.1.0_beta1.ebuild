@@ -38,6 +38,7 @@ src_prepare() {
 	)
 	
 	meson_src_configure
+	default
 }
 
 pkg_postinst() {
