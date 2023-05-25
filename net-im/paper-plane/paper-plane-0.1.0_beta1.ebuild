@@ -26,6 +26,7 @@ DEPEND="
 	media-libs/gst-plugins-good
 	media-plugins/gst-plugins-libav
 	>=net-libs/td-1.8.14
+	>=dev-util/blueprint-compiler-0.8.0
 "
 
 RDEPEND="${DEPEND}"
