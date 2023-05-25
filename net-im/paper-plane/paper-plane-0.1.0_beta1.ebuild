@@ -25,7 +25,7 @@ DEPEND="
 	>=gui-libs/gtk-4.10.0
 	media-libs/gst-plugins-good
 	media-plugins/gst-plugins-libav
-	=net-libs/td-1.8.14
+	>=net-libs/td-1.8.14
 "
 
 RDEPEND="${DEPEND}"
