@@ -17,7 +17,10 @@ SLOT="0"
 S="${WORKDIR}/td-${COMMIT}"
 
 DEPEND="
-
+	dev-libs/openssl
+	sys-libs/zlib	
+	dev-util/gperf
+	dev-util/cmake
 "
 
 
