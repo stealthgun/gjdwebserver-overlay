@@ -15,7 +15,7 @@ SLOT="1"
 IUSE="+introspection test +vala"
 REQUIRED_USE="vala? ( introspection )"
 
-KEYWORDS="~amd64 ~arm ~arm64 ~ia64 ~loong ~ppc ~ppc64 ~riscv ~sparc ~x86"
+KEYWORDS="~arm ~arm64"
 
 S="${WORKDIR}/libadwaita-f0dd780a40707044edc45fc4c6129e4c88fe2d38"
 
