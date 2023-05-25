@@ -151,7 +151,7 @@ CRATES="
 "
 
 declare -A GIT_CRATES=(
-       [libadwaita]="https://gitlab.gnome.org/World/Rust/libadwaita-rs?branch=v0.3-adaptive-states-and-more#e6ec4f54"
+       [libadwaita]="https://gitlab.gnome.org/World/Rust/libadwaita-rs;e6ec4f54f96362877175866ea864c8a5ecf31b5f"
 )
 
 inherit gnome2-utils meson cargo
