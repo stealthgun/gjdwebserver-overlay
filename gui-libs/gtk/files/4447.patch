@@ -1,14 +1,5 @@
-From 8cee572ac34d29d852dfabbf4f42c4843fb5b892 Mon Sep 17 00:00:00 2001
-From: Marco Melorio <marco.melorio@protonmail.com>
-Date: Fri, 10 Jun 2022 14:39:24 +0200
-Subject: [PATCH] listbase: Add "reversed" property
-
----
- gtk/gtklistbase.c | 93 ++++++++++++++++++++++++++++++++++++++++-------
- 1 file changed, 80 insertions(+), 13 deletions(-)
-
 diff --git a/gtk/gtklistbase.c b/gtk/gtklistbase.c
-index 85827363ced..b23e5a58078 100644
+index 85827363ced093ffcf94597a5ce02b405a380965..b23e5a58078915319045102e83e254929c75df03 100644
 --- a/gtk/gtklistbase.c
 +++ b/gtk/gtklistbase.c
 @@ -64,6 +64,7 @@ struct _GtkListBasePrivate
@@ -207,6 +198,3 @@ index 85827363ced..b23e5a58078 100644
  
    gtk_list_base_get_adjustment_values (self, OPPOSITE_ORIENTATION (priv->orientation), across_out, NULL, NULL);
    gtk_list_base_get_adjustment_values (self, priv->orientation, along_out, NULL, NULL);
--- 
-GitLab
-

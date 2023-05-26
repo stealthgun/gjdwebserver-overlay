@@ -97,6 +97,7 @@ BDEPEND="
 "
 
 PATCHES=( 
+	"${FILESDIR}"/5818.patch
 	"${FILESDIR}"/4447.patch
 )
 
