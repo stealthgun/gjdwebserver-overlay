@@ -96,11 +96,6 @@ BDEPEND="
 	)
 "
 
-PATCHES=( 
-	"${FILESDIR}"/5818.patch
-	"${FILESDIR}"/4447.patch
-)
-
 python_check_deps() {
 	python_has_version "dev-python/pygobject:3[${PYTHON_USEDEP}]" || return
 }
