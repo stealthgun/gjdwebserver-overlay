@@ -33,6 +33,11 @@ PATCHES=(
 	${FILESDIR}/190.patch
 )
 
+src_prepare() {
+	default
+	cargo update -p gtk4	
+}
+
 pkg_postinst() {
 	xdg_pkg_postinst
 	gnome2_schemas_update
