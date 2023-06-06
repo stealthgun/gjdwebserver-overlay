@@ -95,7 +95,7 @@ BDEPEND="
 		wayland? ( dev-libs/weston[headless] )
 	)
 "
-
+	
 python_check_deps() {
 	python_has_version "dev-python/pygobject:3[${PYTHON_USEDEP}]" || return
 }
