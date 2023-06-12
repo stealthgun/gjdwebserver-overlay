@@ -9,7 +9,7 @@ inherit distutils-r1 virtualx
 
 DESCRIPTION="Reactive Extensions (Rx) for Python"
 HOMEPAGE="http://reactivex.io https://pypi.org/project/Rx/"
-SRC_URI="mirror://pypi/${P:0:1}/${PN}/${P}.tar.gz"
+SRC_URI="https://files.pythonhosted.org/packages/34/b5/e0f602453b64b0a639d56f3c05ab27202a4eec993eb64d66c077c821b621/Rx-3.2.0.tar.gz"
 
 LICENSE="MIT"
 SLOT="0"
