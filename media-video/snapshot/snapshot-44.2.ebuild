@@ -8,7 +8,7 @@ inherit gnome2-utils meson toolchain-funcs xdg
 COMMIT="847a303b1017479b4d412a7786a618fd2fe4f323"
 DESCRIPTION="Gnome Camera Application"
 HOMEPAGE="https://gitlab.gnome.org/GNOME/Incubator/snapshot"
-SRC_URI="https://gitlab.gnome.org/GNOME/Incubator/snapshot-/archive/${COMMIT}/snapshot-${COMMIT}.tar.gz -> ${P}.tar.gz "
+SRC_URI="https://gitlab.gnome.org/GNOME/Incubator/snapshot/-/archive/${PV}/snapshot-${PV}.tar.gz"
 
 RESTRICT="network-sandbox"
 
