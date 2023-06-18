@@ -18,7 +18,7 @@ KEYWORDS="~amd64 ~arm64"
 
 DEPEND="
 	>=x11-libs/gtk+-3.0
-	>=gui-libs/libadwaita-1.4.0
+	>=gui-libs/libadwaita-1.4.0_alpha
 	>=media-libs/gstreamer-1.20.0
 	media-video/wireplumber
 	media-video/pipewire[gstreamer]
