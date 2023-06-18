@@ -212,7 +212,7 @@ HOMEPAGE="https://gitlab.gnome.org/GNOME/Incubator/snapshot"
 SRC_URI="https://gitlab.gnome.org/GNOME/Incubator/snapshot/-/archive/${PV}/snapshot-${PV}.tar.gz"
 SRC_URI+=" $(cargo_crate_uris ${CRATES})"
 
-#RESTRICT="network-sandbox"
+RESTRICT="network-sandbox"
 
 LICENSE="GPL-3"
 SLOT="0"
