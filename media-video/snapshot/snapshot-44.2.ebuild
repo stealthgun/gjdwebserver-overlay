@@ -27,7 +27,7 @@ RDEPEND="${DEPEND}"
 BDEPEND=""
 
 
-S="${WORKDIR}/snapshot-${COMMIT}"
+#S="${WORKDIR}/snapshot-${COMMIT}"
 
 
 pkg_postinst() {
