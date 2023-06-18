@@ -5,10 +5,10 @@ EAPI=8
 
 inherit gnome2-utils meson toolchain-funcs xdg
 
-COMMIT="de7dc2f4e41f433598531f08f33821ee58634684"
+COMMIT="847a303b1017479b4d412a7786a618fd2fe4f323"
 DESCRIPTION="Gnome Camera Application"
-HOMEPAGE="https://gitlab.gnome.org/Incubator/snapshot"
-SRC_URI="https://gitlab.gnome.org/Incubator/snapshot/-/archive/${COMMIT}/snapshot-${COMMIT}.tar.gz -> ${P}.tar.gz "
+HOMEPAGE="https://gitlab.gnome.org/GNOME/Incubator/snapshot"
+SRC_URI="https://gitlab.gnome.org/GNOME/Incubator/snapshot-/archive/${COMMIT}/snapshot-${COMMIT}.tar.gz -> ${P}.tar.gz "
 
 RESTRICT="network-sandbox"
 
@@ -20,6 +20,8 @@ DEPEND="
 	>=x11-libs/gtk+-3.0
 	>=gui-libs/libadwaita-1.4.0
 	>=media-libs/gstreamer-1.20.0
+	media-video/wireplumber
+	media-video/pipewire[gstreamer]
 "
 RDEPEND="${DEPEND}"
 BDEPEND=""
