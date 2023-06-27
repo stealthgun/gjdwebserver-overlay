@@ -29,9 +29,9 @@ RDEPEND="${DEPEND}"
 BDEPEND=""
 
 PATCHES=(
-	"${FILESDIR}"/06230f3a02cffdf8b683f85cb32fc256d73615d9.patch
-        "${FILESDIR}"/27a1e606d680295e0b4caceadf74ff5857ac16b2.patch
-        "${FILESDIR}"/d8b35bc223989cb165ba1b0716ab9f0ca9c43e53.patch
+	"${FILESDIR}"/8103e662a484c0887d29f11a1284f85ff34d0248.patch
+        "${FILESDIR}"/af01107dd65452db159eb961b7ff27b8424cffc7.patch
+        "${FILESDIR}"/432d3851d49e4f8a9ef196eb0887cef428ba56c6.patch
 )	
 
 src_configure() {

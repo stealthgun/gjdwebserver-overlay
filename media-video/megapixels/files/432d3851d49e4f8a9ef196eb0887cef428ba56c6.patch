@@ -1,4 +1,4 @@
-From 06230f3a02cffdf8b683f85cb32fc256d73615d9 Mon Sep 17 00:00:00 2001
+From 432d3851d49e4f8a9ef196eb0887cef428ba56c6 Mon Sep 17 00:00:00 2001
 From: kgmt0 <kritphong@teknik.io>
 Date: Sat, 2 Jul 2022 12:15:22 +0700
 Subject: [PATCH] device: Make mp_device_setup_link() support non-zero pad

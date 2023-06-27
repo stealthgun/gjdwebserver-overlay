@@ -1,4 +1,4 @@
-From 27a1e606d680295e0b4caceadf74ff5857ac16b2 Mon Sep 17 00:00:00 2001
+From af01107dd65452db159eb961b7ff27b8424cffc7 Mon Sep 17 00:00:00 2001
 From: kgmt0 <kritphong@teknik.io>
 Date: Thu, 1 Dec 2022 00:09:27 -0600
 Subject: [PATCH] Add media-formats and media-crops to the config file format
