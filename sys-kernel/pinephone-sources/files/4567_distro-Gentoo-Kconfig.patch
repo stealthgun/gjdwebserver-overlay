@@ -185,7 +185,7 @@
 +config GENTOO_KERNEL_SELF_PROTECTION_COMMON
 +	bool "Enable Kernel Self Protection Project Recommendations"
 +
-+	depends on GENTOO_LINUX && !ACPI_CUSTOM_METHOD && !COMPAT_BRK && !PROC_KCORE && !COMPAT_VDSO && !KEXEC && !HIBERNATION && !LEGACY_PTYS && !X86_X32 && !MODIFY_LDT_SYSCALL && GCC_PLUGINS && !IOMMU_DEFAULT_DMA_LAZY && !IOMMU_DEFAULT_PASSTHROUGH && IOMMU_DEFAULT_DMA_STRICT && SECURITY && !ARCH_EPHEMERAL_INODES  && RANDSTRUCT_PERFORMANCE
++	depends on GENTOO_LINUX && !ACPI_CUSTOM_METHOD && !COMPAT_BRK && !PROC_KCORE && !COMPAT_VDSO && !KEXEC && !HIBERNATION && !LEGACY_PTYS && !X86_X32_ABI && !MODIFY_LDT_SYSCALL && GCC_PLUGINS && !IOMMU_DEFAULT_DMA_LAZY && !IOMMU_DEFAULT_PASSTHROUGH && IOMMU_DEFAULT_DMA_STRICT && SECURITY && !ARCH_EPHEMERAL_INODES  && RANDSTRUCT_PERFORMANCE
 +
 +	select BUG
 +	select STRICT_KERNEL_RWX
@@ -300,18 +300,6 @@
 +		See the settings that become available for more details and fine-tuning.
 +
 +endmenu
-diff --git a/security/selinux/Kconfig b/security/selinux/Kconfig
-index 9e921fc72..f29bc13fa 100644
---- a/security/selinux/Kconfig
-+++ b/security/selinux/Kconfig
-@@ -26,6 +26,7 @@ config SECURITY_SELINUX_BOOTPARAM
- config SECURITY_SELINUX_DISABLE
- 	bool "NSA SELinux runtime disable"
- 	depends on SECURITY_SELINUX
-+	depends on !GENTOO_KERNEL_SELF_PROTECTION
- 	select SECURITY_WRITABLE_HOOKS
- 	default n
- 	help
 -- 
 2.31.1
 
