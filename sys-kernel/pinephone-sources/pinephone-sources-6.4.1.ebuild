@@ -17,7 +17,7 @@ DEPEND="${RDEPEND}
 
 DESCRIPTION="Full sources for the Linux kernel, with megi's patch for pinephone and gentoo patchset"
 
-MEGI_TAG="orange-pi-6.3-20230426-1041"
+MEGI_TAG="orange-pi-6.4-20230701-2252"
 SRC_URI="https://github.com/megous/linux/archive/${MEGI_TAG}.tar.gz"
 
 PATCHES=(
@@ -72,8 +72,8 @@ pkg_postinst() {
 	einfo "# make INSTALL_DTBS_PATH=/boot/dtbs dtbs_install"
 	einfo "You will need to create and initramfs afterwards."
 	einfo "If you use dracut you can run:"
-	einfo "# dracut -m \"rootfs-block base\" --host-only --kver 6.3.0-gentoo-arm64"
-	einfo "Change 6.3.0-pinehone-gentoo-arm64 to your kernel version installed in /lib/modules"
+	einfo "# dracut -m \"rootfs-block base\" --host-only --kver 6.4.1-gentoo-arm64"
+	einfo "Change 6.4.1-gentoo-arm64 to your kernel version installed in /lib/modules"
 }
 
 pkg_postrm() {
