@@ -6,9 +6,9 @@ EAPI=7
 inherit desktop gnome2-utils meson pam readme.gentoo-r1 systemd xdg
 
 MY_P="${PN}-v${PV}"
-LVC_COMMIT="ae1a34aafce7026b8c0f65a43c9192d756fe1057"
+LVC_COMMIT="8e7a5a4c3e51007ce6579292642517e3d3eb9c50"
 LCU_COMMIT="6798b38d4d66d069751151b3e9a202c6de8d7f3c"
-GMO_COMMIT="6504fa124438b79a2ad5687ac3ebef6d7a2c0823"
+GMO_COMMIT="ebb5263122f6127b86c31e2debd9e3b98c3b035b"
 
 DESCRIPTION="A pure Wayland shell prototype for GNOME on mobile devices"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phosh/"
