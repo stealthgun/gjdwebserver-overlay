@@ -29,7 +29,7 @@ else
 		SRC_URI="https://gitlab.freedesktop.org/${PN}/${PN}/-/archive/${PV}/${P}.tar.bz2"
 	fi
 
-	KEYWORDS="~amd64 ~arm ~arm64 ~ppc ~ppc64 ~riscv ~sparc ~x86"
+	KEYWORDS="~amd64 ~arm ~arm64 ~loong ~ppc ~ppc64 ~riscv ~sparc ~x86"
 fi
 
 DESCRIPTION="Multimedia processing graphs"
@@ -220,6 +220,7 @@ multilib_src_configure() {
 		-Dsupport=enabled # Miscellaneous/common plugins, such as null sink
 		-Devl=disabled # Matches upstream
 		-Dtest=disabled # fakesink and fakesource plugins
+		-Dbluez5-codec-lc3plus=disabled # unpackaged
 		$(meson_native_use_feature liblc3 bluez5-codec-lc3)
 		$(meson_native_use_feature lv2)
 		$(meson_native_use_feature v4l v4l2)
@@ -335,6 +336,13 @@ pkg_postinst() {
 
 	local ver
 	for ver in ${REPLACING_VERSIONS} ; do
+		if has_version kde-plasma/kwin[screencast] || has_version x11-wm/mutter[screencast] ; then
+			# https://bugs.gentoo.org/908490
+			# https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/3243
+			ewarn "Please restart KWin/Mutter after upgrading PipeWire."
+			ewarn "Screencasting may not work until you do."
+		fi
+
 		if ver_test ${ver} -le 0.3.66-r1 ; then
 			elog ">=pipewire-0.3.66 uses the 'pipewire' group to manage permissions"
 			elog "and limits needed to function smoothly:"
