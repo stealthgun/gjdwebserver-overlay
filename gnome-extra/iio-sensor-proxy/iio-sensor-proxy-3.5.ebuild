@@ -39,9 +39,11 @@ src_install() {
 pkg_postinst() {
 	xdg_pkg_postinst
 	gnome2_schemas_update
+	udev_reload
 }
 
 pkg_postrm() {
 	xdg_pkg_postrm
 	gnome2_schemas_update
+	udev_reload
 }
