@@ -39,7 +39,7 @@ LICENSE="MIT LGPL-2.1+ GPL-2"
 # ABI was broken in 0.3.42 for https://gitlab.freedesktop.org/pipewire/wireplumber/-/issues/49
 SLOT="0/0.4"
 IUSE="bluetooth dbus doc echo-cancel extra ffmpeg flatpak gstreamer gsettings ieee1394 jack-client jack-sdk liblc3 lv2"
-IUSE+=" modemmanager pipewire-alsa readline sound-server ssl system-service systemd test v4l X zeroconf "
+IUSE+=" modemmanager pipewire-alsa readline sound-server ssl system-service systemd test v4l X zeroconf libcamera"
 
 # Once replacing system JACK libraries is possible, it's likely that
 # jack-client IUSE will need blocking to avoid users accidentally
