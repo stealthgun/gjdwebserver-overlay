@@ -28,10 +28,10 @@ RDEPEND="
 
 DEPEND="${RDEPEND}"
 
-PATCHES=(
-	${FILESDIR}/180.patch
-	${FILESDIR}/190.patch
-)
+#PATCHES=(
+#	${FILESDIR}/180.patch
+#	${FILESDIR}/190.patch
+#)
 
 src_prepare() {
 	default
