@@ -1,20 +1,23 @@
-From 9ed578d15949cc01bd756ffc0d9d12e9cc73074f Mon Sep 17 00:00:00 2001
-From: Gerben Jan Dijkman <gjdijkman@gjdwebserver.nl>
-Date: Tue, 10 Jan 2023 19:47:13 +0100
-Subject: [PATCH] Reverted layer-shell: error on 0 dimension without anchors
+From 663278d168152f990cf76a3df9d31ca4c6511604 Mon Sep 17 00:00:00 2001
+Message-Id: <663278d168152f990cf76a3df9d31ca4c6511604.1690371072.git.agx@sigxcpu.org>
+From: =?UTF-8?q?Guido=20G=C3=BCnther?= <agx@sigxcpu.org>
+Date: Fri, 1 Jan 2021 13:58:55 +0100
+Subject: [PATCH] Revert "layer-shell: error on 0 dimension without anchors"
 
-Signed-off-by: Gerben Jan Dijkman <gjdijkman@gjdwebserver.nl>
+This reverts commit 8dec751a6d84335fb04288b8efab6dd5c90288d3.
+
+Revert this until phosh has a fixed release.
 ---
  types/wlr_layer_shell_v1.c | 20 --------------------
  1 file changed, 20 deletions(-)
 
 diff --git a/types/wlr_layer_shell_v1.c b/types/wlr_layer_shell_v1.c
-index 456dbc0e..55a6cfb8 100644
+index fa054d3c..062fa96d 100644
 --- a/types/wlr_layer_shell_v1.c
 +++ b/types/wlr_layer_shell_v1.c
-@@ -328,26 +328,6 @@ static void layer_surface_role_commit(struct wlr_surface *wlr_surface) {
- 		return;
- 	}
+@@ -316,26 +316,6 @@ static void layer_surface_role_commit(struct wlr_surface *wlr_surface) {
+ 	struct wlr_layer_surface_v1 *surface =
+ 		wlr_layer_surface_v1_from_wlr_surface(wlr_surface);
  
 -	const uint32_t horiz = ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT |
 -		ZWLR_LAYER_SURFACE_V1_ANCHOR_RIGHT;
@@ -39,3 +42,6 @@ index 456dbc0e..55a6cfb8 100644
  	surface->current = surface->pending;
  	surface->pending.committed = 0;
  
+-- 
+2.40.1
+
