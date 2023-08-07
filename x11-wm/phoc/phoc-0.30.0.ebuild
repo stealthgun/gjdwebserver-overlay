@@ -45,7 +45,7 @@ RDEPEND="
 	sys-auth/seatd
 	x11-apps/xkbcomp
 	x11-libs/libxkbcommon
-	=gui-libs/wlroots-0.15.1-r2
+	>=gui-libs/wlroots-0.16.0[phoc]
 "
 
 BDEPEND="
