@@ -6,9 +6,9 @@ EAPI=7
 inherit desktop gnome2-utils meson pam readme.gentoo-r1 systemd xdg
 
 MY_P="${PN}-v${PV}"
-LVC_COMMIT="8e7a5a4c3e51007ce6579292642517e3d3eb9c50"
+LVC_COMMIT="a1ae68ff11dc6156f9c80069194ea39679700f3f"
 LCU_COMMIT="6798b38d4d66d069751151b3e9a202c6de8d7f3c"
-GMO_COMMIT="ebb5263122f6127b86c31e2debd9e3b98c3b035b"
+GMO_COMMIT="f1b50f0f90604e0f125412932dae9b1e08d57ddc"
 
 DESCRIPTION="A pure Wayland shell prototype for GNOME on mobile devices"
 HOMEPAGE="https://gitlab.gnome.org/World/Phosh/phosh/"
@@ -61,10 +61,10 @@ src_prepare() {
 	mv "${WORKDIR}"/gmobile-"${GMO_COMMIT}" "${S}"/subprojects/gmobile || die
 	
 	#Phosh patches
-	eapply "${FILESDIR}"/0001-system-prompt-allow-blank-passwords.patch
-	eapply "${FILESDIR}"/0003-fix-locale-issue-in-service-file.patch
-	eapply "${FILESDIR}"/977.patch
-	eapply "${FILESDIR}"/1008.patch
+#	eapply "${FILESDIR}"/0001-system-prompt-allow-blank-passwords.patch
+#	eapply "${FILESDIR}"/0003-fix-locale-issue-in-service-file.patch
+#	eapply "${FILESDIR}"/977.patch
+#	eapply "${FILESDIR}"/1008.patch
 
 }
 
