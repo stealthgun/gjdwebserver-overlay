@@ -59,9 +59,6 @@ S="${WORKDIR}/${MY_P}"
 
 src_prepare() {
 	default
-
-	rm -r "${S}"/subprojects/gmobile || die
-	mv "${WORKDIR}"/gmobile-"${GMO_COMMIT}" "${S}"/subprojects/gmobile || die
 }
 
 src_configure() {
